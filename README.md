@@ -4,9 +4,9 @@ Aplicativo mobile de prevenção de enchentes e saúde comunitária, voltado par
 
 ## Integrantes
 
-- Vinicius Reis — **Líder do grupo**
+- Vinicius Reis — Desenvolvimento
 - Bernardo Gonçalves do Carmo — Desenvolvimento
-- Pedro Brid do Carmo Fraife — Desenvolvimento
+- Pedro Brid do Carmo Fraife — **Líder do grupo**
 - Christian Gonçalves — Desenvolvimento
 
 ## Turma / Disciplina
@@ -15,7 +15,7 @@ Programação para Dispositivos Móveis — Profa. Layse
 
 ## Responsabilidade de cada integrante nesta atividade
 
-- **Vinicius Reis (Líder):** organização do repositório, coordenação da entrega e consolidação da análise do estudo de caso.
+- **Vinicius Reis:** desenvolvimento.
 - **Bernardo Gonçalves do Carmo:** desenvolvimento.
-- **Pedro Brid do Carmo Fraife:** desenvolvimento.
+- **Pedro Brid do Carmo Fraife:**(Líder)organização do repositório, coordenação da entrega e consolidação da análise do estudo de caso.
 - **Christian Gonçalves:** desenvolvimento.
