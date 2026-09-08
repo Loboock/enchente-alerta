@@ -30,23 +30,46 @@ Este documento apresenta a análise de soluções já existentes relacionadas ao
 
 ---
 
-## 2. [Nome do app]
+## 2. AlertaBlu 
 
 ### Principais funcionalidades
-- 
+- Rotas de fuga em tempo real: o usuário informa origem e destino, e o app traça o caminho mais seguro, desviando de áreas alagadas e bloqueios. 
+-Indicação de abrigos ativos.
+-Dados de estações pluviométricas, previsão do tempo, alertas de deslizamento e status de barragens.
+-Recursos de acessibilidade para pessoas com deficiência visual.
+-Monitoramento do nível do rio em tempo real. 
+-Mapa de áreas de risco. 
+-Registro de ocorrências com localização e fotos. 
 
 ### Pontos positivos
-- 
+- Reconhecido nacionalmente como boa prática em Defesa Civil (2025 e 2026). 
+-Integra dados oficiais (geolocalização + monitoramento hídrico).
+-Possui alertas personalizados por localização. 
+-Permite que o usuário registre ocorrências. 
+-Possui recursos de acessibilidade, incluindo suporte a leitores de tela. 
 
 ### Pontos negativos
-- 
+- Cobertura limitada a um único município (Blumenau), não escala para outras regiões sem adaptação. 
+-Não há menção a modo offline, algo crítico quando a internet cai durante a enchente. 
+-A grande quantidade de informações, usuário precisa navegar por diferentes funcionalidades para encontrar algumas informações. 
+-A proposta é bastante ampla, enquanto em uma situação de emergência o usuário pode precisar de uma ação extremamente rápida e direta. 
 
 ### Interface/experiência
-- 
+- A interface prioriza informações e monitoramento. O aplicativo apresenta diversos dados meteorológicos, níveis do rio, mapas e avisos. 
+-A experiencia pode ser um pouco confusa para quem é novo no app e/ou para quem está em emergência  
 
 ### O que pode ser aproveitado ou melhorado no projeto
-- 
+- Podemos aproveitar as funcionalidades de rota de fuga, indicações de abrigos e recursos de acessibilidade. 
+-Alertas meteorológicos; 
+-níveis de risco; 
+-integração com Defesa Civil. 
+-Para ser melhorado a quantidade de informação na tela inicial, a cobertura do mapa 
 
+### O que nosso aplicativo poderá fazer de diferente ou melhor?
+-Podemos fazer um modo offline para situações críticas 
+-Modo de emergência- Como o aplicativo será usado em ruas escuras e alagadas, a interface pode ter um modo específico: 
+
+alto contraste, textos grandes, poucos elementos, botões grandes, amarelo para alertas, azul-escuro como fundo, informações essenciais primeiro, rotas de fuga disponíveis offline. 
 ---
 
 ## 3. [Nome do app]
