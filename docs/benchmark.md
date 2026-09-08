@@ -100,4 +100,4 @@ Este documento apresenta a análise de soluções já existentes relacionadas ao
 
 - Alagou — https://alagou.com.br/
 - AlertaBlu - https://defesacivil.blumenau.sc.gov.br/p/home
--
+- Cor.rio - https://play.google.com/store/apps/details?id=bugarin.t.comando&hl=pt_BR
