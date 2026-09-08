@@ -99,5 +99,5 @@ Este documento apresenta a análise de soluções já existentes relacionadas ao
 ## Fontes consultadas
 
 - Alagou — https://alagou.com.br/
-- 
+- AlertaBlu - https://defesacivil.blumenau.sc.gov.br/p/home
 -
