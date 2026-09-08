@@ -15,7 +15,7 @@ Programação para Dispositivos Móveis — Profa. Layse
 
 ## Responsabilidade de cada integrante nesta atividade
 
-- **Vinicius Reis:** desenvolvimento.
-- **Bernardo Gonçalves do Carmo:** desenvolvimento.
-- **Pedro Brid do Carmo Fraife:**(Líder)organização do repositório, coordenação da entrega e consolidação da análise do estudo de caso.
-- **Christian Gonçalves:** desenvolvimento.
+- **Vinicius Reis:** fez a benchmark em colaboração com Bernardo.
+- **Bernardo Gonçalves do Carmo:** fez a benchmark em colaboração com Vinicius Reis.
+- **Pedro Brid do Carmo Fraife:**(Líder)organização do repositório, fez as personas
+- **Christian Gonçalves:** fez as pesquisas.
