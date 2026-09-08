@@ -70,7 +70,7 @@ Este documento apresenta a análise de soluções já existentes relacionadas ao
 *Modo de emergência- Como o aplicativo será usado em ruas escuras e alagadas, a interface pode ter um modo específico: alto contraste, textos grandes, poucos elementos, botões grandes, amarelo para alertas, azul-escuro como fundo, informações essenciais primeiro, rotas de fuga disponíveis offline. 
 ---
 
-## 2. COR.Rio
+## 3. COR.Rio
 
 ### Principais funcionalidades
 - Monitoramento em tempo real de trânsito, tempo, sirenes e estações pluviométricas.
