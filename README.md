@@ -15,7 +15,7 @@ Programação para Dispositivos Móveis — Profa. Layse
 
 ## Responsabilidade de cada integrante nesta atividade
 
-- **Vinicius Reis:** fez a benchmark em colaboração com Bernardo.
-- **Bernardo Gonçalves do Carmo:** fez a benchmark em colaboração com Vinicius Reis.
-- **Pedro Brid do Carmo Fraife:**(Líder)organização do repositório, fez as personas
-- **Christian Gonçalves:** fez as pesquisas.
+- **Vinicius Reis:** fez a benchmark em colaboração com Bernardo. criou o github e participou da criação do documento.
+- **Bernardo Gonçalves do Carmo:** fez a benchmark em colaboração com Vinicius Reis. participou da criação do documento.
+- **Pedro Brid do Carmo Fraife:**(Líder)organização do repositório, fez as personas. participou da criação do documento.
+- **Christian Gonçalves:** fez as pesquisas. participou da criação do documento.
