@@ -175,6 +175,46 @@ As principais ações do aplicativo devem exigir poucos passos, considerando que
 ### RNF12 — Armazenamento de dados
 O sistema deve armazenar os registros de pontos de alagamento e demais informações necessárias para manter o mapa e os alertas atualizados.
 
+## 2.4 CRUD
+
+Esta seção descreve as operações de Criar, Ler, Atualizar e Deletar (CRUD) previstas para as principais entidades do aplicativo **EnchenteAlerta**.
+
+### Ocorrência de alagamento
+
+| Operação | Descrição |
+|----------|-----------|
+| **Create** | Usuário registra uma nova ocorrência de alagamento (RF03), informando local e, quando possível, descrição ou imagem, de forma anônima (RNF07). |
+| **Read** | Usuário consulta ocorrências registradas na região, visualizadas no mapa de pontos críticos (RF02). |
+| **Update** | Sistema atualiza o status da ocorrência (ex: alagamento resolvido) conforme novos registros forem recebidos (RF09). |
+| **Delete** | Ocorrências antigas ou desatualizadas são removidas/expiradas automaticamente pelo sistema após um período, mantendo o mapa atualizado. |
+
+### Alerta
+
+| Operação | Descrição |
+|----------|-----------|
+| **Create** | Sistema gera um novo alerta de risco com base em dados meteorológicos ou registros da comunidade (RF01). |
+| **Read** | Usuário visualiza os alertas ativos para sua região. |
+| **Update** | Sistema atualiza o nível de risco do alerta conforme a situação evolui. |
+| **Delete** | Alerta é encerrado/removido quando o risco deixa de existir. |
+
+### Rota de fuga / Abrigo
+
+| Operação | Descrição |
+|----------|-----------|
+| **Create** | Defesa Civil ou administrador cadastra novos abrigos e rotas de fuga disponíveis (RF05). |
+| **Read** | Usuário consulta rotas de fuga e abrigos próximos, inclusive offline, via mapa previamente baixado (RF04, RF07). |
+| **Update** | Administrador atualiza informações de um abrigo (ex: capacidade, disponibilidade) ou de uma rota (ex: via interditada). |
+| **Delete** | Abrigo ou rota é removido caso deixe de estar disponível. |
+
+### Preferências de localização do usuário
+
+| Operação | Descrição |
+|----------|-----------|
+| **Create** | Usuário cadastra/autoriza sua localização para receber alertas relevantes (RF08). |
+| **Read** | Sistema consulta a localização salva para filtrar alertas e pontos próximos. |
+| **Update** | Usuário altera a localização cadastrada ou o status de ativação dos alertas. |
+| **Delete** | Usuário desativa o compartilhamento de localização, removendo o dado do sistema (RNF06). |
+
 ## 2.5 Priorização
 
 As funcionalidades foram classificadas de acordo com sua importância para o objetivo principal do **EnchenteAlerta**, considerando o cenário de emergência apresentado no estudo de caso.
