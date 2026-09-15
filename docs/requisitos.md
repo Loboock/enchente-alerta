@@ -70,3 +70,43 @@ As principais ações do aplicativo devem exigir poucos passos, considerando que
 
 ### RNF12 — Armazenamento de dados
 O sistema deve armazenar os registros de pontos de alagamento e demais informações necessárias para manter o mapa e os alertas atualizados.
+
+## 2.5 Priorização
+
+As funcionalidades foram classificadas de acordo com sua importância para o objetivo principal do **EnchenteAlerta**, considerando o cenário de emergência apresentado no estudo de caso.
+
+### Essenciais
+
+São indispensáveis para que o aplicativo cumpra sua proposta principal de prevenção e segurança.
+
+- **1. Alertas de risco de enchentes**  
+  É essencial porque permite avisar o usuário sobre situações de risco antes que o problema se agrave.
+
+- **2. Mapa de áreas de risco**  
+  É essencial para que o usuário consiga identificar regiões perigosas e evitar áreas de alagamento.
+
+- **4. Rotas e locais seguros**  
+  É uma das principais funções do aplicativo durante uma emergência, permitindo encontrar caminhos mais seguros e locais de abrigo.
+
+- **6. Comunicação de ocorrências pelos usuários**  
+  É importante para que a própria comunidade possa informar novos alagamentos e situações de risco.
+
+- **8. Orientações de segurança**  
+  É essencial para fornecer instruções sobre como agir antes, durante e depois de uma enchente.
+
+### Importantes
+
+São funcionalidades que agregam valor ao aplicativo, mas que não impedem seu funcionamento principal caso sejam desenvolvidas posteriormente.
+
+- **5. Cadastro da localização do usuário**  
+  Torna os alertas mais relevantes para a região do usuário e permite oferecer informações relacionadas à sua localização.
+
+- **3. Consulta de ocorrências**  
+  Permite acompanhar situações registradas na região e melhora o acesso às informações sobre enchentes e alagamentos.
+
+### Secundárias
+
+Podem ser desenvolvidas posteriormente, pois não são fundamentais para a resposta imediata a uma situação de emergência.
+
+- **7. Histórico de alertas e ocorrências**  
+  É útil para consultar eventos anteriores e identificar ocorrências recorrentes, mas não é essencial para orientar o usuário durante uma emergência.
