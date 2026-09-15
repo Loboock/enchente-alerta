@@ -13,3 +13,11 @@
 - Realizada a pesquisa sobre o problema e o publico do estudo de caso(docs/pesquisa.md).
 - Criado as personas e selecionada a persona prioritária(docs/persona.md).
 - Criado as benchmarks analisando 3 soluções existentes relacionadas ao problema do projeto(docs/benchmark.md).
+
+  ## [15/09/2026]
+
+### Adicionado
+- requisitos funcionais e não funcionais adicionado(docs/requisitos.md)
+- funcionalidades adicionadas(docs/requisitos.md)
+- adicionados os CRUDs(docs/requisitos.mds)
+- adicionado priorização(docs/requisitos.md)
