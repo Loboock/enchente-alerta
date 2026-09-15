@@ -1,3 +1,107 @@
+## 2.1 Funcionalidades
+
+### 1. Alertas de risco de enchentes
+
+**Descrição:**
+O aplicativo enviará alertas aos usuários quando houver risco de enchentes na região cadastrada, informando o nível de risco e orientações básicas de segurança.
+
+**Necessidade do usuário que atende:**
+Permite que moradores sejam avisados com antecedência sobre possíveis situações de risco, possibilitando que tomem medidas preventivas.
+
+**Justificativa:**
+É uma das principais funcionalidades do projeto, pois atua diretamente sobre o problema da falta de informação e de comunicação rápida durante situações de enchente.
+
+---
+
+### 2. Mapa de áreas de risco
+
+**Descrição:**
+Apresentar um mapa com a localização do usuário e a identificação de regiões que apresentam risco de alagamento ou enchente.
+
+**Necessidade do usuário que atende:**
+Permite que o usuário compreenda visualmente quais áreas próximas apresentam risco e evite locais perigosos.
+
+**Justificativa:**
+A visualização das áreas de risco facilita a compreensão das informações, principalmente para usuários que precisam tomar decisões rápidas durante uma situação de emergência.
+
+---
+
+### 3. Consulta de ocorrências
+
+**Descrição:**
+Permitir que o usuário consulte ocorrências de enchentes e alagamentos registradas na região, incluindo informações sobre o local e a situação identificada.
+
+**Necessidade do usuário que atende:**
+Ajuda o usuário a conhecer situações que estão acontecendo ou aconteceram recentemente em sua região.
+
+**Justificativa:**
+A funcionalidade contribui para manter a população informada e permite acompanhar a evolução dos problemas relacionados às enchentes.
+
+---
+
+### 4. Rotas e locais seguros
+
+**Descrição:**
+Indicar locais considerados mais seguros e orientar o usuário sobre caminhos que devem ser evitados durante uma situação de enchente.
+
+**Necessidade do usuário que atende:**
+Ajuda moradores a se deslocarem com maior segurança quando determinadas vias ou regiões estiverem alagadas.
+
+**Justificativa:**
+Durante uma enchente, algumas rotas podem se tornar perigosas ou impossíveis de utilizar. A funcionalidade auxilia na tomada de decisão e pode reduzir a exposição dos usuários a áreas de risco.
+
+---
+
+### 5. Cadastro da localização do usuário
+
+**Descrição:**
+Permitir que o usuário informe ou autorize o aplicativo a utilizar sua localização para receber informações e alertas relacionados à sua região.
+
+**Necessidade do usuário que atende:**
+Receber informações relevantes para o local onde mora ou está naquele momento.
+
+**Justificativa:**
+Os riscos de enchentes podem variar de uma região para outra. Dessa forma, utilizar a localização permite tornar os alertas mais relevantes e evitar o recebimento de informações desnecessárias.
+
+---
+
+### 6. Comunicação de ocorrências pelos usuários
+
+**Descrição:**
+Permitir que usuários registrem e comuniquem ocorrências, como alagamentos, enchentes e vias bloqueadas, informando o local e, quando possível, adicionando uma descrição ou imagem.
+
+**Necessidade do usuário que atende:**
+Possibilita que o próprio usuário informe situações de risco que estejam acontecendo em sua região.
+
+**Justificativa:**
+A participação da comunidade aumenta a quantidade de informações disponíveis e pode contribuir para que outras pessoas sejam informadas mais rapidamente sobre uma ocorrência.
+
+---
+
+### 7. Histórico de alertas e ocorrências
+
+**Descrição:**
+Disponibilizar um histórico das notificações e ocorrências registradas no aplicativo.
+
+**Necessidade do usuário que atende:**
+Permite consultar informações anteriores e acompanhar os eventos registrados em sua região.
+
+**Justificativa:**
+O histórico facilita o acompanhamento das ocorrências e pode ajudar o usuário a compreender quais regiões apresentam problemas recorrentes.
+
+---
+
+### 8. Orientações de segurança
+
+**Descrição:**
+Disponibilizar informações e recomendações sobre como agir antes, durante e após uma enchente, incluindo cuidados e comportamentos que devem ser adotados.
+
+**Necessidade do usuário que atende:**
+Oferece orientação para usuários que não sabem como agir diante de uma situação de enchente.
+
+**Justificativa:**
+Além de informar sobre o risco, o aplicativo precisa ajudar o usuário a tomar decisões adequadas. As orientações tornam a ferramenta mais útil em situações de emergência.
+
 ## 2.2 Requisitos funcionais
 
 Os requisitos funcionais descrevem as principais funções que o aplicativo **EnchenteAlerta** deverá realizar.
