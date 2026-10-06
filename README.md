@@ -15,26 +15,30 @@ Programação para Dispositivos Móveis — Profa. Layse
 
 ## Responsabilidade de cada integrante nesta atividade
 
- **Vinicius Reis:** fez a benchmark em colaboração com Bernardo.
+ **Vinicius Reis:** 
+- fez a benchmark em colaboração com Bernardo.
 - criou o github e participou da criação do documento.
 - fez os CRUDs.
 - participou dos prototipos, tanto o de alta quanto o de baixa.
 - Ajudou na criação da apresentação.
 
- **Bernardo Gonçalves do Carmo:** fez a benchmark em colaboração com Vinicius Reis.
+ **Bernardo Gonçalves do Carmo:** 
+- fez a benchmark em colaboração com Vinicius Reis.
 - participou da criação do documento.
 - fez as funcionalidades.
 - participou dos prototipos, tanto o de alta quanto o de baixa.
--  Ajudou na criação da apresentação.
+- Ajudou na criação da apresentação.
   
- **Pedro Brid do Carmo Fraife:**(Líder)organização do repositório, fez as personas.
+ **Pedro Brid do Carmo Fraife:**(Líder)
+- organização do repositório, fez as personas.
 - participou da criação do documento.
--  fez os requisitos funcionais e não funcionais.
--  participou dos prototipos, tanto o de alta quanto o de baixa.
--   Ajudou na criação da apresentação.
+- fez os requisitos funcionais e não funcionais.
+- participou dos prototipos, tanto o de alta quanto o de baixa.
+- Ajudou na criação da apresentação.
   
- **Christian Gonçalves:** fez as pesquisas.
+ **Christian Gonçalves:** 
+- fez as pesquisas.
 - participou da criação do documento.
 - fez as priorização.
 - participou dos prototipos, tanto o de alta quanto o de baixa.
--  Ajudou na criação da apresentação.
+- Ajudou na criação da apresentação.
