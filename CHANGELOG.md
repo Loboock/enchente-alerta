@@ -21,3 +21,18 @@
 - funcionalidades adicionadas(docs/requisitos.md)
 - adicionados os CRUDs(docs/requisitos.mds)
 - adicionado priorização(docs/requisitos.md)
+
+# [22/09/2026]
+
+### Adicionado
+- Prototipo de baixa fidelidade adicionado(docs/prototipoBaixaFidelidade.pdf)
+
+# [29/09/2026]
+
+### Adicionado
+- Prototipo de alta fidelidade adicionado(docs/prototipoAltaFidelidade.pdf)
+
+# [05/10/2026]
+
+### Adicionado
+- Adicionado apresentação final unidade 1(docs/apresentacaoFinalUnidade1.pdf)
