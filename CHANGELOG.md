@@ -36,3 +36,9 @@
 
 ### Adicionado
 - Adicionado apresentação final unidade 1(docs/apresentacaoFinalUnidade1.pdf)
+
+# [03/11/2026]
+
+### Adicionado
+- Diagrama de classes em HTML
+- Diagrama de casos de uso em PNG
