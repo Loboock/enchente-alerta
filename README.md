@@ -28,6 +28,7 @@ Programação para Dispositivos Móveis — Profa. Layse
 - fez as funcionalidades.
 - participou dos prototipos, tanto o de alta quanto o de baixa.
 - Ajudou na criação da apresentação.
+- fez os outros atores e as cartinhas de fora no diagrama de casos
   
  **Pedro Brid do Carmo Fraife:**(Líder)
 - organização do repositório, fez as personas.
@@ -35,6 +36,7 @@ Programação para Dispositivos Móveis — Profa. Layse
 - fez os requisitos funcionais e não funcionais.
 - participou dos prototipos, tanto o de alta quanto o de baixa.
 - Ajudou na criação da apresentação.
+- fez o ator principal no diagrama de casos de uso
   
  **Christian Gonçalves:** 
 - fez as pesquisas.
@@ -42,3 +44,4 @@ Programação para Dispositivos Móveis — Profa. Layse
 - fez as priorização.
 - participou dos prototipos, tanto o de alta quanto o de baixa.
 - Ajudou na criação da apresentação.
+- fez o diagrama de classes
