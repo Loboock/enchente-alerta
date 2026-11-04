@@ -28,3 +28,9 @@ FORMATO DA ENTREGA
 - Um arquivo HTML de no máximo 200 linhas, que eu possa abrir direto no navegador.
 - Depois do diagrama, um resumo curto explicando as entidades, os principais relacionamentos e as suposições feitas.
 - No final, me diga quais documentos do repositório seriam úteis para refinar o modelo.
+
+
+Prompt 1 - pedro fraife
+ - preciso fazer um diagrama de casos de uso de um projeto meu utilizando as regras de negocio, e eu tenho esse github, qual arquivo eu te mando para fazermos e qual site eu uso para criar?
+ - *foto dos arquivos do github*
+ - *arquivo necessario enviado*
