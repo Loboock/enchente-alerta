@@ -49,5 +49,7 @@
 - Diagrama de casos de uso refeito para a Unidade II: atores Visitante (sem conta), Usuário cadastrado e Defesa Civil com herança, casos de login, criação de conta e recuperação de senha, controle de acesso da Defesa Civil e correções de UML (docs/diagrama-casos-de-uso.png, fonte em docs/fontes/).
 - Diagrama de classes atualizado: entram Ocorrencia, TipoOcorrencia, Denuncia, Abrigo, RotaFuga, PacoteOffline e PerfilUsuario; saem Mapa, EstacaoMonitoramento e OcorrenciaHistorica; NivelAlerta vira Gravidade com 3 níveis (docs/diagrama-de-classes.md).
 
+- Registro de uso de IA renomeado para docs/uso-de-ia.md, como pede o enunciado, e reorganizado em: ferramentas, prompts mais eficientes, erros gerados pela IA e soluções, justificativa das bibliotecas e validação.
+
 ### Removido
 - Diagrama de casos de uso antigo (Diagrama-de-casos-de-uso.drawio.png) e diagrama de classes antigo em HTML (docs/diagrama_de_classes), substituídos pelas versões acima.
