@@ -55,6 +55,7 @@
 - Arquivo CLAUDE.md com o contexto do projeto, regras de trabalho e decisões tomadas, para uso com o Claude Code (registro de uso de IA).
 - Tema visual do app (lib/theme/app_theme.dart) com as cores do protótipo de alta fidelidade: azul-escuro (#1A4D8F), azul-marinho (#172447) e laranja de alerta (#FF8D28); textos maiores e botões com no mínimo 48 dp (RNF02), modo noturno que segue o aparelho (RNF03) e alto contraste (RNF10).
 - Tela inicial provisória, que será substituída pela navegação com barra inferior.
+- Registro de uso de IA: Claude Code na tabela de ferramentas e o prompt usado para gerar o tema, com a decisão sobre a cor de destaque (docs/uso-de-ia.md).
 
 ### Alterado
 - lib/main.dart: o Firebase passa a ser inicializado antes de abrir o app; o exemplo do contador foi removido e o teste de widget (test/widget_test.dart) foi ajustado para a nova tela.

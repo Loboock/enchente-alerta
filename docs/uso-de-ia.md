@@ -17,6 +17,7 @@ Commits feitos com apoio de IA trazem a linha `Co-Authored-By: Claude` na mensag
 | Ferramenta | Uso no projeto |
 |---|---|
 | Claude (Anthropic) | Revisão e geração dos diagramas de casos de uso e de classes, análise dos requisitos frente ao enunciado da Unidade II, organização da documentação do repositório. |
+| Claude Code (Anthropic) | Geração de código Flutter no repositório (inicialização do Firebase e tema do app), seguindo o contexto e as regras do `CLAUDE.md`. |
 
 > Atualizar esta tabela sempre que outra ferramenta for usada (ex.: Copilot, ChatGPT, Gemini).
 
@@ -93,6 +94,18 @@ a nossa ideia é que o usuário pode simplesmente se informar no app onde tem lu
 Seguido de: `você consegue refazer e substituir no repositório com base em commits meus?`
 
 Resultado: atores Visitante, Usuário cadastrado e Defesa Civil com herança, casos de login e controle de acesso.
+
+### Prompt 5 — Inicializar o Firebase e criar o tema (código) — Vinicius Reis
+
+Funcionou bem porque o contexto do projeto, as regras e a lista de próximos passos ficam no `CLAUDE.md`. Assim, o pedido pode ser curto.
+
+```text
+Leia o CLAUDE.md e comece pelo passo 1 dos próximos passos.
+```
+
+Resultado: Firebase inicializado no `main.dart` e tema claro/escuro com as cores do protótipo (`lib/theme/app_theme.dart`). Testado com `flutter analyze`, `flutter test` e no emulador.
+
+Decisão revisada pelo grupo: o RNF10 fala em "azul-escuro e amarelo", mas as cores extraídas do protótipo de alta fidelidade mostram laranja (`#FF8D28`) como destaque. Seguimos o protótipo, porque a nota cobra fidelidade a ele.
 
 ---
 

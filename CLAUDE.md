@@ -28,7 +28,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 1. **Todo commit é do Vinicius** (autor `Vinicius Reis <viniciusloboock@gmail.com>`); quando feito com apoio de IA, incluir `Co-Authored-By: Claude` na mensagem.
 2. **Sempre registrar toda mudança no `CHANGELOG.md`**, na entrada da data do dia (formato `# [DD/MM/AAAA]` com `### Adicionado / Alterado / Removido`).
 3. Antes de dar uma tarefa de código como pronta: `flutter analyze` sem erros e `flutter run` funcionando no emulador.
-4. Registrar em `docs/uso-de-ia.md` os prompts úteis e todo erro gerado pela IA, com a solução.
+4. Ao fim de cada tarefa feita com IA, atualizar `docs/uso-de-ia.md` só com o essencial que o enunciado pede: ferramentas, prompts eficientes, erros da IA com a solução, bibliotecas e validação. Sem detalhes desnecessários.
 5. Mensagens de commit no padrão `tipo: descrição` (`feat`, `fix`, `docs`, `refactor`), em português.
 6. Não commitar `BRIEFING-EnchenteAlerta.md` (anotação local).
 
