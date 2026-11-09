@@ -47,6 +47,9 @@
 
 ### Adicionado
 - Projeto Firebase "enchente-alerta" criado no plano gratuito (Spark), com Authentication por e-mail/senha e Cloud Firestore em southamerica-east1 (São Paulo), iniciado em modo de produção.
+- Projeto Flutter criado na raiz do repositório (pacote br.unit.enchentealerta.enchente_alerta, plataforma Android) e conectado ao Firebase com o FlutterFire CLI (lib/firebase_options.dart e android/app/google-services.json).
+- Pacotes firebase_core, firebase_auth e cloud_firestore adicionados ao pubspec.yaml.
+- Ambiente validado: app de exemplo compilado e executado no emulador Pixel 8 (Android 17). Foi necessário instalar o NDK 28.2.13676358 pelo SDK Manager do Android Studio, porque o Gradle não conseguiu instalá-lo sozinho.
 - Modelagem do banco de dados no Firestore: estrutura de coleções e documentos, mapeamento das classes Dart para o Firestore (fromFirestore/toFirestore), resumo de tipos e regras de segurança por perfil de acesso (docs/modelagem-firestore.md).
 
 ### Alterado
