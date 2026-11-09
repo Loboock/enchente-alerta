@@ -53,8 +53,11 @@
 - Modelagem do banco de dados no Firestore: estrutura de coleções e documentos, mapeamento das classes Dart para o Firestore (fromFirestore/toFirestore), resumo de tipos e regras de segurança por perfil de acesso (docs/modelagem-firestore.md).
 
 - Arquivo CLAUDE.md com o contexto do projeto, regras de trabalho e decisões tomadas, para uso com o Claude Code (registro de uso de IA).
+- Tema visual do app (lib/theme/app_theme.dart) com as cores do protótipo de alta fidelidade: azul-escuro (#1A4D8F), azul-marinho (#172447) e laranja de alerta (#FF8D28); textos maiores e botões com no mínimo 48 dp (RNF02), modo noturno que segue o aparelho (RNF03) e alto contraste (RNF10).
+- Tela inicial provisória, que será substituída pela navegação com barra inferior.
 
 ### Alterado
+- lib/main.dart: o Firebase passa a ser inicializado antes de abrir o app; o exemplo do contador foi removido e o teste de widget (test/widget_test.dart) foi ajustado para a nova tela.
 - Diagrama de casos de uso refeito para a Unidade II: atores Visitante (sem conta), Usuário cadastrado e Defesa Civil com herança, casos de login, criação de conta e recuperação de senha, controle de acesso da Defesa Civil e correções de UML (docs/diagrama-casos-de-uso.png, fonte em docs/fontes/).
 - Diagrama de classes atualizado: entram Ocorrencia, TipoOcorrencia, Denuncia, Abrigo, RotaFuga, PacoteOffline e PerfilUsuario; saem Mapa, EstacaoMonitoramento e OcorrenciaHistorica; NivelAlerta vira Gravidade com 3 níveis (docs/diagrama-de-classes.md).
 

@@ -55,12 +55,13 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 ## Estado atual (09/11/2026)
 
 - Firebase: projeto `enchente-alerta`, plano Spark, Auth por e-mail/senha ativo, Firestore em `southamerica-east1`, regras ainda em modo produção (bloqueando tudo) — aplicar as regras de `docs/modelagem-firestore.md` quando o app gravar dados.
-- Flutter: projeto criado na raiz (`br.unit.enchentealerta.enchente_alerta`, só Android), FlutterFire configurado, pacotes `firebase_core`, `firebase_auth`, `cloud_firestore`. `lib/main.dart` ainda é o exemplo do contador e não inicializa o Firebase.
+- Flutter: projeto criado na raiz (`br.unit.enchentealerta.enchente_alerta`, só Android), FlutterFire configurado, pacotes `firebase_core`, `firebase_auth`, `cloud_firestore`. `lib/main.dart` inicializa o Firebase e usa o tema de `lib/theme/app_theme.dart` (claro/escuro, segue o aparelho); a tela inicial ainda é provisória.
+- Cores do protótipo: o destaque é laranja `#FF8D28` (não amarelo puro), usado como `secondary`.
 - Ambiente: Windows, emulador Pixel 8 (Android 17). Precisou instalar o NDK 28.2.13676358 pelo SDK Manager.
 
 ## Próximos passos (em partes pequenas, testando cada uma)
 
-1. Inicializar o Firebase no `main.dart`; tema azul-escuro e amarelo com modo noturno (RNF02, RNF03, RNF10).
+1. ~~Inicializar o Firebase no `main.dart`; tema azul-escuro e amarelo com modo noturno (RNF02, RNF03, RNF10).~~ Feito em 09/11/2026.
 2. Navegação com barra inferior: Início (mapa), Avisos, Histórico, Perfil, Guia — igual ao protótipo.
 3. Login, Criar conta e Recuperar senha com Firebase Auth, mantendo o acesso livre do Visitante.
 4. Classes de `lib/models/` conforme `docs/diagrama-de-classes.md`, com `fromFirestore`/`toFirestore`.
