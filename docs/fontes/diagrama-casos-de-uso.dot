@@ -1,0 +1,135 @@
+// Diagrama de casos de uso - EnchenteAlerta (Unidade II)
+// Posições fixas (em polegadas). Para gerar a imagem, dentro de docs/fontes:
+//   neato -Tpng -Gdpi=150 diagrama-casos-de-uso.dot -o ../diagrama-casos-de-uso.png
+
+graph CasosDeUso {
+  layout=neato;
+  splines=line;
+  overlap=true;
+  outputorder=edgesfirst;
+  bgcolor="white";
+  pad=0.3;
+  node [fontname="DejaVu Sans", fontsize=11, color="#1B3A6B", fontcolor="#17233A"];
+  edge [fontname="DejaVu Sans", fontsize=10, color="#1B3A6B"];
+
+  // ---------- Limite do sistema ----------
+  Sistema [shape=box, style="rounded", penwidth=1.5, label="EnchenteAlerta",
+           fontname="DejaVu Sans Bold", fontsize=15, labelloc=t,
+           pos="7.05,16.85!", width=8.3, height=20.0, fixedsize=true];
+
+  // ---------- Atores ----------
+  node [shape=none, image="ator.png", imagescale=false, labelloc=b, width=1.4, height=1.5, fixedsize=true];
+  Visitante [label="Visitante\n(sem conta)",       pos="-0.6,21.9!"];
+  Usuario   [label="Usuário\ncadastrado",          pos="-0.6,12.2!"];
+  Defesa    [label="Defesa Civil",                 pos="-0.6,8.4!"];
+  Meteo     [label="Serviço\nmeteorológico",       pos="12.9,16.8!"];
+
+  // ---------- Casos de uso ----------
+  node [shape=ellipse, image="", fixedsize=true, width=2.9, height=0.62, style=filled, fillcolor="white", labelloc=c];
+
+  // Acesso livre (Visitante)
+  UC10 [label="Fazer login",                                   pos="5,26.0!"];
+  UC09 [label="Criar conta",                                   pos="5,25.1!"];
+  UC01 [label="Consultar mapa de\npontos críticos",            pos="5,24.2!"];
+  UC02 [label="Consultar ocorrências\n(alagamentos e vias\nobstruídas)", pos="5,23.25!", height=0.78];
+  UC03 [label="Consultar histórico de\nalertas e ocorrências",  pos="5,22.3!"];
+  UC04 [label="Visualizar rotas de fuga",                      pos="5,21.4!"];
+  UC05 [label="Consultar abrigos próximos",                    pos="5,20.5!"];
+  UC06 [label="Consultar guia de\npreparação",                 pos="5,19.6!"];
+  UC08 [label="Baixar mapa da região\npara uso offline",       pos="5,18.7!"];
+  UC07 [label="Receber alerta de risco",                       pos="5,17.8!"];
+
+  // Exige login (Usuário cadastrado)
+  UC12 [label="Comunicar alagamento\nou via obstruída",        pos="5,14.0!", fillcolor="#FFF4C2"];
+  UC16 [label="Excluir própria\nocorrência",                   pos="5,13.1!"];
+  UC17 [label="Reportar aviso incorreto",                      pos="5,12.2!"];
+  UC18 [label="Gerenciar localização\ne alertas",              pos="5,11.3!"];
+  UC19 [label="Gerenciar perfil",                              pos="5,10.4!"];
+
+  // Acesso restrito (Defesa Civil)
+  UC20 [label="Cadastrar abrigos e rotas",                     pos="5,9.2!"];
+  UC21 [label="Atualizar abrigos e rotas",                     pos="5,8.4!"];
+  UC22 [label="Remover abrigos e rotas",                       pos="5,7.6!"];
+
+  // Casos ligados por include/extend e do sistema
+  node [width=2.5];
+  UC11 [label="Recuperar senha",                               pos="9.25,26.0!"];
+  UC23 [label="Gerar e atualizar\nalertas",                    pos="9.25,17.8!"];
+  UC24 [label="Integrar dados\nmeteorológicos",                pos="9.25,16.8!"];
+  UC13 [label="Informar localização",                          pos="9.25,14.9!"];
+  UC14 [label="Adicionar descrição",                           pos="9.25,14.0!"];
+  UC15 [label="Adicionar foto",                                pos="9.25,13.1!"];
+
+  // ---------- Notas ----------
+  node [shape=note, style=filled, fillcolor="#FFF8D6", color="#B08A00", fontsize=10, fixedsize=false, width=0, height=0, margin="0.1,0.06"];
+  N1 [label="Funciona sem internet quando\na região foi baixada antes\n(cache).", pos="9.25,21.4!"];
+  N4 [label="Alertas são gerados a partir\nde dados meteorológicos ou\nde registros da comunidade.", pos="9.25,19.4!"];
+  N2 [label="Exige login. O autor fica salvo\nsó para poder excluir o registro\ne nunca aparece para outros\nusuários (RNF07).", pos="9.25,11.6!"];
+  N3 [label="Acesso restrito ao\nperfil Defesa Civil.", pos="9.25,8.4!"];
+
+  // Pontos de ancoragem invisíveis (ponta esquerda de cada caso de uso)
+  node [shape=point, width=0.01, height=0.01, style=invis, label="", image=""];
+  pUC10 [pos="3.55,26.0!"];
+  pUC09 [pos="3.55,25.1!"];
+  pUC01 [pos="3.55,24.2!"];
+  pUC02 [pos="3.55,23.25!"];
+  pUC03 [pos="3.55,22.3!"];
+  pUC04 [pos="3.55,21.4!"];
+  pUC05 [pos="3.55,20.5!"];
+  pUC06 [pos="3.55,19.6!"];
+  pUC08 [pos="3.55,18.7!"];
+  pUC07 [pos="3.55,17.8!"];
+  pUC12 [pos="3.55,14.0!"];
+  pUC16 [pos="3.55,13.1!"];
+  pUC17 [pos="3.55,12.2!"];
+  pUC18 [pos="3.55,11.3!"];
+  pUC19 [pos="3.55,10.4!"];
+  pUC20 [pos="3.55,9.2!"];
+  pUC21 [pos="3.55,8.4!"];
+  pUC22 [pos="3.55,7.6!"];
+  nUC12 [pos="6.45,14.0!"];
+  pUC24 [pos="10.50,16.8!"];
+
+  // ---------- Associações ator - caso de uso ----------
+  edge [penwidth=1.0];
+  Visitante -- pUC10;
+  Visitante -- pUC09;
+  Visitante -- pUC01;
+  Visitante -- pUC02;
+  Visitante -- pUC03;
+  Visitante -- pUC04;
+  Visitante -- pUC05;
+  Visitante -- pUC06;
+  Visitante -- pUC08;
+  Visitante -- pUC07;
+  Usuario -- pUC12;
+  Usuario -- pUC16;
+  Usuario -- pUC17;
+  Usuario -- pUC18;
+  Usuario -- pUC19;
+  Defesa -- pUC20;
+  Defesa -- pUC21;
+  Defesa -- pUC22;
+  Meteo -- pUC24;
+
+  // ---------- Generalização entre atores (ponta vazada) ----------
+  edge [dir=forward, arrowhead=onormal, arrowsize=1.4];
+  Usuario -- Visitante;
+  Defesa  -- Usuario;
+
+  // ---------- include / extend (tracejado, seta aberta) ----------
+  edge [style=dashed, dir=forward, arrowhead=vee, arrowsize=0.8, fontsize=10];
+  UC11 -- UC10 [label="«extend»"];
+  UC12 -- UC13 [label="«include»"];
+  UC14 -- UC12 [label="«extend»"];
+  UC15 -- UC12 [label="«extend»"];
+  UC23 -- UC24 [label="«include»"];
+  UC23 -- UC07 [label="«include»"];
+
+  // ---------- Ligações das notas ----------
+  edge [style=dotted, dir=none, color="#B08A00", label=""];
+  UC04 -- N1;
+  UC23 -- N4;
+  nUC12 -- N2;
+  UC21 -- N3;
+}
