@@ -52,6 +52,8 @@
 - Ambiente validado: app de exemplo compilado e executado no emulador Pixel 8 (Android 17). Foi necessário instalar o NDK 28.2.13676358 pelo SDK Manager do Android Studio, porque o Gradle não conseguiu instalá-lo sozinho.
 - Modelagem do banco de dados no Firestore: estrutura de coleções e documentos, mapeamento das classes Dart para o Firestore (fromFirestore/toFirestore), resumo de tipos e regras de segurança por perfil de acesso (docs/modelagem-firestore.md).
 
+- Arquivo CLAUDE.md com o contexto do projeto, regras de trabalho e decisões tomadas, para uso com o Claude Code (registro de uso de IA).
+
 ### Alterado
 - Diagrama de casos de uso refeito para a Unidade II: atores Visitante (sem conta), Usuário cadastrado e Defesa Civil com herança, casos de login, criação de conta e recuperação de senha, controle de acesso da Defesa Civil e correções de UML (docs/diagrama-casos-de-uso.png, fonte em docs/fontes/).
 - Diagrama de classes atualizado: entram Ocorrencia, TipoOcorrencia, Denuncia, Abrigo, RotaFuga, PacoteOffline e PerfilUsuario; saem Mapa, EstacaoMonitoramento e OcorrenciaHistorica; NivelAlerta vira Gravidade com 3 níveis (docs/diagrama-de-classes.md).
