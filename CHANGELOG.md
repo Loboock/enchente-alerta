@@ -85,3 +85,4 @@
 
 ### Removido
 - Tela inicial provisória (TelaInicialProvisoria) do main.dart.
+- Telas de Login, Cadastro, Recuperar senha e Perfil enviadas direto na develop, sem Pull Request, retiradas da develop porque os imports apontavam para arquivos inexistentes (102 erros no flutter analyze). O trabalho foi guardado na branch feature/telas-conta para ser corrigido e voltar por Pull Request.
