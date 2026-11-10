@@ -56,7 +56,7 @@ guias/{guiaId}
 | O autor da ocorrência fica em **`autoresOcorrencias`**, separado da ocorrência. | O Firestore não esconde campos: quem lê um documento lê todos. Separando o autor, a ocorrência pode ser pública sem expor quem registrou (RNF07). |
 | Latitude e longitude viram um **`GeoPoint`**. | Tipo nativo do Firestore para coordenadas. |
 | Datas viram **`Timestamp`**. | Tipo nativo; permite ordenar e filtrar por data (histórico, expiração). |
-| Enumerações são gravadas como **texto** (`enum.name`, ex.: `"GRAVE"`). | Fica legível no console do Firebase e não quebra se a ordem do enum mudar. |
+| Enumerações são gravadas como **texto** (campo `codigo` de cada valor, ex.: `Gravidade.grave` grava `"GRAVE"`). | Fica legível no console do Firebase e não quebra se a ordem do enum mudar. |
 | Relações muitos-para-muitos viram **listas de ids** (ex.: `areasRiscoIds`). | O Firestore não tem junção (join); listas de ids são o padrão. |
 | `PacoteOffline` **não** vai para o Firestore. | É o cache local do celular (mapa baixado, abrigos, rotas e últimas ocorrências). O próprio Firestore também mantém cache local dos documentos lidos. |
 | Visitante não tem documento. | Quem usa sem conta só lê dados públicos; nada é salvo sobre ele. |
@@ -154,14 +154,27 @@ Subcoleção `denuncias/{denunciaId}` — classe `Denuncia`: `autorId` (string),
 
 Cada classe de domínio tem um construtor `fromFirestore`, que monta o objeto a partir do documento, e um método `toFirestore`, que gera o mapa de campos a gravar. O id do documento não é gravado como campo: ele vem de `doc.id`.
 
-Exemplo com `Ocorrencia`:
+Código completo em [`lib/models/`](../lib/models/) (uma classe por arquivo, todas exportadas por `models.dart`). Detalhes da implementação:
+
+- As enumerações seguem o padrão do Dart (`Gravidade.grave`), e cada valor guarda o `codigo` gravado no Firestore (`"GRAVE"`) e o `rotulo` mostrado na tela (`"Grave"`). A leitura usa `enumPorCodigo`, que dá erro se o texto do banco for inválido.
+- Coordenadas usam `LatLng` (pacote `latlong2`, o mesmo do mapa) e viram `GeoPoint` no Firestore.
+- Cada classe tem `fromFirestore(doc)`, que chama `fromMap(id, dados)`. O `fromMap` permite testar o mapeamento sem conexão (`test/models_test.dart`).
+- Os métodos do diagrama que dependem do Firebase (cadastrar, entrar, registrar, excluir) ficam nos serviços, não nas classes.
+
+Exemplo resumido com `Ocorrencia` (`lib/models/ocorrencia.dart`):
 
 ```dart
-import 'package:cloud_firestore/cloud_firestore.dart';
+enum Gravidade implements EnumFirestore {
+  leve('LEVE', 'Leve'),
+  moderado('MODERADO', 'Moderado'),
+  grave('GRAVE', 'Grave');
 
-enum TipoOcorrencia { ALAGAMENTO, VIA_OBSTRUIDA }
-enum Gravidade { LEVE, MODERADO, GRAVE }
-enum StatusOcorrencia { ATIVA, RESOLVIDA, EXPIRADA }
+  const Gravidade(this.codigo, this.rotulo);
+  @override
+  final String codigo;
+  @override
+  final String rotulo;
+}
 
 class Ocorrencia {
   final String id;
@@ -169,63 +182,39 @@ class Ocorrencia {
   final Gravidade gravidade;
   final StatusOcorrencia status;
   final String endereco;
-  final double latitude;
-  final double longitude;
+  final LatLng localizacao;
   final int nivelAguaCm;
   final String? descricao;
-  final String? imagemUrl;
-  final String? areaRiscoId;
   final DateTime criadaEm;
   final DateTime expiraEm;
-
-  Ocorrencia({
-    required this.id,
-    required this.tipo,
-    required this.gravidade,
-    required this.status,
-    required this.endereco,
-    required this.latitude,
-    required this.longitude,
-    required this.nivelAguaCm,
-    this.descricao,
-    this.imagemUrl,
-    this.areaRiscoId,
-    required this.criadaEm,
-    required this.expiraEm,
-  });
+  // ... construtor, imagemUrl e areaRiscoId
 
   // Documento do Firestore -> objeto Dart
-  factory Ocorrencia.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data()!;
-    final GeoPoint ponto = d['localizacao'];
-    return Ocorrencia(
-      id: doc.id,
-      tipo: TipoOcorrencia.values.byName(d['tipo']),
-      gravidade: Gravidade.values.byName(d['gravidade']),
-      status: StatusOcorrencia.values.byName(d['status']),
-      endereco: d['endereco'],
-      latitude: ponto.latitude,
-      longitude: ponto.longitude,
-      nivelAguaCm: d['nivelAguaCm'],
-      descricao: d['descricao'],
-      imagemUrl: d['imagemUrl'],
-      areaRiscoId: d['areaRiscoId'],
-      criadaEm: (d['criadaEm'] as Timestamp).toDate(),
-      expiraEm: (d['expiraEm'] as Timestamp).toDate(),
-    );
-  }
+  factory Ocorrencia.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) =>
+      Ocorrencia.fromMap(doc.id, doc.data()!);
+
+  factory Ocorrencia.fromMap(String id, Map<String, dynamic> d) => Ocorrencia(
+        id: id,
+        tipo: enumPorCodigo(TipoOcorrencia.values, d['tipo']),
+        gravidade: enumPorCodigo(Gravidade.values, d['gravidade']),
+        status: enumPorCodigo(StatusOcorrencia.values, d['status']),
+        endereco: d['endereco'] as String,
+        localizacao: lerPonto(d['localizacao']),   // GeoPoint -> LatLng
+        nivelAguaCm: lerInt(d['nivelAguaCm']),
+        descricao: d['descricao'] as String?,
+        criadaEm: lerData(d['criadaEm']),          // Timestamp -> DateTime
+        expiraEm: lerData(d['expiraEm']),
+      );
 
   // Objeto Dart -> campos gravados no Firestore
   Map<String, dynamic> toFirestore() => {
-        'tipo': tipo.name,
-        'gravidade': gravidade.name,
-        'status': status.name,
+        'tipo': tipo.codigo,
+        'gravidade': gravidade.codigo,
+        'status': status.codigo,
         'endereco': endereco,
-        'localizacao': GeoPoint(latitude, longitude),
+        'localizacao': gravarPonto(localizacao),   // LatLng -> GeoPoint
         'nivelAguaCm': nivelAguaCm,
         if (descricao != null) 'descricao': descricao,
-        if (imagemUrl != null) 'imagemUrl': imagemUrl,
-        if (areaRiscoId != null) 'areaRiscoId': areaRiscoId,
         'criadaEm': Timestamp.fromDate(criadaEm),
         'expiraEm': Timestamp.fromDate(expiraEm),
       };
@@ -244,7 +233,7 @@ final ocorrenciasRef = FirebaseFirestore.instance
 
 // Ocorrências ativas, atualizadas em tempo real no mapa (RF09)
 final ativas = ocorrenciasRef
-    .where('status', isEqualTo: StatusOcorrencia.ATIVA.name)
+    .where('status', isEqualTo: StatusOcorrencia.ativa.codigo)
     .snapshots();
 ```
 
@@ -269,8 +258,8 @@ await lote.commit();
 | `int`, `double` | number |
 | `bool` | boolean |
 | `DateTime` | timestamp (`Timestamp.fromDate` / `.toDate()`) |
-| `latitude` + `longitude` | geopoint (`GeoPoint`) |
-| `enum` | string (`.name` / `values.byName`) |
+| `LatLng` (latitude + longitude) | geopoint (`GeoPoint`) |
+| `enum` | string (`.codigo` / `enumPorCodigo`) |
 | `List` de pontos | array de geopoint |
 | composição 1 para 0..1 | map dentro do documento |
 | composição 1 para muitos | subcoleção |

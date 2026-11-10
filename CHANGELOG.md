@@ -74,10 +74,14 @@
 - Navegação com barra inferior (Início, Avisos, Histórico, Perfil, Guia) em lib/screens/tela_principal.dart e lib/widgets/barra_navegacao_inferior.dart; as abas ainda sem tela usam uma tela provisória "Em construção".
 - Pacotes flutter_map e latlong2 no pubspec.yaml (mapa do OpenStreetMap) e permissão INTERNET no AndroidManifest.xml.
 - Branch develop para juntar as tarefas do grupo por Pull Request, revisados e mesclados pelo Vinicius; guia do fluxo de trabalho em CONTRIBUTING.md (branches feature/, PR para a develop, padrão de commits).
+- Classes de domínio em lib/models/ (Usuario, PreferenciaNotificacao, Endereco, Notificacao, Ocorrencia, Denuncia, Alerta, AreaRisco, Abrigo, RotaFuga, GuiaOrientacao) e as 7 enumerações, com fromFirestore/toFirestore conforme docs/modelagem-firestore.md. PacoteOffline fica para a tarefa do modo offline, porque não vai para o Firestore.
+- Testes do mapeamento Dart <-> Firestore (test/models_test.dart).
 
 ### Alterado
 - lib/main.dart: a tela inicial provisória foi substituída pela TelaPrincipal.
 - test/widget_test.dart: testes ajustados para a tela Início e a troca de abas.
+- docs/modelagem-firestore.md: exemplo de código atualizado para as classes reais (enums com campo codigo e coordenadas em LatLng).
+- docs/uso-de-ia.md: prompt das classes de domínio e erro da IA nas enumerações.
 
 ### Removido
 - Tela inicial provisória (TelaInicialProvisoria) do main.dart.
