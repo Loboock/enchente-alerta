@@ -73,6 +73,7 @@
 - Tela Início igual ao protótipo de alta fidelidade (lib/screens/inicio/tela_inicio.dart): cabeçalho azul com botão de ajuda, mapa com a área de risco em destaque (círculo vermelho), barra de atalhos de locais (Hosp. Universitário, Escola Exemplo, Farolândia) e botões Abrigo e Rota de fuga.
 - Navegação com barra inferior (Início, Avisos, Histórico, Perfil, Guia) em lib/screens/tela_principal.dart e lib/widgets/barra_navegacao_inferior.dart; as abas ainda sem tela usam uma tela provisória "Em construção".
 - Pacotes flutter_map e latlong2 no pubspec.yaml (mapa do OpenStreetMap) e permissão INTERNET no AndroidManifest.xml.
+- Branch develop para juntar as tarefas do grupo por Pull Request, revisados e mesclados pelo Vinicius; guia do fluxo de trabalho em CONTRIBUTING.md (branches feature/, PR para a develop, padrão de commits).
 
 ### Alterado
 - lib/main.dart: a tela inicial provisória foi substituída pela TelaPrincipal.

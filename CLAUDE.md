@@ -25,12 +25,13 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 
 ## Regras de trabalho neste repositório
 
-1. **Todo commit é do Vinicius** (autor `Vinicius Reis <viniciusloboock@gmail.com>`); quando feito com apoio de IA, incluir `Co-Authored-By: Claude` na mensagem.
+1. **Commits feitos nesta máquina são do Vinicius** (autor `Vinicius Reis <viniciusloboock@gmail.com>`); quando feitos com apoio de IA, incluir `Co-Authored-By: Claude` na mensagem. Os colegas fazem commits com as próprias contas.
 2. **Sempre registrar toda mudança no `CHANGELOG.md`**, na entrada da data do dia (formato `# [DD/MM/AAAA]` com `### Adicionado / Alterado / Removido`).
 3. Antes de dar uma tarefa de código como pronta: `flutter analyze` sem erros e `flutter run` funcionando no emulador.
 4. Ao fim de cada tarefa feita com IA, atualizar `docs/uso-de-ia.md` só com o essencial que o enunciado pede: ferramentas, prompts eficientes, erros da IA com a solução, bibliotecas e validação. Sem detalhes desnecessários.
 5. Mensagens de commit no padrão `tipo: descrição` (`feat`, `fix`, `docs`, `refactor`), em português.
 6. Não commitar `BRIEFING-EnchenteAlerta.md` (anotação local).
+7. **Fluxo de branches** (detalhes em `CONTRIBUTING.md`): cada tarefa em `feature/<nome>`, criada a partir da `develop`, com PR para a `develop`. O Vinicius revisa e mescla. A `main` só recebe a `develop` quando estiver estável. Não commitar direto na `main` nem na `develop`.
 
 ## Decisões já tomadas
 
@@ -62,7 +63,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 ## Próximos passos (em partes pequenas, testando cada uma)
 
 1. ~~Inicializar o Firebase no `main.dart`; tema azul-escuro e amarelo com modo noturno (RNF02, RNF03, RNF10).~~ Feito em 09/11/2026.
-2. Navegação com barra inferior: Início (mapa), Avisos, Histórico, Perfil, Guia — igual ao protótipo.
+2. ~~Navegação com barra inferior: Início (mapa), Avisos, Histórico, Perfil, Guia — igual ao protótipo.~~ Feito pelo Pedro em 10/11/2026 (tela Início com `flutter_map`; as outras abas mostram "Em construção").
 3. Login, Criar conta e Recuperar senha com Firebase Auth, mantendo o acesso livre do Visitante.
 4. Classes de `lib/models/` conforme `docs/diagrama-de-classes.md`, com `fromFirestore`/`toFirestore`.
 5. Criar aviso, lista de avisos e mapa de pontos; depois abrigos, rotas, guia, histórico e offline.
