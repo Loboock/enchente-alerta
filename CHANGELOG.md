@@ -66,3 +66,17 @@
 
 ### Removido
 - Diagrama de casos de uso antigo (Diagrama-de-casos-de-uso.drawio.png) e diagrama de classes antigo em HTML (docs/diagrama_de_classes), substituídos pelas versões acima.
+
+# [10/11/2026]
+
+### Adicionado
+- Tela Início igual ao protótipo de alta fidelidade (lib/screens/inicio/tela_inicio.dart): cabeçalho azul com botão de ajuda, mapa com a área de risco em destaque (círculo vermelho), barra de atalhos de locais (Hosp. Universitário, Escola Exemplo, Farolândia) e botões Abrigo e Rota de fuga.
+- Navegação com barra inferior (Início, Avisos, Histórico, Perfil, Guia) em lib/screens/tela_principal.dart e lib/widgets/barra_navegacao_inferior.dart; as abas ainda sem tela usam uma tela provisória "Em construção".
+- Pacotes flutter_map e latlong2 no pubspec.yaml (mapa do OpenStreetMap) e permissão INTERNET no AndroidManifest.xml.
+
+### Alterado
+- lib/main.dart: a tela inicial provisória foi substituída pela TelaPrincipal.
+- test/widget_test.dart: testes ajustados para a tela Início e a troca de abas.
+
+### Removido
+- Tela inicial provisória (TelaInicialProvisoria) do main.dart.

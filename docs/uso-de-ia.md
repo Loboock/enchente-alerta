@@ -107,6 +107,10 @@ Resultado: Firebase inicializado no `main.dart` e tema claro/escuro com as cores
 
 Decisão revisada pelo grupo: o RNF10 fala em "azul-escuro e amarelo", mas as cores extraídas do protótipo de alta fidelidade mostram laranja (`#FF8D28`) como destaque. Seguimos o protótipo, porque a nota cobra fidelidade a ele.
 
+Prompt (tela Início): enviada a imagem da tela "01 Início" do protótipo com o pedido "fazer essa tela igualzinho como está", junto do repositório.
+
+Resultado: tela Início, barra de navegação inferior e abas provisórias (`lib/screens/`, `lib/widgets/`). Mapa com `flutter_map` e `latlong2`. Pendente validar com `flutter pub get`, `flutter analyze`, `flutter test` e no emulador.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu

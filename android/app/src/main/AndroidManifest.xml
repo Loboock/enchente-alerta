@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Necessário para carregar os blocos do mapa (OpenStreetMap) e o Firebase. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="enchente_alerta"
         android:name="${applicationName}"
