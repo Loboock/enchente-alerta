@@ -111,6 +111,16 @@ Prompt (tela Início): enviada a imagem da tela "01 Início" do protótipo com o
 
 Resultado: tela Início, barra de navegação inferior e abas provisórias (`lib/screens/`, `lib/widgets/`). Mapa com `flutter_map` e `latlong2`. Pendente validar com `flutter pub get`, `flutter analyze`, `flutter test` e no emulador.
 
+### Prompt 6 — Classes de domínio (lib/models) — Vinicius Reis
+
+Funcionou bem porque o diagrama de classes e a modelagem do Firestore já estavam prontos no repositório, e o plano em sprints dizia qual era a tarefa.
+
+```text
+Vamos iniciar a tarefa 1 do pdf
+```
+
+Resultado: 11 classes e 7 enumerações em `lib/models/`, com `fromFirestore`/`toFirestore`, e 13 testes do mapeamento em `test/models_test.dart`. Validado com `flutter analyze` e `flutter test`.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
@@ -123,6 +133,7 @@ Resultado: tela Início, barra de navegação inferior e abas provisórias (`lib
 | 4 | Diagrama de classes (Unid. I) | Faltava a classe `Ocorrencia`, centro do app (comunicar alagamento, mapa de pontos, CRUD de Ocorrência), além de Abrigo, RotaFuga e Denuncia. | Comparação com os CRUDs e com o RF02/RF03. | Classes adicionadas na versão da Unidade II. |
 | 5 | Diagrama de classes (Unid. I) | Criou `OcorrenciaHistorica` como classe separada, duplicando dados. | Revisão do modelo. | Removida; o histórico é uma consulta das ocorrências resolvidas ou expiradas. |
 | 6 | Diagrama de casos de uso (Unid. II) | O primeiro desenho gerado com layout automático deixou as linhas dos atores cruzando as elipses dos casos de uso, ficando ilegível. | Conferência visual da imagem gerada. | Diagrama refeito com posições fixas de cada elemento (`docs/fontes/diagrama-casos-de-uso.dot`). |
+| 7 | Modelagem do Firestore (exemplo de código) | Usou enums em maiúsculas (`GRAVE`, `ALAGAMENTO`), lidos com `values.byName`. O lint do Flutter (`constant_identifier_names`) aponta isso como fora do padrão do Dart. | `flutter analyze` ao criar as classes de `lib/models/`. | Valores no padrão do Dart (`Gravidade.grave`), cada um com o campo `codigo` gravado no Firestore (`"GRAVE"`). O banco ficou igual e o exemplo do documento foi corrigido. |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 
