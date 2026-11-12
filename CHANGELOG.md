@@ -86,3 +86,17 @@
 ### Removido
 - Tela inicial provisória (TelaInicialProvisoria) do main.dart.
 - Telas de Login, Cadastro, Recuperar senha e Perfil enviadas direto na develop, sem Pull Request, retiradas da develop porque os imports apontavam para arquivos inexistentes (102 erros no flutter analyze). O trabalho foi guardado na branch feature/telas-conta para ser corrigido e voltar por Pull Request.
+
+# [10/11/2026]
+
+### Adicionado
+- Tela Rota de fuga (lib/screens/rota/tela_rota_fuga.dart), igual ao protótipo 02: mapa com o traçado em vermelho, marcadores do destino e do usuário e painel com distância, tempo a pé e de carro, risco e botão Iniciar navegação.
+- Tela Abrigos próximos (lib/screens/abrigos/tela_abrigos_proximos.dart), igual ao protótipo 03: lista ordenada por distância; tocar em um abrigo abre a rota até ele.
+- Tela de escolha de destino (lib/screens/rota/tela_escolher_destino.dart), que não existe no protótipo: campo de busca por endereço sem acento/maiúscula, locais salvos e sugestões.
+- Dados provisórios em lib/data/dados_provisorios.dart (abrigos, locais e rota de mentira), que serão trocados pelo Firestore. As telas usam os models Abrigo, RotaFuga e Gravidade já existentes.
+- Widgets compartilhados: AppBarTela, CartaoLocal, ScaffoldComAbas e AtribuicaoMapa (lib/widgets/); formatação de distância, busca sem acento, cor da gravidade e texto de lotação (lib/utils/); classe Destino (lib/models/destino.dart).
+- Testes de widget para o fluxo Abrigo → rota, Rota de fuga → destino → rota, busca de destino e volta às abas pela barra inferior.
+
+### Alterado
+- Tela Início: o botão Abrigo abre a lista de abrigos e o botão Rota de fuga abre a escolha de destino; o cabeçalho passou a usar o widget AppBarTela.
+- TelaPrincipal passou a ler a aba atual de lib/navegacao.dart, para que as telas abertas por cima da principal consigam trocar de aba.

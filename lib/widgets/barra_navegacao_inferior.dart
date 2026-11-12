@@ -10,8 +10,18 @@ class ItemNavegacao {
   final IconData icone;
 }
 
+/// As cinco abas do app, na ordem em que aparecem na barra.
+const itensNavegacao = [
+  ItemNavegacao(rotulo: 'Início', icone: Icons.home_outlined),
+  ItemNavegacao(rotulo: 'Avisos', icone: Icons.notifications_none),
+  ItemNavegacao(rotulo: 'Histórico', icone: Icons.history_toggle_off),
+  ItemNavegacao(rotulo: 'Perfil', icone: Icons.person_outline),
+  ItemNavegacao(rotulo: 'Guia', icone: Icons.menu_book_outlined),
+];
+
 /// Barra inferior azul do protótipo: ícone + rótulo, com o item ativo em
-/// laranja de alerta (RNF10 — alto contraste).
+/// laranja de alerta (RNF10 — alto contraste). Com `indiceAtual` -1 nenhuma
+/// aba fica ativa (telas abertas por cima, como Abrigos e Rota de fuga).
 class BarraNavegacaoInferior extends StatelessWidget {
   const BarraNavegacaoInferior({
     super.key,
