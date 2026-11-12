@@ -87,7 +87,7 @@
 - Tela inicial provisória (TelaInicialProvisoria) do main.dart.
 - Telas de Login, Cadastro, Recuperar senha e Perfil enviadas direto na develop, sem Pull Request, retiradas da develop porque os imports apontavam para arquivos inexistentes (102 erros no flutter analyze). O trabalho foi guardado na branch feature/telas-conta para ser corrigido e voltar por Pull Request.
 
-# [10/11/2026]
+# [12/11/2026]
 
 ### Adicionado
 - Tela Rota de fuga (lib/screens/rota/tela_rota_fuga.dart), igual ao protótipo 02: mapa com o traçado em vermelho, marcadores do destino e do usuário e painel com distância, tempo a pé e de carro, risco e botão Iniciar navegação.
@@ -100,3 +100,4 @@
 ### Alterado
 - Tela Início: o botão Abrigo abre a lista de abrigos e o botão Rota de fuga abre a escolha de destino; o cabeçalho passou a usar o widget AppBarTela.
 - TelaPrincipal passou a ler a aba atual de lib/navegacao.dart, para que as telas abertas por cima da principal consigam trocar de aba.
+- CHANGELOG: data da entrada das telas de rota e abrigos corrigida de 10/11 para 12/11, dia em que foram enviadas.
