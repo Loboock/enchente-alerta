@@ -86,3 +86,23 @@
 ### Removido
 - Tela inicial provisória (TelaInicialProvisoria) do main.dart.
 - Telas de Login, Cadastro, Recuperar senha e Perfil enviadas direto na develop, sem Pull Request, retiradas da develop porque os imports apontavam para arquivos inexistentes (102 erros no flutter analyze). O trabalho foi guardado na branch feature/telas-conta para ser corrigido e voltar por Pull Request.
+
+# [15/11/2026]
+
+### Adicionado
+- Login, Cadastro e Recuperar senha com o Firebase Auth (lib/services/auth_service.dart): entrar, criar conta, enviar e-mail de recuperação de senha e sair, com mensagens de erro em português (e-mail inválido, senha fraca, e-mail já cadastrado, sem internet, muitas tentativas).
+- Ao criar conta, o app grava `usuarios/{uid}` com a classe Usuario (perfil MORADOR). Enquanto as regras do Firestore não liberam a gravação, a conta é criada só no Auth, sem travar o cadastro.
+- Aba Perfil: mostra o login para quem não está logado e os dados da conta (nome, notificações, sair) para quem está.
+- Testes de widget: o Visitante abre a aba Perfil sem conta e o login valida os campos antes de chamar o Firebase (test/widget_test.dart).
+
+### Alterado
+- Telas de conta reorganizadas: lib/screens/conta/ (tela_login, tela_registro, tela_reset_senha, tela_perfil), lib/services/auth_service.dart e lib/widgets/widgets_conta.dart, com os imports corrigidos.
+- As telas de conta usam as cores do tema do app (Theme.of(context).colorScheme e AppColors), funcionando também no modo escuro, e a mesma barra do topo das outras abas.
+- Recuperar senha agora envia o e-mail do Firebase com o link para criar a nova senha, em vez de trocar a senha direto no app.
+- lib/screens/tela_principal.dart: a aba Perfil deixa de ser "Em construção".
+
+### Removido
+- lib/screens/main.dart (o app já tem o lib/main.dart, que inicializa o Firebase e abre sem exigir login).
+- lib/screens/theme.dart (paleta própria, substituída pelas cores do tema do app).
+- lib/screens/placeholder.dart e a barra inferior própria das telas de conta (AppShell), que duplicava a navegação do app e bloqueava o Visitante.
+- Login falso em memória (teste@gmail.com).

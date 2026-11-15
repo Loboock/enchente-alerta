@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../theme.dart';
-import '../widgets.dart';
+
+import '../../services/auth_service.dart';
+import '../../widgets/widgets_conta.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -30,6 +30,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       await AuthService.instance.register(_email.text, _pass.text);
       if (!mounted) return;
+      showMsg(context, 'Conta criada com sucesso.');
+      // Volta para a aba Perfil, que agora mostra os dados da conta.
       Navigator.of(context).popUntil((r) => r.isFirst);
     } catch (e) {
       if (mounted) showMsg(context, AuthService.message(e));
@@ -40,20 +42,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppShell(
-      title: 'Cadastrar',
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+    final cores = Theme.of(context).colorScheme;
+    return Scaffold(
+      appBar: barraConta(context, 'Cadastrar'),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _form,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Criar conta',
-                style: TextStyle(color: kBlue, fontSize: 18, fontWeight: FontWeight.w700)),
+            Text('Criar conta',
+                style: TextStyle(
+                    color: cores.primary, fontSize: 22, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
-            const Text(
+            Text(
                 'Cadastre-se para receber alertas de alagamento da sua região em tempo real.',
-                style: TextStyle(color: kGrey, fontSize: 10)),
-            const SizedBox(height: 14),
+                style: TextStyle(color: cores.onSurfaceVariant)),
+            const SizedBox(height: 18),
             AppField(
                 label: 'E-mail',
                 hint: 'voce@email.com',
@@ -76,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Row(children: [
               Expanded(
                   child: OutlineButtonX(
-                      text: 'Voltar ao login', onPressed: () => Navigator.pop(context))),
+                      text: 'Voltar', onPressed: () => Navigator.pop(context))),
               const SizedBox(width: 12),
               Expanded(
                   child: PrimaryButton(
