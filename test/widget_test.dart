@@ -37,6 +37,32 @@ void main() {
     expect(find.text('Em construção'), findsOneWidget);
   });
 
+  testWidgets('Visitante abre a aba Perfil e vê o login, sem precisar de conta',
+      (tester) async {
+    await tester.pumpWidget(const EnchenteAlertaApp());
+
+    await tester.tap(find.text('Perfil'));
+    await tester.pump();
+
+    expect(find.text('Cadastrar-se'), findsOneWidget);
+    expect(find.text('Esqueceu a senha?'), findsOneWidget);
+  });
+
+  testWidgets('Login valida os campos antes de chamar o Firebase',
+      (tester) async {
+    await tester.pumpWidget(const EnchenteAlertaApp());
+
+    await tester.tap(find.text('Perfil'));
+    await tester.pump();
+    final botaoEntrar = find.widgetWithText(ElevatedButton, 'Entrar');
+    await tester.ensureVisible(botaoEntrar);
+    await tester.tap(botaoEntrar);
+    await tester.pump();
+
+    expect(find.text('Informe o e-mail'), findsOneWidget);
+    expect(find.text('Informe a senha'), findsOneWidget);
+  });
+
   testWidgets('Abrigo lista os abrigos e abre a rota ao tocar em um',
       (tester) async {
     await abrirApp(tester);
@@ -108,6 +134,6 @@ void main() {
     await esperar(tester);
 
     expect(find.text('Abrigos próximos'), findsNothing);
-    expect(find.text('Em construção'), findsOneWidget);
+    expect(find.text('Cadastrar-se'), findsOneWidget);
   });
 }

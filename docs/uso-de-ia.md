@@ -121,6 +121,18 @@ Vamos iniciar a tarefa 1 do pdf
 
 Resultado: 11 classes e 7 enumerações em `lib/models/`, com `fromFirestore`/`toFirestore`, e 13 testes do mapeamento em `test/models_test.dart`. Validado com `flutter analyze` e `flutter test`.
 
+### Prompt 7 — Corrigir as telas de conta e ligar ao Firebase Auth — Christian Gonçalves
+
+Funcionou bem porque foi enviado junto o guia de correção do PR (lista de arquivos, imports, cores e comandos do Firebase), então a IA não precisou adivinhar a estrutura do projeto.
+
+```text
+[guia "Enviar as telas de conta pelo Git" em PDF]
+Preciso corrigir os arquivos das telas de conta na branch feature/telas-conta,
+seguindo o que está escrito no PR.
+```
+
+Resultado: arquivos movidos para `lib/screens/conta/`, `lib/services/` e `lib/widgets/`; cores trocadas pelo `colorScheme` do tema; `AuthService` com Firebase Auth e mensagens em português; aba Perfil mostrando o login para o Visitante. Decisões revisadas: a barra inferior própria das telas (`AppShell`) foi retirada porque duplicava a navegação e bloqueava o Visitante; recuperar senha passou a usar o e-mail do Firebase; "Endereço padrão" ficou para depois, porque precisa da localização no mapa. Validar com `flutter analyze`, `flutter test` e no emulador antes de marcar o PR como pronto.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
