@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
+import '../../data/dados_provisorios.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_bar_tela.dart';
+import '../abrigos/tela_abrigos_proximos.dart';
+import '../rota/tela_escolher_destino.dart';
 
 /// Tela "01 Início" do protótipo: mapa com a área de risco em destaque,
 /// atalhos de locais e os botões Abrigo e Rota de fuga.
@@ -11,46 +14,23 @@ class TelaInicio extends StatelessWidget {
 
   // Provisório: centro do mapa e da área de risco (Farolândia, Aracaju).
   // Depois virá da localização do usuário e da coleção `areasRisco`.
-  static const _centro = LatLng(-10.9640, -37.0510);
+  static const _centro = usuarioProvisorio;
   static const _raioAreaRiscoMetros = 150.0;
 
-  void _emBreve(BuildContext context, String recurso) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$recurso: em breve')));
+  void _abrir(BuildContext context, Widget tela) {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => tela));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Início'),
-        centerTitle: false,
-        toolbarHeight: 72,
-        titleSpacing: 20,
-        titleTextStyle: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Ajuda',
-            iconSize: 40,
-            padding: const EdgeInsets.all(4),
-            color: Colors.white,
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => _emBreve(context, 'Ajuda'),
-          ),
-          const SizedBox(width: 12),
-        ],
-      ),
+      appBar: const AppBarTela(titulo: 'Início'),
       body: Column(
         children: [
           const Expanded(child: _MapaRisco()),
           _PainelAcoes(
-            aoAbrigo: () => _emBreve(context, 'Abrigo'),
-            aoRotaFuga: () => _emBreve(context, 'Rota de fuga'),
+            aoAbrigo: () => _abrir(context, const TelaAbrigosProximos()),
+            aoRotaFuga: () => _abrir(context, const TelaEscolherDestino()),
           ),
         ],
       ),
