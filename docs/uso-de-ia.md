@@ -133,6 +133,16 @@ seguindo o que está escrito no PR.
 
 Resultado: arquivos movidos para `lib/screens/conta/`, `lib/services/` e `lib/widgets/`; cores trocadas pelo `colorScheme` do tema; `AuthService` com Firebase Auth e mensagens em português; aba Perfil mostrando o login para o Visitante. Decisões revisadas: a barra inferior própria das telas (`AppShell`) foi retirada porque duplicava a navegação e bloqueava o Visitante; recuperar senha passou a usar o e-mail do Firebase; "Endereço padrão" ficou para depois, porque precisa da localização no mapa. Validar com `flutter analyze`, `flutter test` e no emulador antes de marcar o PR como pronto.
 
+### Prompt 8 — Regras de segurança do Firestore — Vinicius Reis
+
+Funcionou bem porque a tabela de acesso por perfil já estava em `docs/modelagem-firestore.md` e a IA conferiu os campos que cada classe de `lib/models/` grava antes de escrever as validações.
+
+```text
+vamos fazer essa das regras do firestore
+```
+
+Resultado: `firestore.rules` com controle de acesso por perfil, anonimato do autor (RNF07) e validação dos campos, e 23 testes no emulador do Firestore (`firestore-testes/`). Validado com `npm test` no emulador, `flutter analyze` e `flutter test`.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
@@ -148,6 +158,8 @@ Resultado: arquivos movidos para `lib/screens/conta/`, `lib/services/` e `lib/wi
 | 7 | Modelagem do Firestore (exemplo de código) | Usou enums em maiúsculas (`GRAVE`, `ALAGAMENTO`), lidos com `values.byName`. O lint do Flutter (`constant_identifier_names`) aponta isso como fora do padrão do Dart. | `flutter analyze` ao criar as classes de `lib/models/`. | Valores no padrão do Dart (`Gravidade.grave`), cada um com o campo `codigo` gravado no Firestore (`"GRAVE"`). O banco ficou igual e o exemplo do documento foi corrigido. |
 | 8 | Telas Rota de fuga e Abrigos próximos | Criou models próprios `Abrigo` e `RotaFuga`, sobrescrevendo os models existentes do grupo ao extrair o ZIP sobre o projeto e causando falha em `test/models_test.dart`. | Falha nos testes após a extração dos arquivos. | Telas refeitas para utilizar os models que já existiam no projeto, e arquivos originais restaurados com `git restore`. |
 | 9 | Testes de widget das telas de rota e abrigos | Os testes aguardavam pouco tempo para a troca de tela, não acompanhando o tempo necessário para a navegação. | Falhas nos testes de widget durante a validação da navegação. | Espera dos testes ajustada para ocorrer em dois passos, permitindo aguardar a troca de tela corretamente. |
+| 10 | Regras do Firestore (esboço da modelagem) | O esboço deixava criar ocorrência sem gravar o autor (o autor não conseguiria excluí-la), permitia se registrar como autor de uma ocorrência de outra pessoa e não validava nenhum campo. | Testes das regras no emulador do Firestore. | Ocorrência e autor gravados juntos e conferidos com `getAfter`; validação de campos, tipos e valores em cada coleção (`firestore.rules`). |
+| 11 | `AuthService` (cadastro) | Gravava em `usuarios/{uid}` o e-mail como foi digitado, mas o Firebase guarda o e-mail em minúsculas; com a regra que exige o e-mail do login, o documento seria recusado. | Revisão do cadastro contra as regras novas. | O documento passa a usar o e-mail devolvido pelo Firebase (`user.email`). |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 
@@ -176,4 +188,5 @@ A stack Dart + Flutter + Firebase (Autenticação e Banco de Dados) é obrigató
 
 - Todo diagrama gerado é comparado com `docs/requisitos.md`, os CRUDs e o protótipo de alta fidelidade antes de entrar no repositório.
 - As suposições feitas pela IA ficam registradas nos próprios documentos (ex.: seção "Pontos em aberto" em `docs/diagrama-de-classes.md`).
+- As regras do Firestore geradas com IA são testadas no emulador do Firestore (`firestore-testes/`, 23 testes) antes de serem aplicadas no projeto.
 - Código gerado por IA só é enviado depois de compilar e rodar no emulador, e cada integrante deve saber explicar o trecho que enviou, já que o projeto tem arguição oral.

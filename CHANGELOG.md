@@ -109,6 +109,11 @@
 - Ao criar conta, o app grava `usuarios/{uid}` com a classe Usuario (perfil MORADOR). Enquanto as regras do Firestore não liberam a gravação, a conta é criada só no Auth, sem travar o cadastro.
 - Aba Perfil: mostra o login para quem não está logado e os dados da conta (nome, notificações, sair) para quem está.
 - Testes de widget: o Visitante abre a aba Perfil sem conta e o login valida os campos antes de chamar o Firebase (test/widget_test.dart).
+- Regras de segurança do Firestore (firestore.rules) com controle de acesso por perfil: o Visitante só lê dados públicos; o Morador registra ocorrências, exclui as próprias, denuncia avisos e cuida só dos próprios dados; a Defesa Civil também gerencia abrigos, rotas, alertas, áreas de risco e guias. Ninguém vira Defesa Civil pelo app.
+- Anonimato do autor (RNF07) garantido pelas regras: a ocorrência só é aceita junto com o seu autor em autoresOcorrencias, na mesma gravação, e só o autor e a Defesa Civil veem quem registrou.
+- Validação dos dados nas regras: só os campos da modelagem, enumerações com códigos válidos, tamanho máximo dos textos, nível da água de 0 a 500 cm, expiração depois da criação e vagas do abrigo até a capacidade.
+- 23 testes das regras no emulador do Firestore (firestore-testes/), com instruções para rodar.
+- firebase.json e .firebaserc configurados para aplicar as regras com `firebase deploy --only firestore:rules`.
 
 ### Alterado
 - Telas de conta reorganizadas: lib/screens/conta/ (tela_login, tela_registro, tela_reset_senha, tela_perfil), lib/services/auth_service.dart e lib/widgets/widgets_conta.dart, com os imports corrigidos.
@@ -116,6 +121,9 @@
 - Recuperar senha agora envia o e-mail do Firebase com o link para criar a nova senha, em vez de trocar a senha direto no app.
 - lib/screens/tela_principal.dart: a aba Perfil deixa de ser "Em construção".
 - Branch feature/telas-conta atualizada com a develop (telas de rota e abrigos): conflitos em tela_principal.dart, widget_test.dart e CHANGELOG resolvidos mantendo as duas partes; o teste de volta às abas pela barra inferior passou a esperar o login na aba Perfil.
+- AuthService: o documento usuarios/{uid} usa o e-mail como o Firebase guarda (minúsculas), exigido pelas regras, e é criado no login quando a conta foi feita antes das regras.
+- docs/modelagem-firestore.md: seção de regras de segurança atualizada com a tabela final, o funcionamento do anonimato e das validações e um exemplo de gravação da ocorrência com o autor.
+- docs/uso-de-ia.md: prompt das regras do Firestore.
 
 ### Removido
 - lib/screens/main.dart (o app já tem o lib/main.dart, que inicializa o Firebase e abre sem exigir login).

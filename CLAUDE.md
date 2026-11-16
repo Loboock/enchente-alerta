@@ -55,7 +55,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 
 ## Estado atual (09/11/2026)
 
-- Firebase: projeto `enchente-alerta`, plano Spark, Auth por e-mail/senha ativo, Firestore em `southamerica-east1`, regras ainda em modo produção (bloqueando tudo) — aplicar as regras de `docs/modelagem-firestore.md` quando o app gravar dados.
+- Firebase: projeto `enchente-alerta`, plano Spark, Auth por e-mail/senha ativo, Firestore em `southamerica-east1`, regras em `firestore.rules` (controle de acesso por perfil, anonimato e validações), testadas no emulador em `firestore-testes/` (`npm test`, precisa do Java do Android Studio no PATH) e aplicadas com `firebase deploy --only firestore:rules`. Toda ocorrência é gravada em batch junto com `autoresOcorrencias/{id}`.
 - Flutter: projeto criado na raiz (`br.unit.enchentealerta.enchente_alerta`, só Android), FlutterFire configurado, pacotes `firebase_core`, `firebase_auth`, `cloud_firestore`. `lib/main.dart` inicializa o Firebase e usa o tema de `lib/theme/app_theme.dart` (claro/escuro, segue o aparelho); a tela inicial ainda é provisória.
 - Cores do protótipo: o destaque é laranja `#FF8D28` (não amarelo puro), usado como `secondary`.
 - Ambiente: Windows, emulador Pixel 8 (Android 17). Precisou instalar o NDK 28.2.13676358 pelo SDK Manager.
@@ -64,7 +64,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 
 1. ~~Inicializar o Firebase no `main.dart`; tema azul-escuro e amarelo com modo noturno (RNF02, RNF03, RNF10).~~ Feito em 09/11/2026.
 2. ~~Navegação com barra inferior: Início (mapa), Avisos, Histórico, Perfil, Guia — igual ao protótipo.~~ Feito pelo Pedro em 10/11/2026 (tela Início com `flutter_map`; as outras abas mostram "Em construção").
-3. Login, Criar conta e Recuperar senha com Firebase Auth, mantendo o acesso livre do Visitante.
+3. ~~Login, Criar conta e Recuperar senha com Firebase Auth, mantendo o acesso livre do Visitante.~~ Feito pelo Christian em 15/11/2026 (`lib/services/auth_service.dart`, `lib/screens/conta/`). Regras do Firestore feitas em 15/11/2026.
 4. ~~Classes de `lib/models/` conforme `docs/diagrama-de-classes.md`, com `fromFirestore`/`toFirestore`.~~ Feito em 10/11/2026 (branch `feature/models`). Enums com `codigo` gravado no Firestore; coordenadas em `LatLng`.
 5. Criar aviso, lista de avisos e mapa de pontos; depois abrigos, rotas, guia, histórico e offline.
 6. Documentos que faltam: fluxo de navegação real, escopo, EAP e sprints; atualizar README com responsabilidades reais.

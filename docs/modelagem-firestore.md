@@ -267,68 +267,37 @@ await lote.commit();
 
 ## 5. Regras de segurança (controle de acesso)
 
-Resumo de quem pode ler e gravar em cada coleção. O arquivo `firestore.rules` do projeto deve seguir esta tabela.
+As regras estão em [`firestore.rules`](../firestore.rules), na raiz do repositório, e são testadas no emulador do Firestore em [`firestore-testes/`](../firestore-testes/).
 
-| Coleção | Leitura | Criação | Alteração / exclusão |
-|---|---|---|---|
-| `usuarios/{uid}` e subcoleções | o próprio usuário | o próprio usuário | o próprio usuário (não pode mudar o próprio `perfil`) |
-| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado | autor (excluir) e Defesa Civil |
-| `ocorrencias/{id}/denuncias` | Defesa Civil | usuário logado | Defesa Civil |
-| `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid | ninguém |
-| `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil |
-| `abrigos`, `rotasFuga` | qualquer pessoa | Defesa Civil | Defesa Civil |
+| Coleção | Leitura | Criação | Alteração | Exclusão |
+|---|---|---|---|---|
+| `usuarios/{uid}` | o próprio usuário | o próprio usuário, sempre como `MORADOR` e com o e-mail do login | o próprio usuário, só `nome` e `preferenciaNotificacao` | ninguém |
+| `usuarios/{uid}/enderecos` | o dono | o dono | o dono | o dono |
+| `usuarios/{uid}/notificacoes` | o dono | o dono | o dono, só o campo `lida` | o dono |
+| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado, junto com o autor (ver abaixo) | Defesa Civil | autor e Defesa Civil |
+| `ocorrencias/{id}/denuncias` | Defesa Civil | usuário logado, com o próprio uid | Defesa Civil | Defesa Civil |
+| `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid, na mesma gravação da ocorrência | ninguém | autor e Defesa Civil |
+| `abrigos`, `rotasFuga`, `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil | Defesa Civil |
+| qualquer outra coleção | ninguém | ninguém | ninguém | ninguém |
 
-Esboço das regras:
+**Como funcionam as partes principais:**
 
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+- **Perfil:** a regra lê o campo `perfil` do documento `usuarios/{uid}` de quem está logado. Ninguém consegue virar `DEFESA_CIVIL` pelo app: a conta nova precisa ser `MORADOR` e o `perfil` não pode ser alterado. A Defesa Civil é definida manualmente no console do Firebase.
+- **Ocorrência com autor anônimo (RNF07):** o app grava `ocorrencias/{id}` e `autoresOcorrencias/{id}` na mesma gravação (`WriteBatch`). Com `getAfter`, a regra só aceita a ocorrência se, no fim da gravação, o autor dela for quem está logado. Assim toda ocorrência tem dono, ninguém se registra como autor de uma ocorrência que já existe e o autor nunca aparece no documento público.
+- **Validação dos dados:** cada documento só aceita os campos da modelagem (`keys().hasOnly`) e confere tipos e valores: enumerações só com os códigos válidos, textos com tamanho máximo, `nivelAguaCm` inteiro de 0 a 500, `expiraEm` depois de `criadaEm`, vagas do abrigo entre 0 e a capacidade e, na ocorrência nova, `status` igual a `ATIVA`.
 
-    function logado() { return request.auth != null; }
-    function ehDefesaCivil() {
-      return logado() &&
-        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.perfil == 'DEFESA_CIVIL';
-    }
-    function ehAutor(ocorrenciaId) {
-      return logado() &&
-        get(/databases/$(database)/documents/autoresOcorrencias/$(ocorrenciaId)).data.autorId == request.auth.uid;
-    }
+**Exemplo de gravação de ocorrência no app:**
 
-    match /usuarios/{uid} {
-      allow read: if logado() && request.auth.uid == uid;
-      allow create: if logado() && request.auth.uid == uid && request.resource.data.perfil == 'MORADOR';
-      allow update: if logado() && request.auth.uid == uid && request.resource.data.perfil == resource.data.perfil;
-      match /{sub=**} {
-        allow read, write: if logado() && request.auth.uid == uid;
-      }
-    }
-
-    match /ocorrencias/{id} {
-      allow read: if true;
-      allow create: if logado();
-      allow update: if ehDefesaCivil();
-      allow delete: if ehAutor(id) || ehDefesaCivil();
-      match /denuncias/{denunciaId} {
-        allow read, update, delete: if ehDefesaCivil();
-        allow create: if logado() && request.resource.data.autorId == request.auth.uid;
-      }
-    }
-
-    match /autoresOcorrencias/{id} {
-      allow read: if logado() && (resource.data.autorId == request.auth.uid || ehDefesaCivil());
-      allow create: if logado() && request.resource.data.autorId == request.auth.uid;
-    }
-
-    match /{colecao}/{id} {
-      allow read: if colecao in ['alertas', 'areasRisco', 'guias', 'abrigos', 'rotasFuga'];
-      allow write: if colecao in ['alertas', 'areasRisco', 'guias', 'abrigos', 'rotasFuga'] && ehDefesaCivil();
-    }
-  }
-}
+```dart
+final db = FirebaseFirestore.instance;
+final ref = db.collection('ocorrencias').doc();
+final batch = db.batch()
+  ..set(ref, ocorrencia.toFirestore())
+  ..set(db.collection('autoresOcorrencias').doc(ref.id), {'autorId': uid});
+await batch.commit();
 ```
 
-O perfil `DEFESA_CIVIL` é definido manualmente no console do Firebase; pelo app, toda conta nova é criada como `MORADOR`.
+**Como aplicar no projeto do Firebase:** na raiz do repositório, `firebase deploy --only firestore:rules`.
 
 ## 6. Pontos em aberto
 

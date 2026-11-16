@@ -84,9 +84,15 @@ class AuthService extends ChangeNotifier {
   Future<void> _carregarUsuario(String uid) async {
     try {
       final doc = await _usuarios.doc(uid).get();
-      if (doc.exists && _user?.uid == uid) {
+      if (_user?.uid != uid) return;
+      if (doc.exists) {
         _usuario = Usuario.fromFirestore(doc);
         notifyListeners();
+      } else {
+        // Conta criada antes das regras do Firestore: cria o documento agora.
+        final u = _user!;
+        await _criarDocumentoUsuario(
+            uid, u.email ?? '', nome.isEmpty ? 'Morador' : nome);
       }
     } catch (e) {
       // Regras do Firestore ainda bloqueiam a leitura: segue só com o Auth.
@@ -118,7 +124,9 @@ class AuthService extends ChangeNotifier {
       await u.reload();
       _user = auth.currentUser;
       notifyListeners();
-      await _criarDocumentoUsuario(u.uid, emailLimpo, nomeInicial);
+      // Usa o e-mail como o Firebase guardou (minúsculas): a regra do
+      // Firestore exige que seja igual ao do login.
+      await _criarDocumentoUsuario(u.uid, u.email ?? emailLimpo, nomeInicial);
     } catch (e) {
       throw AuthException(message(e));
     }
