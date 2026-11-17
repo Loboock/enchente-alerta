@@ -5,11 +5,13 @@ import 'package:enchente_alerta/data/dados_provisorios.dart';
 import 'package:enchente_alerta/main.dart';
 import 'package:enchente_alerta/models/models.dart';
 import 'package:enchente_alerta/models/perigo.dart';
+import 'package:enchente_alerta/screens/avisos/tela_criar_aviso.dart';
+import 'package:enchente_alerta/screens/avisos/tela_reportar_aviso.dart';
 import 'package:enchente_alerta/navegacao.dart';
 import 'package:enchente_alerta/services/localizacao_service.dart';
 import 'package:enchente_alerta/services/perigos_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
-
+import 'package:enchente_alerta/theme/app_theme.dart';
 import 'package:enchente_alerta/widgets/mapa/mapa_enchente.dart';
 
 import 'fakes.dart';
@@ -24,6 +26,7 @@ void main() {
     LocalizacaoService.instance = LocalizacaoFalsa();
     rotas = RotasFalsas();
     RotasService.instance = rotas;
+    PerigosService.instance = PerigosService();
   });
 
   Future<void> abrirApp(WidgetTester tester) async {
@@ -51,7 +54,7 @@ void main() {
     await tester.tap(find.text('Avisos'));
     await tester.pump();
 
-    expect(find.text('Em construção'), findsOneWidget);
+    expect(find.text('Avisos de alagamento'), findsOneWidget);
   });
 
   testWidgets('Visitante abre a aba Perfil e vê o login, sem precisar de conta',
@@ -281,5 +284,135 @@ void main() {
 
     expect(abaAtual.value, 4);
     expect(find.text('Antes, durante e depois'), findsOneWidget);
+  });
+
+  // ---------- Avisos, Criar aviso e Reportar aviso ----------
+
+  Ocorrencia aviso(String id, String endereco, Gravidade gravidade,
+          int nivelAguaCm, Duration atras) {
+    final criadaEm = DateTime.now().subtract(atras);
+    return Ocorrencia(
+      id: id,
+      tipo: TipoOcorrencia.alagamento,
+      gravidade: gravidade,
+      endereco: endereco,
+      localizacao: usuarioProvisorio,
+      nivelAguaCm: nivelAguaCm,
+      criadaEm: criadaEm,
+      expiraEm: criadaEm.add(const Duration(hours: 4)),
+    );
+  }
+
+  Future<void> abrirTela(WidgetTester tester, Widget tela) async {
+    await tester.pumpWidget(MaterialApp(theme: AppTheme.claro, home: tela));
+    await tester.pump();
+  }
+
+  testWidgets('Aba Avisos lista os avisos ativos, do mais recente ao mais antigo',
+      (tester) async {
+    PerigosService.instance.perigos.value = [
+      Perigo.daOcorrencia(
+          aviso('a', 'Av. Principal, Siqueira Campos', Gravidade.moderado, 30,
+              const Duration(minutes: 25))),
+      Perigo.daOcorrencia(aviso('b', 'Rua Exemplo, Centro', Gravidade.grave,
+          80, const Duration(minutes: 10))),
+    ];
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Avisos'));
+    await tester.pump();
+
+    expect(find.text('ALAGAMENTO GRAVE'), findsOneWidget);
+    expect(find.text('Água a 80 cm · há 10 min'), findsOneWidget);
+    expect(find.text('Água a 30 cm · há 25 min'), findsOneWidget);
+    expect(find.text('Reportar'), findsNWidgets(2));
+    // O mais recente vem primeiro.
+    expect(
+      tester.getTopLeft(find.text('Rua Exemplo, Centro')).dy,
+      lessThan(tester.getTopLeft(find.text('Av. Principal, Siqueira Campos')).dy),
+    );
+    // Visitante não é autor de nenhum aviso: não vê Excluir.
+    expect(find.text('Excluir'), findsNothing);
+  });
+
+  testWidgets('Aba Avisos sem avisos ativos mostra mensagem e Criar aviso',
+      (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Avisos'));
+    await tester.pump();
+
+    expect(find.text('Nenhum aviso de alagamento ativo agora.'), findsOneWidget);
+    expect(find.text('Criar aviso'), findsOneWidget);
+  });
+
+  testWidgets('Criar e reportar aviso sem conta pedem para entrar',
+      (tester) async {
+    PerigosService.instance.perigos.value = [
+      Perigo.daOcorrencia(aviso('b', 'Rua Exemplo, Centro', Gravidade.grave,
+          80, const Duration(minutes: 10))),
+    ];
+    await abrirApp(tester);
+    await tester.tap(find.text('Avisos'));
+    await tester.pump();
+
+    await tester.tap(find.text('Criar aviso'));
+    await tester.pump();
+    expect(find.text('Entre na sua conta para criar avisos.'), findsOneWidget);
+
+    await tester.tap(find.text('Reportar'));
+    await tester.pump();
+    expect(find.text('Entre na sua conta para reportar avisos.'), findsOneWidget);
+  });
+
+  testWidgets('Criar aviso valida gravidade, endereço e nível da água',
+      (tester) async {
+    await abrirTela(tester, const TelaCriarAviso());
+
+    await tester.ensureVisible(find.text('Criar'));
+    await tester.pump();
+    await tester.tap(find.text('Criar'));
+    await tester.pump();
+
+    expect(find.text('Escolha a gravidade.'), findsOneWidget);
+    expect(find.text('Informe o endereço.'), findsOneWidget);
+    expect(find.text('Informe o nível da água em cm.'), findsOneWidget);
+
+    await tester.ensureVisible(find.bySemanticsLabel('Gravidade Grave'));
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Gravidade Grave'));
+    await tester.enterText(find.byType(TextFormField).at(1), '600');
+    await tester.ensureVisible(find.text('Criar'));
+    await tester.pump();
+    await tester.tap(find.text('Criar'));
+    await tester.pump();
+
+    expect(find.text('Escolha a gravidade.'), findsNothing);
+    expect(find.text('Use um valor de 0 a 500 cm.'), findsOneWidget);
+  });
+
+  testWidgets('Reportar aviso mostra o aviso e os 4 motivos do protótipo',
+      (tester) async {
+    await abrirTela(
+      tester,
+      TelaReportarAviso(
+        ocorrencia: aviso('b', 'Rua Exemplo, Centro', Gravidade.grave, 80,
+            const Duration(minutes: 10)),
+      ),
+    );
+
+    expect(find.text('Rua Exemplo, Centro · Alagamento grave'), findsOneWidget);
+    expect(find.text('Informação incorreta'), findsOneWidget);
+    expect(find.text('Água já baixou / não existe mais'), findsOneWidget);
+    expect(find.text('Localização errada no mapa'), findsOneWidget);
+    expect(find.text('Spam ou conteúdo abusivo'), findsOneWidget);
+
+    // Sem conta, o envio é recusado com mensagem em português.
+    await tester.tap(find.text('Água já baixou / não existe mais'));
+    await tester.ensureVisible(find.text('Enviar denúncia'));
+    await tester.pump();
+    await tester.tap(find.text('Enviar denúncia'));
+    await tester.pump();
+    expect(find.text('Entre na sua conta para enviar avisos.'), findsOneWidget);
   });
 }

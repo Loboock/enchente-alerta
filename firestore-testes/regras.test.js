@@ -11,13 +11,17 @@ import {
 import {
   GeoPoint,
   Timestamp,
+  collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   increment,
+  query,
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
   writeBatch,
 } from 'firebase/firestore';
 
@@ -280,11 +284,37 @@ describe('denuncias', () => {
 
   test('morador denuncia, mas só a Defesa Civil lê', async () => {
     await anaRegistra();
-    await assertSucceeds(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/d1'), denuncia('bia')));
-    await assertFails(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/d2'), denuncia('ana')));
-    await assertFails(setDoc(doc(visitante(), 'ocorrencias/oc1/denuncias/d3'), denuncia('bia')));
-    await assertFails(getDoc(doc(bia(), 'ocorrencias/oc1/denuncias/d1')));
-    await assertSucceeds(getDoc(doc(defesa(), 'ocorrencias/oc1/denuncias/d1')));
+    await assertSucceeds(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia'), denuncia('bia')));
+    await assertFails(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/ana'), denuncia('ana')));
+    await assertFails(setDoc(doc(visitante(), 'ocorrencias/oc1/denuncias/bia'), denuncia('bia')));
+    await assertFails(getDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia')));
+    await assertSucceeds(getDoc(doc(defesa(), 'ocorrencias/oc1/denuncias/bia')));
+  });
+
+  test('cada pessoa denuncia o mesmo aviso uma vez só', async () => {
+    await anaRegistra();
+    await assertSucceeds(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia'), denuncia('bia')));
+    // Repetir vira alteração, que só a Defesa Civil pode fazer.
+    await assertFails(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia'), denuncia('bia')));
+    // Id diferente do próprio uid é recusado.
+    await assertFails(setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/outra'), denuncia('bia')));
+  });
+
+  test('autor exclui o aviso e o registro do autor na mesma gravação', async () => {
+    await anaRegistra();
+    const db = ana();
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'ocorrencias/oc1'));
+    batch.delete(doc(db, 'autoresOcorrencias/oc1'));
+    await assertSucceeds(batch.commit());
+  });
+
+  test('autor lista os próprios avisos; não lista os dos outros', async () => {
+    await anaRegistra();
+    await assertSucceeds(getDocs(query(collection(ana(), 'autoresOcorrencias'),
+      where('autorId', '==', 'ana'))));
+    await assertFails(getDocs(query(collection(bia(), 'autoresOcorrencias'),
+      where('autorId', '==', 'ana'))));
   });
 });
 

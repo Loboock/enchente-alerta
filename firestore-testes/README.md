@@ -2,7 +2,7 @@
 
 Testa o arquivo [`../firestore.rules`](../firestore.rules) no emulador local do Firestore. Não acessa o banco real.
 
-O arquivo [`regras.test.js`](regras.test.js) tem 30 testes que verificam o acesso do Visitante, do Morador e da Defesa Civil, o anonimato do autor (RNF07), as confirmações de aviso ("Ainda está aí") e a validação dos campos.
+O arquivo [`regras.test.js`](regras.test.js) tem 33 testes que verificam o acesso do Visitante, do Morador e da Defesa Civil, o anonimato do autor (RNF07), as confirmações de aviso ("Ainda está aí") e a validação dos campos.
 
 ## Precisa ter instalado
 
@@ -19,7 +19,7 @@ npm install
 npm test
 ```
 
-O resultado esperado é `pass 30` e `fail 0`. As mensagens `PERMISSION_DENIED` que aparecem no meio da saída são normais: são os testes que conferem que a regra bloqueia.
+O resultado esperado é `pass 33` e `fail 0`. As mensagens `PERMISSION_DENIED` que aparecem no meio da saída são normais: são os testes que conferem que a regra bloqueia.
 
 ## Depois de mudar as regras
 

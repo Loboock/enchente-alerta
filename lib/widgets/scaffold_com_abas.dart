@@ -4,12 +4,21 @@ import '../navegacao.dart';
 import 'barra_navegacao_inferior.dart';
 
 /// Scaffold das telas que abrem por cima da principal: mantém a barra
-/// inferior do protótipo (sem aba ativa) e some com ela quando o teclado abre.
+/// inferior do protótipo e some com ela quando o teclado abre.
 class ScaffoldComAbas extends StatelessWidget {
-  const ScaffoldComAbas({super.key, required this.appBar, required this.body});
+  const ScaffoldComAbas({
+    super.key,
+    required this.appBar,
+    required this.body,
+    this.abaAtiva = -1,
+  });
 
   final PreferredSizeWidget appBar;
   final Widget body;
+
+  /// Aba destacada na barra (ex.: 1 = Avisos nas telas Criar e Reportar
+  /// aviso). -1 deixa nenhuma destacada.
+  final int abaAtiva;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +31,7 @@ class ScaffoldComAbas extends StatelessWidget {
           ? null
           : BarraNavegacaoInferior(
               itens: itensNavegacao,
-              indiceAtual: -1,
+              indiceAtual: abaAtiva,
               aoSelecionar: (i) => irParaAba(context, i),
             ),
     );

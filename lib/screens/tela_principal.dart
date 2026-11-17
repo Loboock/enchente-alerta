@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../navegacao.dart';
 import '../widgets/barra_navegacao_inferior.dart';
+import 'avisos/tela_avisos.dart';
 import 'conta/tela_perfil.dart';
 import 'guia/tela_guia.dart';
 import 'historico/tela_historico.dart';
 import 'inicio/tela_inicio.dart';
-import 'tela_em_construcao.dart';
 
 /// Estrutura principal do app: telas das cinco abas + barra inferior.
 class TelaPrincipal extends StatelessWidget {
@@ -14,7 +14,7 @@ class TelaPrincipal extends StatelessWidget {
 
   static const _telas = <Widget>[
     TelaInicio(),
-    TelaEmConstrucao(titulo: 'Avisos'),
+    TelaAvisos(),
     TelaHistorico(),
     // Sem conta mostra o login; logado mostra os dados da conta.
     ProfileScreen(),

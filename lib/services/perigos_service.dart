@@ -197,22 +197,69 @@ class PerigosService {
   }
 
   /// "Não está mais aqui": vira uma denúncia para a Defesa Civil revisar.
-  Future<void> negar(Ocorrencia ocorrencia) async {
+  Future<void> negar(Ocorrencia ocorrencia) =>
+      denunciar(ocorrencia, motivo: MotivoDenuncia.aguaBaixou);
+
+  /// Tela "Reportar aviso": denúncia com motivo e detalhes opcionais.
+  ///
+  /// A denúncia fica em `denuncias/{uid}`, então cada pessoa denuncia um
+  /// aviso uma vez só (a regra do Firestore recusa a segunda).
+  Future<void> denunciar(
+    Ocorrencia ocorrencia, {
+    required MotivoDenuncia motivo,
+    String? detalhes,
+  }) async {
     final uid = _uidObrigatorio();
     final db = _dbObrigatorio();
+    final texto = detalhes?.trim();
     final denuncia = Denuncia(
-      id: '',
+      id: uid,
       autorId: uid,
-      motivo: MotivoDenuncia.aguaBaixou,
+      motivo: motivo,
+      detalhes: (texto == null || texto.isEmpty) ? null : texto,
       criadaEm: DateTime.now(),
     );
-    await _executar(
-      () => db
-          .collection('ocorrencias')
-          .doc(ocorrencia.id)
-          .collection('denuncias')
-          .add(denuncia.toFirestore()),
-    );
+    try {
+      await _executar(
+        () => db
+            .collection('ocorrencias')
+            .doc(ocorrencia.id)
+            .collection('denuncias')
+            .doc(uid)
+            .set(denuncia.toFirestore()),
+      );
+    } on PerigoException catch (e) {
+      // A única recusa possível para quem está logado é a denúncia repetida.
+      if (e.mensagem.startsWith('Sem permissão')) {
+        throw PerigoException('Você já reportou este aviso.');
+      }
+      rethrow;
+    }
+  }
+
+  /// Exclui um aviso do próprio usuário (ou qualquer um, para a Defesa
+  /// Civil), junto com o registro do autor.
+  Future<void> excluir(Ocorrencia ocorrencia) async {
+    _uidObrigatorio();
+    final db = _dbObrigatorio();
+    final lote = db.batch()
+      ..delete(db.collection('ocorrencias').doc(ocorrencia.id))
+      ..delete(db.collection('autoresOcorrencias').doc(ocorrencia.id));
+    await _executar(lote.commit);
+  }
+
+  /// Ids dos avisos criados por [uid], para mostrar o botão "Excluir" só
+  /// nos avisos da própria pessoa. O autor continua fora do documento
+  /// público da ocorrência (RNF07): só ele consegue ler esta consulta.
+  Stream<Set<String>> idsDoAutor(String uid) {
+    final db = _db;
+    if (db == null) return Stream.value(const {});
+    return db
+        .collection('autoresOcorrencias')
+        .where('autorId', isEqualTo: uid)
+        .snapshots()
+        .map((snap) => {for (final doc in snap.docs) doc.id})
+        .handleError((Object e) => debugPrint('autoresOcorrencias: $e'));
   }
 
   Future<void> _executar(Future<Object?> Function() acao) async {
