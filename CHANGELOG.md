@@ -188,6 +188,7 @@
 - Denúncia: cada pessoa denuncia um aviso uma vez só; o id da denúncia é o uid de quem denuncia (firestore.rules, PerigosService). "Não está mais" no mapa conta como denúncia da mesma pessoa.
 - Motivos da denúncia com o texto do protótipo ("Água já baixou / não existe mais", "Localização errada no mapa", "Spam ou conteúdo abusivo").
 - ScaffoldComAbas: parâmetro abaAtiva, para a aba Avisos ficar destacada nas telas Criar e Reportar aviso.
+- README.md: responsabilidades de cada integrante na Unidade II (antes das sprints e Sprint 1), tecnologias, como rodar o app e os testes, e lista da documentação.
 - Arquivos das telas Histórico, Guia e Ajuda, enviados pelo site do GitHub na raiz do repositório, movidos para as pastas certas (lib/screens/, lib/widgets/, lib/utils/, lib/data/, test/, docs/) e juntados com a develop atual.
 
 ### Removido
