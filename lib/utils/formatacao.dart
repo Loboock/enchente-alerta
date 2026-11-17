@@ -24,3 +24,11 @@ String normalizarTexto(String texto) {
   }
   return saida.toString().trim();
 }
+
+/// Data curta do protótipo: "18/09/26".
+String formatarDataCurta(DateTime data) {
+  final dia = data.day.toString().padLeft(2, '0');
+  final mes = data.month.toString().padLeft(2, '0');
+  final ano = (data.year % 100).toString().padLeft(2, '0');
+  return '$dia/$mes/$ano';
+}

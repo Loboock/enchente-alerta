@@ -223,4 +223,63 @@ void main() {
 
     expect(find.text('Ainda está aí'), findsOneWidget);
   });
+
+  testWidgets('Aba Histórico lista os alagamentos, do mais recente ao mais antigo',
+      (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Histórico'));
+    await tester.pump();
+
+    expect(find.text('Últimos alagamentos na sua região'), findsOneWidget);
+    expect(find.text('Av. Ivo do Prado, Centro'), findsOneWidget);
+    expect(find.text('Grave · 80 cm · 18/09/26'), findsOneWidget);
+    expect(find.text('Moderado · 35 cm · 11/07/26'), findsOneWidget);
+  });
+
+  testWidgets('Aba Guia mostra as orientações e os telefones de emergência',
+      (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Guia'));
+    await tester.pump();
+
+    expect(find.text('Antes, durante e depois'), findsOneWidget);
+    expect(find.text('Acompanhe os alertas da Defesa Civil'), findsOneWidget);
+    expect(find.text('Se precisar evacuar'), findsOneWidget);
+
+    // A seção de emergência fica abaixo da dobra na tela pequena do teste.
+    await tester.scrollUntilVisible(find.text('Defesa civil 199'), 200);
+    expect(find.text('SAMU 192'), findsOneWidget);
+    expect(find.text('Bombeiros 193'), findsOneWidget);
+  });
+
+  testWidgets('Botão de ajuda abre a tela Ajuda e os itens levam às telas',
+      (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.byTooltip('Ajuda'));
+    await esperar(tester);
+
+    expect(find.text('Abrigos próximos'), findsOneWidget);
+
+    await tester.tap(find.text('Abrigos próximos'));
+    await esperar(tester);
+
+    expect(find.text('Ordenado por distância'), findsOneWidget);
+  });
+
+  testWidgets('Item da Ajuda volta para a aba escolhida', (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.byTooltip('Ajuda'));
+    await esperar(tester);
+
+    await tester.scrollUntilVisible(find.text('Guia de segurança'), 200);
+    await tester.tap(find.text('Guia de segurança'));
+    await esperar(tester);
+
+    expect(abaAtual.value, 4);
+    expect(find.text('Antes, durante e depois'), findsOneWidget);
+  });
 }

@@ -164,12 +164,21 @@
 - Regras das confirmações de aviso em firestore.rules: o aviso novo começa com 1 confirmação (a do autor, gravada na mesma operação); "Ainda está aí" soma exatamente 1 por pessoa e renova o prazo para no máximo 5 h; cada pessoa só lê e cria a própria marca em `ocorrencias/{id}/confirmacoes/{uid}`. Todas as validações anteriores foram mantidas.
 - 7 testes das confirmações no emulador do Firestore (firestore-testes/regras.test.js, agora com 30 testes).
 - Teste de widget: aviso na posição do usuário abre ao tocar no ponto azul (test/widget_test.dart).
+- Tela Histórico (aba Histórico, tela 06 do protótipo): lista dos últimos alagamentos da região, do mais recente ao mais antigo, com ponto colorido pela gravidade, endereço, nível da água e data (lib/screens/historico/tela_historico.dart). Usa a classe `Ocorrencia` de `lib/models/`, com dados provisórios até ligar o Firestore.
+- Tela Guia de segurança (aba Guia, tela 08): orientações de Antes, Durante, Se precisar evacuar e Emergência, com os telefones da Defesa Civil (199), SAMU (192) e Bombeiros (193) (lib/screens/guia/tela_guia.dart). Usa a classe `GuiaOrientacao` e a enumeração `FaseGuia`.
+- Tela Ajuda (tela 13): índice das telas do app; cada item leva à tela correspondente (lib/screens/ajuda/tela_ajuda.dart). Criar avisos e Reportar avisos mostram "em breve" até essas telas existirem.
+- `formatarDataCurta` em lib/utils/formatacao.dart (data no formato 18/09/26).
+- Dados provisórios do histórico e do guia em lib/data/dados_provisorios.dart.
+- Testes de widget das telas Histórico, Guia e Ajuda (test/widget_test.dart).
 
 ### Alterado
 - Resolvidas as marcas de conflito do `git stash` que foram no commit de 16/11 (.gitignore, docs/modelagem-firestore.md, docs/uso-de-ia.md), mantendo o conteúdo dos dois lados.
 - docs/modelagem-firestore.md: seção 5 com a linha das confirmações na tabela de acesso e a explicação da regra; o esboço antigo de regras saiu (as regras valem pelo firestore.rules).
 - docs/uso-de-ia.md: prompt das rotas renumerado para 9 e erros para 12 a 14; adicionado o erro 15 (confirmações sem regra no Firestore).
 - docs/rotas-e-mapa.md: as regras ficam no firestore.rules e são publicadas pelo Vinicius após o merge.
+- lib/widgets/app_bar_tela.dart: o botão de ajuda abre a tela Ajuda (antes mostrava "em breve") e fica laranja dentro dela, como no protótipo.
+- lib/screens/tela_principal.dart: as abas Histórico e Guia deixam de ser "Em construção".
+- Arquivos das telas Histórico, Guia e Ajuda, enviados pelo site do GitHub na raiz do repositório, movidos para as pastas certas (lib/screens/, lib/widgets/, lib/utils/, lib/data/, test/, docs/) e juntados com a develop atual.
 
 ### Corrigido
 - Mapa: o ponto azul do usuário ficava por cima do aviso reportado no mesmo lugar e bloqueava o toque, então não dava para abrir o aviso ("Ainda está aí" / "Não está mais"). Agora o ponto deixa o toque passar (IgnorePointer em lib/widgets/mapa/mapa_enchente.dart). Encontrado no teste no emulador.

@@ -155,6 +155,18 @@ pela defesa civil.
 
 Resultado: GPS real, rotas pelo OpenRouteService desviando das áreas da Defesa Civil e dos avisos com 2+ confirmações, navegação curva a curva e botão de reportar. Decisões do grupo: OpenRouteService (grátis e aceita áreas a evitar), aviso de morador só desvia a rota depois de confirmado por mais alguém (evita que um aviso falso desvie todo mundo). Validar com `flutter analyze`, `flutter test` e no emulador.
 
+### Prompt 10 — Telas Histórico, Guia de segurança e Ajuda — Bernardo Gonçalves do Carmo
+
+Funcionou bem porque foram enviados o repositório atual (`develop`), o ZIP antigo com a tela de Histórico já feita e o link do protótipo no Figma, então a IA reaproveitou o visual da tela antiga e adaptou ao que o projeto já tinha (models, tema e widgets).
+
+```text
+Eu tenho as telas 6, 8 e 13 para fazer. O primeiro ZIP é o repositório de como está
+agora e o segundo é um antigo, mas com o front da tela 6 feito. Você poderia fazer
+essas telas para mim?
+```
+
+Resultado: telas Histórico, Guia de segurança e Ajuda em `lib/screens/`, usando `Ocorrencia`, `GuiaOrientacao` e `FaseGuia` de `lib/models/`; botão de ajuda do cabeçalho ligado à tela Ajuda. Validar com `flutter analyze`, `flutter test` e no emulador antes de abrir o PR.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
