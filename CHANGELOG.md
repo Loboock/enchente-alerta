@@ -173,3 +173,4 @@
 
 ### Corrigido
 - Mapa: o ponto azul do usuário ficava por cima do aviso reportado no mesmo lugar e bloqueava o toque, então não dava para abrir o aviso ("Ainda está aí" / "Não está mais"). Agora o ponto deixa o toque passar (IgnorePointer em lib/widgets/mapa/mapa_enchente.dart). Encontrado no teste no emulador.
+- Cadastro: o documento usuarios/{uid} era gravado duas vezes ao mesmo tempo (pelo cadastro e pelo login automático); a segunda gravação era recusada pelas regras (PERMISSION_DENIED no log). Agora é criado numa transação, só se ainda não existir (lib/services/auth_service.dart). Testado no emulador criando uma conta nova.

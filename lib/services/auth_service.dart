@@ -89,7 +89,7 @@ class AuthService extends ChangeNotifier {
         _usuario = Usuario.fromFirestore(doc);
         notifyListeners();
       } else {
-        // Conta criada antes das regras do Firestore: cria o documento agora.
+        // Conta nova (ou criada antes das regras): cria o documento agora.
         final u = _user!;
         await _criarDocumentoUsuario(
             uid, u.email ?? '', nome.isEmpty ? 'Morador' : nome);
@@ -132,6 +132,14 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Cria `usuarios/{uid}` só se ainda não existir.
+  ///
+  /// No cadastro, o `register` e o `_carregarUsuario` (disparado pelo login
+  /// automático) chamam este método quase ao mesmo tempo. A transação lê e
+  /// grava de uma vez: se as duas correrem juntas, o Firestore repete a
+  /// segunda, que encontra o documento e não grava de novo. Sem isso, a
+  /// segunda gravação virava uma alteração de `criadoEm`, recusada pelas
+  /// regras.
   Future<void> _criarDocumentoUsuario(
       String uid, String email, String nome) async {
     final novo = Usuario(
@@ -141,13 +149,21 @@ class AuthService extends ChangeNotifier {
       criadoEm: DateTime.now(),
       preferenciaNotificacao: const PreferenciaNotificacao(),
     );
+    final ref = _usuarios.doc(uid);
     try {
-      await _usuarios.doc(uid).set(novo.toFirestore());
-      _usuario = novo;
+      final existente =
+          await FirebaseFirestore.instance.runTransaction((tx) async {
+        final doc = await tx.get(ref);
+        if (doc.exists) return Usuario.fromFirestore(doc);
+        tx.set(ref, novo.toFirestore());
+        return null;
+      });
+      if (_user?.uid != uid) return;
+      _usuario = existente ?? novo;
       notifyListeners();
     } catch (e) {
-      // Até o Vinicius liberar `usuarios/{uid}` nas regras, a conta é criada
-      // no Auth mesmo sem o documento.
+      // A conta continua criada no Auth; o documento é criado no próximo
+      // login (_carregarUsuario).
       debugPrint('Não foi possível gravar usuarios/$uid: $e');
     }
   }
