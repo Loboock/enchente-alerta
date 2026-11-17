@@ -51,3 +51,6 @@ app.*.map.json
 /firestore-testes/node_modules/
 firestore-debug.log
 firebase-debug.log
+
+# Chave do OpenRouteService (docs/rotas-e-mapa.md)
+config.json

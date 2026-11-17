@@ -6,7 +6,8 @@ rules_version = '2';
 // Perfis:
 //   Visitante (sem conta) ... só lê dados públicos
 //   MORADOR (conta nova) .... registra e exclui as próprias ocorrências,
-//                             denuncia avisos e cuida dos próprios dados
+//                             confirma e denuncia avisos e cuida dos
+//                             próprios dados
 //   DEFESA_CIVIL ............ também gerencia abrigos, rotas, alertas,
 //                             áreas de risco e guias (definido no console)
 service cloud.firestore {
@@ -30,6 +31,15 @@ service cloud.firestore {
 
     function caminhoAutor(ocorrenciaId) {
       return /databases/$(database)/documents/autoresOcorrencias/$(ocorrenciaId);
+    }
+
+    function caminhoOcorrencia(ocorrenciaId) {
+      return /databases/$(database)/documents/ocorrencias/$(ocorrenciaId);
+    }
+
+    // Marca de que quem está logado já confirmou o aviso ("ainda está aí").
+    function caminhoConfirmacao(ocorrenciaId) {
+      return /databases/$(database)/documents/ocorrencias/$(ocorrenciaId)/confirmacoes/$(request.auth.uid);
     }
 
     function ehAutor(ocorrenciaId) {
@@ -135,7 +145,7 @@ service cloud.firestore {
       function ocorrenciaValida() {
         return soCampos(['tipo', 'gravidade', 'status', 'endereco', 'localizacao',
                          'nivelAguaCm', 'descricao', 'imagemUrl', 'areaRiscoId',
-                         'criadaEm', 'expiraEm'],
+                         'criadaEm', 'expiraEm', 'confirmacoes'],
                         ['tipo', 'gravidade', 'status', 'endereco', 'localizacao',
                          'nivelAguaCm', 'criadaEm', 'expiraEm'])
           && novo().tipo in ['ALAGAMENTO', 'VIA_OBSTRUIDA']
@@ -151,28 +161,69 @@ service cloud.firestore {
           && textoOpcional('areaRiscoId', 100)
           && novo().criadaEm is timestamp
           && novo().expiraEm is timestamp
-          && novo().expiraEm > novo().criadaEm;
+          && novo().expiraEm > novo().criadaEm
+          && (!('confirmacoes' in novo())
+            || (novo().confirmacoes is int && novo().confirmacoes >= 1));
+      }
+
+      // Avisos antigos, sem o campo, contam como 1 confirmação.
+      function confirmacoesAtuais() {
+        return resource.data.get('confirmacoes', 1);
       }
 
       // Visitante também vê o mapa de pontos e os avisos.
       allow read: if true;
 
-      // A ocorrência e o seu autor são gravados juntos (batch): a ocorrência
-      // só é aceita se, no fim da gravação, o autor dela for quem está logado.
-      // Assim toda ocorrência tem dono, e ele pode excluí-la depois.
+      // A ocorrência, o seu autor e a confirmação do autor são gravados
+      // juntos (batch): a ocorrência só é aceita se, no fim da gravação, o
+      // autor dela for quem está logado. Assim toda ocorrência tem dono, e
+      // ele pode excluí-la depois. Quem reporta já conta como 1 confirmação.
       allow create: if logado()
         && ocorrenciaValida()
         && novo().status == 'ATIVA'
+        && novo().get('confirmacoes', 0) == 1
         && existsAfter(caminhoAutor(ocorrenciaId))
-        && getAfter(caminhoAutor(ocorrenciaId)).data.autorId == request.auth.uid;
+        && getAfter(caminhoAutor(ocorrenciaId)).data.autorId == request.auth.uid
+        && existsAfter(caminhoConfirmacao(ocorrenciaId));
 
-      // Só a Defesa Civil altera (ex.: marcar como RESOLVIDA ou EXPIRADA),
+      // A Defesa Civil altera (ex.: marcar como RESOLVIDA ou EXPIRADA),
       // sem trocar o momento em que foi criada.
       allow update: if ehDefesaCivil()
         && ocorrenciaValida()
         && novo().criadaEm == resource.data.criadaEm;
 
+      // "Ainda está aí": qualquer conta soma exatamente 1 confirmação a um
+      // aviso ativo e renova o prazo (até 5 h a partir de agora), uma vez por
+      // pessoa. A marca em confirmacoes/{uid} vai na mesma gravação.
+      allow update: if logado()
+        && resource.data.status == 'ATIVA'
+        && novo().diff(resource.data).affectedKeys()
+             .hasOnly(['confirmacoes', 'expiraEm'])
+        && novo().confirmacoes == confirmacoesAtuais() + 1
+        && novo().expiraEm is timestamp
+        && novo().expiraEm > request.time
+        && novo().expiraEm <= request.time + duration.value(5, 'h')
+        && !exists(caminhoConfirmacao(ocorrenciaId))
+        && existsAfter(caminhoConfirmacao(ocorrenciaId));
+
       allow delete: if ehAutor(ocorrenciaId) || ehDefesaCivil();
+
+      // Quem já confirmou o aviso. Cada pessoa só lê e cria a própria marca,
+      // e só junto com a ocorrência nova (1) ou com a soma de +1.
+      match /confirmacoes/{uid} {
+        allow get: if logado() && request.auth.uid == uid;
+        allow create: if logado()
+          && request.auth.uid == uid
+          && soCampos(['criadaEm'], ['criadaEm'])
+          && novo().criadaEm == request.time
+          && existsAfter(caminhoOcorrencia(ocorrenciaId))
+          && getAfter(caminhoOcorrencia(ocorrenciaId)).data.get('confirmacoes', 0)
+             == (exists(caminhoOcorrencia(ocorrenciaId))
+                 ? get(caminhoOcorrencia(ocorrenciaId)).data.get('confirmacoes', 1) + 1
+                 : 1);
+        allow update: if false;
+        allow delete: if ehDefesaCivil();
+      }
 
       // Denúncia de aviso incorreto: qualquer conta denuncia, só a Defesa
       // Civil vê e resolve.
@@ -201,8 +252,8 @@ service cloud.firestore {
       allow create: if logado()
         && soCampos(['autorId'], ['autorId'])
         && novo().autorId == request.auth.uid
-        && !exists(/databases/$(database)/documents/ocorrencias/$(ocorrenciaId))
-        && existsAfter(/databases/$(database)/documents/ocorrencias/$(ocorrenciaId));
+        && !exists(caminhoOcorrencia(ocorrenciaId))
+        && existsAfter(caminhoOcorrencia(ocorrenciaId));
 
       allow update: if false;
 

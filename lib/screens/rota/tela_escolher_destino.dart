@@ -1,15 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../data/dados_provisorios.dart';
 import '../../models/destino.dart';
+import '../../services/localizacao_service.dart';
+import '../../services/rotas_service.dart';
 import '../../utils/formatacao.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/cartao_local.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import 'tela_rota_fuga.dart';
 
-/// Tela para escolher o endereço de destino antes de ver a rota de fuga.
-/// Não existe no protótipo: segue o mesmo visual das telas 02 e 03.
+/// Tela para escolher o destino da rota de fuga: a pessoa digita um
+/// endereço, escolhe uma das sugestões e o app calcula a rota que desvia
+/// das áreas alagadas (TelaRotaFuga).
+///
+/// Os endereços vêm da busca do OpenRouteService (Pelias), priorizando os
+/// que ficam perto da posição atual.
 class TelaEscolherDestino extends StatefulWidget {
   const TelaEscolherDestino({super.key});
 
@@ -18,106 +27,173 @@ class TelaEscolherDestino extends StatefulWidget {
 }
 
 class _TelaEscolherDestinoState extends State<TelaEscolherDestino> {
+  /// Espera a pessoa parar de digitar antes de buscar (economiza a cota).
+  static const _espera = Duration(milliseconds: 450);
+  static const _minimoLetras = 3;
+
   final _controlador = TextEditingController();
   String _busca = '';
 
+  List<Destino> _enderecos = const [];
+  bool _buscando = false;
+  String? _erro;
+  Timer? _timer;
+
+  /// Para descartar respostas de buscas antigas.
+  int _consulta = 0;
+
+  /// De onde as distâncias são medidas: GPS ou a posição de teste.
+  LatLng get _origem =>
+      LocalizacaoService.instance.posicao.value?.ponto ?? usuarioProvisorio;
+
+  @override
+  void initState() {
+    super.initState();
+    LocalizacaoService.instance.iniciar();
+  }
+
   @override
   void dispose() {
+    _timer?.cancel();
     _controlador.dispose();
     super.dispose();
   }
 
-  void _aoDigitar(String texto) => setState(() => _busca = texto);
+  void _aoDigitar(String texto) {
+    _timer?.cancel();
+    _consulta++;
+    setState(() {
+      _busca = texto;
+      _erro = null;
+      if (texto.trim().length < _minimoLetras) {
+        _enderecos = const [];
+        _buscando = false;
+      }
+    });
+    if (texto.trim().length < _minimoLetras) return;
+    _timer = Timer(_espera, () => _buscar(texto));
+  }
+
+  /// Enter no teclado: busca na hora, sem esperar.
+  void _aoConfirmar(String texto) {
+    _timer?.cancel();
+    if (texto.trim().length >= _minimoLetras) _buscar(texto);
+  }
+
+  Future<void> _buscar(String texto) async {
+    final consulta = ++_consulta;
+    setState(() {
+      _buscando = true;
+      _erro = null;
+    });
+    List<Destino> achados = const [];
+    String? erro;
+    try {
+      achados = await RotasService.instance.buscarEnderecos(
+        texto,
+        perto: _origem,
+      );
+    } on RotaException catch (e) {
+      erro = e.mensagem;
+    }
+    if (!mounted || consulta != _consulta) return;
+    setState(() {
+      _enderecos = achados;
+      _erro = erro;
+      _buscando = false;
+    });
+  }
 
   void _limpar() {
     _controlador.clear();
-    setState(() => _busca = '');
+    _aoDigitar('');
   }
 
-  Widget _cartao(Destino destino, String detalhe, IconData icone) {
+  Widget _cartao(Destino destino) {
     return CartaoLocal(
       titulo: destino.nome,
-      subtitulo: detalhe,
-      icone: icone,
-      distancia: formatarDistancia(
-        metrosEntre(usuarioProvisorio, destino.posicao),
-      ),
+      subtitulo: destino.detalhe ?? 'Endereço',
+      icone: Icons.location_on_outlined,
+      distancia: formatarDistancia(metrosEntre(_origem, destino.posicao)),
       aoTocar: () => abrirRotaFuga(context, destino),
     );
   }
 
-  Widget _secao(String titulo) {
+  /// Ícone grande com um texto no meio da tela (orientação, erro, vazio).
+  Widget _mensagem(IconData icone, String texto, {Color? cor}) {
     final cores = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 4),
-      child: Text(
-        titulo,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: cores.onSurfaceVariant,
-        ),
+      padding: const EdgeInsets.fromLTRB(24, 48, 24, 0),
+      child: Column(
+        children: [
+          Icon(icone, size: 56, color: cor ?? cores.primary),
+          const SizedBox(height: 12),
+          Text(
+            texto,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: cor ?? cores.onSurfaceVariant),
+          ),
+        ],
       ),
     );
   }
 
-  /// Lista mostrada quando ainda não há texto digitado.
-  List<Widget> _listaInicial() {
-    return [
-      _secao('Locais salvos'),
-      for (final local in locaisSalvos)
-        _cartao(local, 'Local salvo', Icons.place_outlined),
-      _secao('Sugestões'),
-      for (final local in sugestoes)
-        _cartao(local, 'Endereço', Icons.place_outlined),
-    ];
-  }
+  List<Widget> _conteudo() {
+    final cores = Theme.of(context).colorScheme;
+    final erro = _erro;
 
-  /// Lista filtrada pelo texto digitado (ignora acento e maiúscula).
-  List<Widget> _resultados() {
-    final consulta = normalizarTexto(_busca);
-    bool combina(String texto) => normalizarTexto(texto).contains(consulta);
-
-    final itens = <Widget>[
-      for (final local in [...locaisSalvos, ...sugestoes])
-        if (combina(local.nome))
-          _cartao(local, 'Endereço', Icons.place_outlined),
-      for (final abrigo in abrigosPorDistancia())
-        if (combina('${abrigo.nome} ${abrigo.bairro}'))
-          _cartao(
-            abrigo.comoDestino,
-            'Abrigo · ${abrigo.bairro}',
-            Icons.home_outlined,
-          ),
-    ];
-
-    if (itens.isEmpty) {
+    if (!RotasService.instance.buscaDisponivel) {
       return [
-        Padding(
-          padding: const EdgeInsets.only(top: 32),
-          child: Center(
-            child: Text(
-              'Nenhum local encontrado',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
+        _mensagem(
+          Icons.key_off,
+          'Falta a chave do OpenRouteService. Veja docs/rotas-e-mapa.md.',
+          cor: cores.error,
         ),
       ];
     }
-    return [_secao('Resultados'), ...itens];
+    if (_busca.trim().length < _minimoLetras) {
+      return [
+        _mensagem(
+          Icons.alt_route,
+          'Digite o endereço para onde você quer ir.\n'
+          'A rota desvia das áreas alagadas.',
+        ),
+      ];
+    }
+    if (_buscando && _enderecos.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.only(top: 48),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ];
+    }
+    if (erro != null) {
+      return [_mensagem(Icons.wifi_off, erro, cor: cores.error)];
+    }
+    if (_enderecos.isEmpty) {
+      return [
+        _mensagem(
+          Icons.search_off,
+          'Nenhum endereço encontrado.\nTente incluir o bairro ou a cidade.',
+        ),
+      ];
+    }
+    return [
+      if (_buscando) const LinearProgressIndicator(),
+      for (final endereco in _enderecos) _cartao(endereco),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
-    final digitando = _busca.trim().isNotEmpty;
+    final digitando = _busca.isNotEmpty;
 
     return ScaffoldComAbas(
       appBar: const AppBarTela(
         titulo: 'Rota de fuga',
-        subtitulo: 'Escolha para onde ir',
+        subtitulo: 'Para onde você quer ir?',
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,9 +203,10 @@ class _TelaEscolherDestinoState extends State<TelaEscolherDestino> {
             child: TextField(
               controller: _controlador,
               onChanged: _aoDigitar,
+              onSubmitted: _aoConfirmar,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: 'Digite um endereço ou local',
+                hintText: 'Digite um endereço',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: digitando
                     ? IconButton(
@@ -155,9 +232,13 @@ class _TelaEscolherDestinoState extends State<TelaEscolherDestino> {
             ),
           ),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-              children: digitando ? _resultados() : _listaInicial(),
+            // Refaz as distâncias quando o GPS atualiza.
+            child: ValueListenableBuilder<PosicaoUsuario?>(
+              valueListenable: LocalizacaoService.instance.posicao,
+              builder: (context, posicao, child) => ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                children: _conteudo(),
+              ),
             ),
           ),
         ],

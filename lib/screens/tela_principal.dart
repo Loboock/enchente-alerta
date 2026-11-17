@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../navegacao.dart';
 import '../widgets/barra_navegacao_inferior.dart';
 import 'conta/tela_perfil.dart';
+import 'guia/tela_guia.dart';
+import 'historico/tela_historico.dart';
 import 'inicio/tela_inicio.dart';
 import 'tela_em_construcao.dart';
 
@@ -13,10 +15,10 @@ class TelaPrincipal extends StatelessWidget {
   static const _telas = <Widget>[
     TelaInicio(),
     TelaEmConstrucao(titulo: 'Avisos'),
-    TelaEmConstrucao(titulo: 'Histórico'),
+    TelaHistorico(),
     // Sem conta mostra o login; logado mostra os dados da conta.
     ProfileScreen(),
-    TelaEmConstrucao(titulo: 'Guia'),
+    TelaGuia(),
   ];
 
   @override

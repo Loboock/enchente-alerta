@@ -131,9 +131,39 @@
 - lib/screens/placeholder.dart e a barra inferior própria das telas de conta (AppShell), que duplicava a navegação do app e bloqueava o Visitante.
 - Login falso em memória (teste@gmail.com).
 
+# [16/11/2026]
+
+### Adicionado
+- Localização real do usuário com o pacote geolocator (lib/services/localizacao_service.dart): pede a permissão, acompanha o GPS e, sem GPS, usa a posição de teste da Farolândia com aviso na tela.
+- Rotas de fuga reais com o OpenRouteService (lib/services/rotas_service.dart), de carro ou a pé, que desviam das áreas da Defesa Civil (`areasRisco`) e dos avisos de moradores com 2 ou mais confirmações (`options.avoid_polygons`).
+- Alagamentos em tempo real no mapa (lib/services/perigos_service.dart e lib/models/perigo.dart): vermelho quando a rota desvia, laranja quando o aviso ainda não foi confirmado.
+- Botão Reportar no mapa, como no Waze (lib/widgets/mapa/folha_reportar.dart): cria a ocorrência na posição atual, com o autor em `autoresOcorrencias` (RNF07). Exige login.
+- Detalhes do aviso ao tocar no mapa, com "Ainda está aí" (confirmação, uma por pessoa) e "Não está mais" (denúncia com motivo AGUA_BAIXOU) (lib/widgets/mapa/folha_perigo.dart).
+- Tela de navegação curva a curva (lib/screens/rota/tela_navegacao.dart): próxima manobra, mapa que segue e gira com o usuário, recálculo ao sair da rota ou quando um alagamento é confirmado à frente.
+- Busca de endereços reais na escolha de destino.
+- Campo `confirmacoes` em Ocorrencia e subcoleção `ocorrencias/{id}/confirmacoes/{uid}` (docs/modelagem-firestore.md, com as regras de segurança atualizadas).
+- Configuração da chave do OpenRouteService por `--dart-define-from-file=config.json` (lib/config.dart, docs/rotas-e-mapa.md); `config.json` no .gitignore.
+- Permissões de localização no AndroidManifest.xml.
+- Testes: rotas e perigos com resposta falsa do OpenRouteService (test/rotas_test.dart), GPS e rotas falsos nos testes de widget (test/fakes.dart), navegação e reportar sem login (test/widget_test.dart).
+
+### Alterado
+- Tela Início: mapa ao vivo, centrado no usuário, com botões de recentralizar e reportar.
+- Tela Rota de fuga: rota calculada na hora, com tempo, distância, hora de chegada, escolha carro/a pé e avisos de alagamento evitado ou sem confirmação.
+- Telas Abrigos próximos e Escolher destino: distâncias medidas a partir da posição real.
+- Tela de escolha de destino da Rota de fuga: agora a pessoa digita um endereço real, escolhe uma sugestão e o app calcula a rota que desvia dos alagamentos, no lugar da lista de locais fixos.
+- Fundo do mapa: OpenStreetMap padrão (escurecido no modo noturno) ou, com a chave opcional `CARTO_API_KEY`, CARTO Voyager e Dark Matter.
+
+### Removido
+- Rota de mentira (`rotaProvisoria`) e locais fixos (`locaisSalvos`, `sugestoes`) de lib/data/dados_provisorios.dart.
+- lib/widgets/atribuicao_mapa.dart (o crédito do mapa agora fica dentro de lib/widgets/mapa/mapa_enchente.dart).
+
+
 # [17/11/2026]
 
 ### Adicionado
+- Regras das confirmações de aviso em firestore.rules: o aviso novo começa com 1 confirmação (a do autor, gravada na mesma operação); "Ainda está aí" soma exatamente 1 por pessoa e renova o prazo para no máximo 5 h; cada pessoa só lê e cria a própria marca em `ocorrencias/{id}/confirmacoes/{uid}`. Todas as validações anteriores foram mantidas.
+- 7 testes das confirmações no emulador do Firestore (firestore-testes/regras.test.js, agora com 30 testes).
+- Teste de widget: aviso na posição do usuário abre ao tocar no ponto azul (test/widget_test.dart).
 - Tela Histórico (aba Histórico, tela 06 do protótipo): lista dos últimos alagamentos da região, do mais recente ao mais antigo, com ponto colorido pela gravidade, endereço, nível da água e data (lib/screens/historico/tela_historico.dart). Usa a classe `Ocorrencia` de `lib/models/`, com dados provisórios até ligar o Firestore.
 - Tela Guia de segurança (aba Guia, tela 08): orientações de Antes, Durante, Se precisar evacuar e Emergência, com os telefones da Defesa Civil (199), SAMU (192) e Bombeiros (193) (lib/screens/guia/tela_guia.dart). Usa a classe `GuiaOrientacao` e a enumeração `FaseGuia`.
 - Tela Ajuda (tela 13): índice das telas do app; cada item leva à tela correspondente (lib/screens/ajuda/tela_ajuda.dart). Criar avisos e Reportar avisos mostram "em breve" até essas telas existirem.
@@ -142,6 +172,13 @@
 - Testes de widget das telas Histórico, Guia e Ajuda (test/widget_test.dart).
 
 ### Alterado
+- Resolvidas as marcas de conflito do `git stash` que foram no commit de 16/11 (.gitignore, docs/modelagem-firestore.md, docs/uso-de-ia.md), mantendo o conteúdo dos dois lados.
+- docs/modelagem-firestore.md: seção 5 com a linha das confirmações na tabela de acesso e a explicação da regra; o esboço antigo de regras saiu (as regras valem pelo firestore.rules).
+- docs/uso-de-ia.md: prompt das rotas renumerado para 9 e erros para 12 a 14; adicionado o erro 15 (confirmações sem regra no Firestore).
+- docs/rotas-e-mapa.md: as regras ficam no firestore.rules e são publicadas pelo Vinicius após o merge.
 - lib/widgets/app_bar_tela.dart: o botão de ajuda abre a tela Ajuda (antes mostrava "em breve") e fica laranja dentro dela, como no protótipo.
 - lib/screens/tela_principal.dart: as abas Histórico e Guia deixam de ser "Em construção".
+- Arquivos das telas Histórico, Guia e Ajuda, enviados pelo site do GitHub na raiz do repositório, movidos para as pastas certas (lib/screens/, lib/widgets/, lib/utils/, lib/data/, test/, docs/) e juntados com a develop atual.
 
+### Corrigido
+- Mapa: o ponto azul do usuário ficava por cima do aviso reportado no mesmo lugar e bloqueava o toque, então não dava para abrir o aviso ("Ainda está aí" / "Não está mais"). Agora o ponto deixa o toque passar (IgnorePointer em lib/widgets/mapa/mapa_enchente.dart). Encontrado no teste no emulador.
