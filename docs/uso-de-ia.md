@@ -177,6 +177,17 @@ eu preciso fazer essas tres, pode fazer e colocar em unico PR
 
 Resultado: as três telas em `lib/screens/avisos/`, ligadas ao Firestore (criar, listar em tempo real, excluir o próprio aviso e denunciar uma vez por pessoa). Validado com `flutter analyze`, `flutter test`, `npm test` (regras) e no emulador com o Firebase de verdade.
 
+### Prompt 12 — Escopo, EAP e planejamento em sprints — Vinicius Reis
+
+Funcionou bem porque a IA montou o documento a partir do que já estava no repositório (requisitos, PRs mesclados e CHANGELOG), marcando o que está pronto e o que é proposta, em vez de inventar o andamento.
+
+```text
+oq é esse escopo e onde pede no documento do projeto?
+sim faça
+```
+
+Resultado: `docs/planejamento.md` com escopo (dentro, fora e restrições), EAP em diagrama Mermaid e Sprints 0 a 3. A Sprint 2 e a Sprint 3 ficam como proposta até o grupo confirmar.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu

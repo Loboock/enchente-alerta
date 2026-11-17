@@ -37,6 +37,7 @@ Testes: `flutter test` (app) e `npm test` dentro de [`firestore-testes/`](firest
 | [`docs/diagrama-de-classes.md`](docs/diagrama-de-classes.md) | Classes de domínio |
 | [`docs/modelagem-firestore.md`](docs/modelagem-firestore.md) | Coleções do Firestore, mapeamento Dart e regras de segurança |
 | [`docs/rotas-e-mapa.md`](docs/rotas-e-mapa.md) | Mapa, rotas de fuga e avisos de alagamento |
+| [`docs/planejamento.md`](docs/planejamento.md) | Escopo, EAP simplificada e planejamento em sprints |
 | [`docs/uso-de-ia.md`](docs/uso-de-ia.md) | Registro do uso de IA |
 | [`CHANGELOG.md`](CHANGELOG.md) | Histórico de mudanças |
 
