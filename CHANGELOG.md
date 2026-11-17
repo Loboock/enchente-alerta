@@ -130,3 +130,30 @@
 - lib/screens/theme.dart (paleta própria, substituída pelas cores do tema do app).
 - lib/screens/placeholder.dart e a barra inferior própria das telas de conta (AppShell), que duplicava a navegação do app e bloqueava o Visitante.
 - Login falso em memória (teste@gmail.com).
+
+# [16/11/2026]
+
+### Adicionado
+- Localização real do usuário com o pacote geolocator (lib/services/localizacao_service.dart): pede a permissão, acompanha o GPS e, sem GPS, usa a posição de teste da Farolândia com aviso na tela.
+- Rotas de fuga reais com o OpenRouteService (lib/services/rotas_service.dart), de carro ou a pé, que desviam das áreas da Defesa Civil (`areasRisco`) e dos avisos de moradores com 2 ou mais confirmações (`options.avoid_polygons`).
+- Alagamentos em tempo real no mapa (lib/services/perigos_service.dart e lib/models/perigo.dart): vermelho quando a rota desvia, laranja quando o aviso ainda não foi confirmado.
+- Botão Reportar no mapa, como no Waze (lib/widgets/mapa/folha_reportar.dart): cria a ocorrência na posição atual, com o autor em `autoresOcorrencias` (RNF07). Exige login.
+- Detalhes do aviso ao tocar no mapa, com "Ainda está aí" (confirmação, uma por pessoa) e "Não está mais" (denúncia com motivo AGUA_BAIXOU) (lib/widgets/mapa/folha_perigo.dart).
+- Tela de navegação curva a curva (lib/screens/rota/tela_navegacao.dart): próxima manobra, mapa que segue e gira com o usuário, recálculo ao sair da rota ou quando um alagamento é confirmado à frente.
+- Busca de endereços reais na escolha de destino.
+- Campo `confirmacoes` em Ocorrencia e subcoleção `ocorrencias/{id}/confirmacoes/{uid}` (docs/modelagem-firestore.md, com as regras de segurança atualizadas).
+- Configuração da chave do OpenRouteService por `--dart-define-from-file=config.json` (lib/config.dart, docs/rotas-e-mapa.md); `config.json` no .gitignore.
+- Permissões de localização no AndroidManifest.xml.
+- Testes: rotas e perigos com resposta falsa do OpenRouteService (test/rotas_test.dart), GPS e rotas falsos nos testes de widget (test/fakes.dart), navegação e reportar sem login (test/widget_test.dart).
+
+### Alterado
+- Tela Início: mapa ao vivo, centrado no usuário, com botões de recentralizar e reportar.
+- Tela Rota de fuga: rota calculada na hora, com tempo, distância, hora de chegada, escolha carro/a pé e avisos de alagamento evitado ou sem confirmação.
+- Telas Abrigos próximos e Escolher destino: distâncias medidas a partir da posição real.
+- Tela de escolha de destino da Rota de fuga: agora a pessoa digita um endereço real, escolhe uma sugestão e o app calcula a rota que desvia dos alagamentos, no lugar da lista de locais fixos.
+- Fundo do mapa: OpenStreetMap padrão (escurecido no modo noturno) ou, com a chave opcional `CARTO_API_KEY`, CARTO Voyager e Dark Matter.
+
+### Removido
+- Rota de mentira (`rotaProvisoria`) e locais fixos (`locaisSalvos`, `sugestoes`) de lib/data/dados_provisorios.dart.
+- lib/widgets/atribuicao_mapa.dart (o crédito do mapa agora fica dentro de lib/widgets/mapa/mapa_enchente.dart).
+

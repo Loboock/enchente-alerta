@@ -60,6 +60,12 @@ void main() {
       expect(Ocorrencia.fromMap('oc1', mapa).nivelAguaCm, 40);
     });
 
+    test('confirmações começam em 1 e documento antigo conta só o autor', () {
+      expect(ocorrencia.toFirestore()['confirmacoes'], 1);
+      final antigo = ocorrencia.toFirestore()..remove('confirmacoes');
+      expect(Ocorrencia.fromMap('oc1', antigo).confirmacoes, 1);
+    });
+
     test('expira quando expiraEm passa, mesmo com status ATIVA', () {
       expect(ocorrencia.estaAtiva(data.add(const Duration(hours: 1))), isTrue);
       expect(ocorrencia.estaAtiva(data.add(const Duration(hours: 7))), isFalse);

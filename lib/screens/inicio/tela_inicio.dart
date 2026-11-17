@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-import '../../data/dados_provisorios.dart';
+import '../../config.dart';
+import '../../services/localizacao_service.dart';
+import '../../services/perigos_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_bar_tela.dart';
+import '../../widgets/mapa/botao_mapa.dart';
+import '../../widgets/mapa/folha_reportar.dart';
+import '../../widgets/mapa/mapa_enchente.dart';
 import '../abrigos/tela_abrigos_proximos.dart';
 import '../rota/tela_escolher_destino.dart';
 
-/// Tela "01 Início" do protótipo: mapa com a área de risco em destaque,
-/// atalhos de locais e os botões Abrigo e Rota de fuga.
+/// Tela "01 Início" do protótipo: mapa ao vivo (posição do usuário e
+/// alagamentos), atalhos de locais e os botões Abrigo e Rota de fuga.
 class TelaInicio extends StatelessWidget {
   const TelaInicio({super.key});
-
-  // Provisório: centro do mapa e da área de risco (Farolândia, Aracaju).
-  // Depois virá da localização do usuário e da coleção `areasRisco`.
-  static const _centro = usuarioProvisorio;
-  static const _raioAreaRiscoMetros = 150.0;
 
   void _abrir(BuildContext context, Widget tela) {
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => tela));
@@ -27,7 +27,7 @@ class TelaInicio extends StatelessWidget {
       appBar: const AppBarTela(titulo: 'Início'),
       body: Column(
         children: [
-          const Expanded(child: _MapaRisco()),
+          const Expanded(child: _MapaInicio()),
           _PainelAcoes(
             aoAbrigo: () => _abrir(context, const TelaAbrigosProximos()),
             aoRotaFuga: () => _abrir(context, const TelaEscolherDestino()),
@@ -38,49 +38,149 @@ class TelaInicio extends StatelessWidget {
   }
 }
 
-class _MapaRisco extends StatelessWidget {
-  const _MapaRisco();
+class _MapaInicio extends StatefulWidget {
+  const _MapaInicio();
+
+  @override
+  State<_MapaInicio> createState() => _MapaInicioState();
+}
+
+class _MapaInicioState extends State<_MapaInicio> {
+  final _controle = MapController();
+  final _localizacao = LocalizacaoService.instance;
+  bool _pronto = false;
+
+  /// Como no Waze: o mapa acompanha a pessoa até ela arrastar o mapa.
+  bool _seguir = true;
+
+  @override
+  void initState() {
+    super.initState();
+    PerigosService.instance.iniciar();
+    _localizacao.iniciar();
+    _localizacao.posicao.addListener(_aoMover);
+  }
+
+  @override
+  void dispose() {
+    _localizacao.posicao.removeListener(_aoMover);
+    _controle.dispose();
+    super.dispose();
+  }
+
+  void _aoMover() {
+    final posicao = _localizacao.posicao.value;
+    if (posicao == null || !_pronto || !_seguir) return;
+    _controle.move(posicao.ponto, _controle.camera.zoom);
+  }
+
+  void _recentralizar() {
+    setState(() => _seguir = true);
+    final posicao = _localizacao.posicao.value;
+    if (posicao != null && _pronto) _controle.move(posicao.ponto, 16.5);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        FlutterMap(
-          options: const MapOptions(
-            initialCenter: TelaInicio._centro,
-            initialZoom: 16,
-            minZoom: 10,
-            maxZoom: 19,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'br.unit.enchentealerta.enchente_alerta',
-              // Sem internet o mapa só fica sem imagem, sem quebrar a tela.
-              errorTileCallback: (tile, error, stackTrace) {},
-            ),
-            CircleLayer(
-              circles: [
-                CircleMarker(
-                  point: TelaInicio._centro,
-                  radius: TelaInicio._raioAreaRiscoMetros,
-                  useRadiusInMeter: true,
-                  color: AppColors.perigo.withValues(alpha: 0.28),
-                ),
-              ],
-            ),
-            const SimpleAttributionWidget(
-              source: Text('© OpenStreetMap contributors'),
-            ),
-          ],
+        MapaEnchente(
+          controller: _controle,
+          zoomInicial: 16,
+          aoFicarPronto: () {
+            if (!mounted) return;
+            _pronto = true;
+            _aoMover();
+          },
+          aoMexerNoMapa: () {
+            if (_seguir) setState(() => _seguir = false);
+          },
         ),
-        const Positioned(
+        Positioned(
           top: 16,
           left: 16,
           right: 16,
-          child: _AtalhosLocais(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const _AtalhosLocais(),
+              ValueListenableBuilder<PosicaoUsuario?>(
+                valueListenable: _localizacao.posicao,
+                builder: (context, posicao, _) {
+                  if (posicao == null ||
+                      !posicao.deTeste ||
+                      Config.usarLocalizacaoDeTeste) {
+                    return const SizedBox.shrink();
+                  }
+                  return _AvisoSemGps(
+                    texto: _localizacao.problema ??
+                        'Sem GPS: mostrando uma posição de exemplo.',
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          right: 16,
+          bottom: 24,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!_seguir) ...[
+                BotaoMapa(
+                  icone: Icons.my_location,
+                  dica: 'Voltar para minha posição',
+                  aoTocar: _recentralizar,
+                ),
+                const SizedBox(height: 12),
+              ],
+              BotaoMapa(
+                icone: Icons.campaign,
+                dica: 'Reportar alagamento',
+                cor: AppColors.alerta,
+                corIcone: AppColors.azulMarinho,
+                tamanho: 60,
+                aoTocar: () => mostrarReportar(context),
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+}
+
+class _AvisoSemGps extends StatelessWidget {
+  const _AvisoSemGps({required this.texto});
+
+  final String texto;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.alerta,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.gps_off, size: 18, color: AppColors.azulMarinho),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              texto,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.azulMarinho,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

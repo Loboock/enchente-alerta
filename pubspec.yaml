@@ -39,6 +39,10 @@ dependencies:
   cloud_firestore: ^7.1.0
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
+  # GPS do aparelho (posição e direção para a navegação).
+  geolocator: ^14.0.0
+  # Chamadas ao OpenRouteService (rotas e busca de endereços).
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:
