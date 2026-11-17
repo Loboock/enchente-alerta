@@ -174,6 +174,7 @@
 - Tela Criar aviso (tela 05): gravidade Leve/Moderado/Grave, endereço com sugestões (começa com o endereço da posição atual), nível da água em cm e descrição opcional, com validação; grava ocorrência e autor separado (RNF07) (lib/screens/avisos/tela_criar_aviso.dart).
 - Tela Reportar aviso (tela 06): aviso selecionado, os 4 motivos do protótipo e detalhes opcionais; vira denúncia para a Defesa Civil (lib/screens/avisos/tela_reportar_aviso.dart).
 - PerigosService: denunciar (com motivo e detalhes), excluir (aviso + autor na mesma gravação) e idsDoAutor (avisos da própria pessoa, sem expor o autor no documento público).
+- docs/fluxo-navegacao.md: fluxo de navegação real do app, levantado do código (diagrama Mermaid, tabela de transições, o que precisa de conta e pontos a ajustar).
 - docs/planejamento.md: escopo (dentro, fora e restrições), EAP simplificada em diagrama Mermaid com os responsáveis e planejamento das Sprints 0 a 3.
 - formatarTempoAtras em lib/utils/formatacao.dart ("há 10 min", "há 2 h") e testes (test/formatacao_test.dart).
 - Testes de widget das telas Avisos, Criar aviso e Reportar aviso; 3 testes novos das regras (denúncia única, excluir com o autor, listar os próprios avisos), 33 no total.

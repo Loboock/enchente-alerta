@@ -17,7 +17,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 - **App que não compilar ou não rodar no emulador é desconsiderado.** Nunca deixar o `main` quebrado.
 - IA é permitida se documentada em `docs/uso-de-ia.md` e entendida pelo grupo (há arguição oral).
 - Q1a (3,0): app fiel ao protótipo de alta fidelidade, Firebase Auth + Firestore, funcionalidades e CRUDs, regras do aditivo (controle de acesso, validações, falhas de conexão).
-- Q1b (2,0): casos de uso, classes, modelagem Firestore + mapeamento Dart, **fluxo de navegação real** (ainda falta), `docs/uso-de-ia.md`.
+- Q1b (2,0): casos de uso, classes, modelagem Firestore + mapeamento Dart, **fluxo de navegação real** (`docs/fluxo-navegacao.md`), `docs/uso-de-ia.md`.
 - Q1c (1,0, individual): commits com a própria conta, README (responsabilidades reais) e CHANGELOG atualizados, sprints semanais.
 - Q1d (1,0): escopo, EAP simplificada, planejamento em sprints — feito em `docs/planejamento.md` (17/11); atualizar a cada sprint.
 - Q1e (1,0): protótipos de baixa e alta fidelidade.
@@ -51,6 +51,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 | `docs/diagrama-casos-de-uso.png` | Casos de uso da Unidade II (fonte em `docs/fontes/diagrama-casos-de-uso.dot`, gerar com `neato`) |
 | `docs/diagrama-de-classes.md` | Classes de domínio, enumerações e relacionamentos (fonte Mermaid em `.mmd`) |
 | `docs/modelagem-firestore.md` | Coleções, campos, mapeamento Dart ↔ Firestore e regras de segurança |
+| `docs/fluxo-navegacao.md` | Fluxo de navegação real (Q1b) |
 | `docs/planejamento.md` | Escopo, EAP simplificada e sprints (Q1d) |
 | `docs/uso-de-ia.md` | Registro de uso de IA |
 
@@ -68,4 +69,4 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 3. ~~Login, Criar conta e Recuperar senha com Firebase Auth, mantendo o acesso livre do Visitante.~~ Feito pelo Christian em 15/11/2026 (`lib/services/auth_service.dart`, `lib/screens/conta/`). Regras do Firestore feitas em 15/11/2026.
 4. ~~Classes de `lib/models/` conforme `docs/diagrama-de-classes.md`, com `fromFirestore`/`toFirestore`.~~ Feito em 10/11/2026 (branch `feature/models`). Enums com `codigo` gravado no Firestore; coordenadas em `LatLng`.
 5. ~~Criar aviso, lista de avisos e mapa de pontos; abrigos, rotas, guia, histórico.~~ Rotas, mapa de pontos e confirmações feitos pelo Pedro (16/11); Histórico, Guia e Ajuda pelo Bernardo (17/11); Avisos, Criar aviso e Reportar aviso pelo Vinicius (17/11). Falta: Histórico ler do Firestore, offline, perfil e telas da Defesa Civil (Sprint 2). Para rodar as rotas: `config.json` com a chave do OpenRouteService e `flutter run --dart-define-from-file=config.json`.
-6. Documentos: ~~README com responsabilidades~~ e ~~escopo, EAP e sprints (`docs/planejamento.md`)~~ feitos em 17/11. Falta o fluxo de navegação real.
+6. Documentos: ~~README com responsabilidades~~ e ~~escopo, EAP e sprints (`docs/planejamento.md`)~~ feitos em 17/11. Fluxo de navegação real em `docs/fluxo-navegacao.md` (17/11); atualizar quando mudar a navegação.
