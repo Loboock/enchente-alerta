@@ -140,7 +140,7 @@ Resultado: as 13 telas do protótipo no app, com Firebase Auth e Firestore.
 | Histórico lendo do Firestore (avisos resolvidos ou expirados) | Bernardo |
 | Mapa da região em cache e aviso de falta de conexão (RF07, RNF05) | Pedro |
 | Perfil: Meus dados, Notificações e Endereço padrão | Christian |
-| Fluxo de navegação real e revisão da documentação | Todos |
+| Revisão da documentação (fluxo de navegação feito em 17/11: [`fluxo-navegacao.md`](fluxo-navegacao.md)) | Todos |
 
 Meta: app completo e estável na `main` antes da apresentação de 24/11.
 

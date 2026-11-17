@@ -188,6 +188,16 @@ sim faça
 
 Resultado: `docs/planejamento.md` com escopo (dentro, fora e restrições), EAP em diagrama Mermaid e Sprints 0 a 3. A Sprint 2 e a Sprint 3 ficam como proposta até o grupo confirmar.
 
+### Prompt 13 — Fluxo de navegação real — Vinicius Reis
+
+Funcionou bem porque a IA levantou o fluxo das chamadas de navegação do código (`Navigator.push`, `irParaAba`, folhas e janelas), e não do protótipo, então o diagrama mostra o que o app faz de verdade, inclusive o que ainda não está igual ao protótipo.
+
+```text
+gere pra mim [o fluxo de navegação real]
+```
+
+Resultado: `docs/fluxo-navegacao.md` com diagrama Mermaid, tabela de transições e 3 pontos a ajustar ("?" das telas de conta, Endereço padrão e atalhos do Início).
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
