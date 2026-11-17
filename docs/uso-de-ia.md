@@ -133,7 +133,6 @@ seguindo o que está escrito no PR.
 
 Resultado: arquivos movidos para `lib/screens/conta/`, `lib/services/` e `lib/widgets/`; cores trocadas pelo `colorScheme` do tema; `AuthService` com Firebase Auth e mensagens em português; aba Perfil mostrando o login para o Visitante. Decisões revisadas: a barra inferior própria das telas (`AppShell`) foi retirada porque duplicava a navegação e bloqueava o Visitante; recuperar senha passou a usar o e-mail do Firebase; "Endereço padrão" ficou para depois, porque precisa da localização no mapa. Validar com `flutter analyze`, `flutter test` e no emulador antes de marcar o PR como pronto.
 
-<<<<<<< Updated upstream
 ### Prompt 8 — Regras de segurança do Firestore — Vinicius Reis
 
 Funcionou bem porque a tabela de acesso por perfil já estava em `docs/modelagem-firestore.md` e a IA conferiu os campos que cada classe de `lib/models/` grava antes de escrever as validações.
@@ -143,8 +142,8 @@ vamos fazer essa das regras do firestore
 ```
 
 Resultado: `firestore.rules` com controle de acesso por perfil, anonimato do autor (RNF07) e validação dos campos, e 23 testes no emulador do Firestore (`firestore-testes/`). Validado com `npm test` no emulador, `flutter analyze` e `flutter test`.
-=======
-### Prompt 8 — Mapa e rotas no estilo Waze desviando das enchentes — Pedro Fraife
+
+### Prompt 9 — Mapa e rotas no estilo Waze desviando das enchentes — Pedro Fraife
 
 Funcionou bem porque a IA perguntou antes de começar as decisões que mudavam o resultado (serviço de rotas, o que entra no "estilo Waze" e quando um aviso de morador passa a desviar a rota), em vez de adivinhar.
 
@@ -155,7 +154,6 @@ pela defesa civil.
 ```
 
 Resultado: GPS real, rotas pelo OpenRouteService desviando das áreas da Defesa Civil e dos avisos com 2+ confirmações, navegação curva a curva e botão de reportar. Decisões do grupo: OpenRouteService (grátis e aceita áreas a evitar), aviso de morador só desvia a rota depois de confirmado por mais alguém (evita que um aviso falso desvie todo mundo). Validar com `flutter analyze`, `flutter test` e no emulador.
->>>>>>> Stashed changes
 
 ---
 
@@ -172,14 +170,12 @@ Resultado: GPS real, rotas pelo OpenRouteService desviando das áreas da Defesa 
 | 7 | Modelagem do Firestore (exemplo de código) | Usou enums em maiúsculas (`GRAVE`, `ALAGAMENTO`), lidos com `values.byName`. O lint do Flutter (`constant_identifier_names`) aponta isso como fora do padrão do Dart. | `flutter analyze` ao criar as classes de `lib/models/`. | Valores no padrão do Dart (`Gravidade.grave`), cada um com o campo `codigo` gravado no Firestore (`"GRAVE"`). O banco ficou igual e o exemplo do documento foi corrigido. |
 | 8 | Telas Rota de fuga e Abrigos próximos | Criou models próprios `Abrigo` e `RotaFuga`, sobrescrevendo os models existentes do grupo ao extrair o ZIP sobre o projeto e causando falha em `test/models_test.dart`. | Falha nos testes após a extração dos arquivos. | Telas refeitas para utilizar os models que já existiam no projeto, e arquivos originais restaurados com `git restore`. |
 | 9 | Testes de widget das telas de rota e abrigos | Os testes aguardavam pouco tempo para a troca de tela, não acompanhando o tempo necessário para a navegação. | Falhas nos testes de widget durante a validação da navegação. | Espera dos testes ajustada para ocorrer em dois passos, permitindo aguardar a troca de tela corretamente. |
-<<<<<<< Updated upstream
 | 10 | Regras do Firestore (esboço da modelagem) | O esboço deixava criar ocorrência sem gravar o autor (o autor não conseguiria excluí-la), permitia se registrar como autor de uma ocorrência de outra pessoa e não validava nenhum campo. | Testes das regras no emulador do Firestore. | Ocorrência e autor gravados juntos e conferidos com `getAfter`; validação de campos, tipos e valores em cada coleção (`firestore.rules`). |
 | 11 | `AuthService` (cadastro) | Gravava em `usuarios/{uid}` o e-mail como foi digitado, mas o Firebase guarda o e-mail em minúsculas; com a regra que exige o e-mail do login, o documento seria recusado. | Revisão do cadastro contra as regras novas. | O documento passa a usar o e-mail devolvido pelo Firebase (`user.email`). |
-=======
-| 10 | Rotas com o OpenRouteService | Usou o endereço `api.openrouteservice.org`, que foi desativado em 2026 em favor de `api.heigit.org`. | Aviso no painel da chave do OpenRouteService. | Endereços trocados para `api.heigit.org/openrouteservice` (rotas) e `api.heigit.org/pelias/v1` (endereços) em `lib/services/rotas_service.dart`. |
-| 11 | Rotas e navegação | O código foi escrito sem compilar no ambiente da IA (download do Flutter bloqueado). | A própria IA avisou. | Validação feita pelo grupo com `flutter analyze`, `flutter test` e no emulador antes do PR. |
-| 12 | Fundo do mapa | Trocou o OpenStreetMap pela CARTO sem chave, mas a CARTO passou a exigir chave em 2026; o mapa apareceu com a marca d'água "API KEY REQUIRED". | Teste no emulador. | OpenStreetMap volta a ser o padrão; a CARTO só é usada com a chave opcional `CARTO_API_KEY` (`lib/widgets/mapa/mapa_enchente.dart`). |
->>>>>>> Stashed changes
+| 12 | Rotas com o OpenRouteService | Usou o endereço `api.openrouteservice.org`, que foi desativado em 2026 em favor de `api.heigit.org`. | Aviso no painel da chave do OpenRouteService. | Endereços trocados para `api.heigit.org/openrouteservice` (rotas) e `api.heigit.org/pelias/v1` (endereços) em `lib/services/rotas_service.dart`. |
+| 13 | Rotas e navegação | O código foi escrito sem compilar no ambiente da IA (download do Flutter bloqueado). | A própria IA avisou. | Validação feita pelo grupo com `flutter analyze`, `flutter test` e no emulador antes do PR. |
+| 14 | Fundo do mapa | Trocou o OpenStreetMap pela CARTO sem chave, mas a CARTO passou a exigir chave em 2026; o mapa apareceu com a marca d'água "API KEY REQUIRED". | Teste no emulador. | OpenStreetMap volta a ser o padrão; a CARTO só é usada com a chave opcional `CARTO_API_KEY` (`lib/widgets/mapa/mapa_enchente.dart`). |
+| 15 | Confirmações de aviso ("Ainda está aí") | Criou o campo `confirmacoes` e a subcoleção `confirmacoes/{uid}` sem mudar o `firestore.rules`; com as regras publicadas, reportar e confirmar seriam recusados. O esboço de regras sugerido no documento tirava as validações de campos. | Revisão do PR contra as regras publicadas (os testes do app usam um Firestore falso, que não aplica regras). | Confirmações acrescentadas ao `firestore.rules`, mantendo as validações: aviso novo com 1 confirmação, soma de exatamente 1 por pessoa e prazo de no máximo 5 h; 7 testes novos no emulador. |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 
@@ -211,5 +207,5 @@ A stack Dart + Flutter + Firebase (Autenticação e Banco de Dados) é obrigató
 
 - Todo diagrama gerado é comparado com `docs/requisitos.md`, os CRUDs e o protótipo de alta fidelidade antes de entrar no repositório.
 - As suposições feitas pela IA ficam registradas nos próprios documentos (ex.: seção "Pontos em aberto" em `docs/diagrama-de-classes.md`).
-- As regras do Firestore geradas com IA são testadas no emulador do Firestore (`firestore-testes/`, 23 testes) antes de serem aplicadas no projeto.
+- As regras do Firestore geradas com IA são testadas no emulador do Firestore (`firestore-testes/`, 30 testes) antes de serem aplicadas no projeto.
 - Código gerado por IA só é enviado depois de compilar e rodar no emulador, e cada integrante deve saber explicar o trecho que enviou, já que o projeto tem arguição oral.

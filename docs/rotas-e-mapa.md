@@ -92,9 +92,10 @@ descarta as expiradas localmente.
 
 ### Regras
 
-As regras atualizadas (com as confirmações) estão em
-`docs/modelagem-firestore.md`, seção 5. Cole no Console do Firebase >
-Firestore > Regras.
+As regras das confirmações estão em [`firestore.rules`](../firestore.rules),
+explicadas em `docs/modelagem-firestore.md`, seção 5, e testadas em
+`firestore-testes/`. Quem publica no Firebase é o Vinicius, com
+`firebase deploy --only firestore:rules`, depois do merge na `develop`.
 
 ## 5. Fundo do mapa
 

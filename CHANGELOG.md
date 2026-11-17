@@ -157,3 +157,15 @@
 - Rota de mentira (`rotaProvisoria`) e locais fixos (`locaisSalvos`, `sugestoes`) de lib/data/dados_provisorios.dart.
 - lib/widgets/atribuicao_mapa.dart (o crédito do mapa agora fica dentro de lib/widgets/mapa/mapa_enchente.dart).
 
+
+# [17/11/2026]
+
+### Adicionado
+- Regras das confirmações de aviso em firestore.rules: o aviso novo começa com 1 confirmação (a do autor, gravada na mesma operação); "Ainda está aí" soma exatamente 1 por pessoa e renova o prazo para no máximo 5 h; cada pessoa só lê e cria a própria marca em `ocorrencias/{id}/confirmacoes/{uid}`. Todas as validações anteriores foram mantidas.
+- 7 testes das confirmações no emulador do Firestore (firestore-testes/regras.test.js, agora com 30 testes).
+
+### Alterado
+- Resolvidas as marcas de conflito do `git stash` que foram no commit de 16/11 (.gitignore, docs/modelagem-firestore.md, docs/uso-de-ia.md), mantendo o conteúdo dos dois lados.
+- docs/modelagem-firestore.md: seção 5 com a linha das confirmações na tabela de acesso e a explicação da regra; o esboço antigo de regras saiu (as regras valem pelo firestore.rules).
+- docs/uso-de-ia.md: prompt das rotas renumerado para 9 e erros para 12 a 14; adicionado o erro 15 (confirmações sem regra no Firestore).
+- docs/rotas-e-mapa.md: as regras ficam no firestore.rules e são publicadas pelo Vinicius após o merge.

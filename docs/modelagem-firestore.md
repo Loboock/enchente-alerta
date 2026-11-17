@@ -272,36 +272,25 @@ await lote.commit();
 
 As regras estão em [`firestore.rules`](../firestore.rules), na raiz do repositório, e são testadas no emulador do Firestore em [`firestore-testes/`](../firestore-testes/).
 
-<<<<<<< Updated upstream
 | Coleção | Leitura | Criação | Alteração | Exclusão |
 |---|---|---|---|---|
 | `usuarios/{uid}` | o próprio usuário | o próprio usuário, sempre como `MORADOR` e com o e-mail do login | o próprio usuário, só `nome` e `preferenciaNotificacao` | ninguém |
 | `usuarios/{uid}/enderecos` | o dono | o dono | o dono | o dono |
 | `usuarios/{uid}/notificacoes` | o dono | o dono | o dono, só o campo `lida` | o dono |
-| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado, junto com o autor (ver abaixo) | Defesa Civil | autor e Defesa Civil |
+| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado, junto com o autor (ver abaixo) | Defesa Civil; usuário logado só para somar 1 confirmação | autor e Defesa Civil |
+| `ocorrencias/{id}/confirmacoes/{uid}` | o próprio usuário | o próprio usuário, junto com o aviso novo ou com a soma de 1 | ninguém | Defesa Civil |
 | `ocorrencias/{id}/denuncias` | Defesa Civil | usuário logado, com o próprio uid | Defesa Civil | Defesa Civil |
 | `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid, na mesma gravação da ocorrência | ninguém | autor e Defesa Civil |
 | `abrigos`, `rotasFuga`, `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil | Defesa Civil |
 | qualquer outra coleção | ninguém | ninguém | ninguém | ninguém |
-=======
-| Coleção | Leitura | Criação | Alteração / exclusão |
-|---|---|---|---|
-| `usuarios/{uid}` e subcoleções | o próprio usuário | o próprio usuário | o próprio usuário (não pode mudar o próprio `perfil`) |
-| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado | autor (excluir), Defesa Civil e usuário logado só para somar 1 confirmação |
-| `ocorrencias/{id}/confirmacoes/{uid}` | só o próprio usuário | o próprio usuário | ninguém |
-| `ocorrencias/{id}/denuncias` | Defesa Civil | usuário logado | Defesa Civil |
-| `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid | ninguém |
-| `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil |
-| `abrigos`, `rotasFuga` | qualquer pessoa | Defesa Civil | Defesa Civil |
->>>>>>> Stashed changes
 
 **Como funcionam as partes principais:**
 
 - **Perfil:** a regra lê o campo `perfil` do documento `usuarios/{uid}` de quem está logado. Ninguém consegue virar `DEFESA_CIVIL` pelo app: a conta nova precisa ser `MORADOR` e o `perfil` não pode ser alterado. A Defesa Civil é definida manualmente no console do Firebase.
 - **Ocorrência com autor anônimo (RNF07):** o app grava `ocorrencias/{id}` e `autoresOcorrencias/{id}` na mesma gravação (`WriteBatch`). Com `getAfter`, a regra só aceita a ocorrência se, no fim da gravação, o autor dela for quem está logado. Assim toda ocorrência tem dono, ninguém se registra como autor de uma ocorrência que já existe e o autor nunca aparece no documento público.
-- **Validação dos dados:** cada documento só aceita os campos da modelagem (`keys().hasOnly`) e confere tipos e valores: enumerações só com os códigos válidos, textos com tamanho máximo, `nivelAguaCm` inteiro de 0 a 500, `expiraEm` depois de `criadaEm`, vagas do abrigo entre 0 e a capacidade e, na ocorrência nova, `status` igual a `ATIVA`.
+- **Validação dos dados:** cada documento só aceita os campos da modelagem (`keys().hasOnly`) e confere tipos e valores: enumerações só com os códigos válidos, textos com tamanho máximo, `nivelAguaCm` inteiro de 0 a 500, `expiraEm` depois de `criadaEm`, vagas do abrigo entre 0 e a capacidade e, na ocorrência nova, `status` igual a `ATIVA` e `confirmacoes` igual a 1.
+- **Confirmações ("Ainda está aí"):** qualquer conta pode alterar um aviso ativo, mas só os campos `confirmacoes` e `expiraEm`: soma exatamente 1 e renova o prazo para no máximo 5 horas a partir de agora. Na mesma gravação, o app cria `confirmacoes/{uid}`; a regra só aceita a soma se essa marca ainda não existia (`!exists`) e passa a existir (`existsAfter`). Assim cada pessoa confirma uma vez só, e o autor já conta como a primeira confirmação.
 
-<<<<<<< Updated upstream
 **Exemplo de gravação de ocorrência no app:**
 
 ```dart
@@ -309,67 +298,10 @@ final db = FirebaseFirestore.instance;
 final ref = db.collection('ocorrencias').doc();
 final batch = db.batch()
   ..set(ref, ocorrencia.toFirestore())
-  ..set(db.collection('autoresOcorrencias').doc(ref.id), {'autorId': uid});
+  ..set(db.collection('autoresOcorrencias').doc(ref.id), {'autorId': uid})
+  ..set(ref.collection('confirmacoes').doc(uid),
+      {'criadaEm': FieldValue.serverTimestamp()});
 await batch.commit();
-=======
-    function logado() { return request.auth != null; }
-    function ehDefesaCivil() {
-      return logado() &&
-        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.perfil == 'DEFESA_CIVIL';
-    }
-    function confirmacaoDe(ocorrenciaId) {
-      return /databases/$(database)/documents/ocorrencias/$(ocorrenciaId)/confirmacoes/$(request.auth.uid);
-    }
-    function ehAutor(ocorrenciaId) {
-      return logado() &&
-        get(/databases/$(database)/documents/autoresOcorrencias/$(ocorrenciaId)).data.autorId == request.auth.uid;
-    }
-
-    match /usuarios/{uid} {
-      allow read: if logado() && request.auth.uid == uid;
-      allow create: if logado() && request.auth.uid == uid && request.resource.data.perfil == 'MORADOR';
-      allow update: if logado() && request.auth.uid == uid && request.resource.data.perfil == resource.data.perfil;
-      match /{sub=**} {
-        allow read, write: if logado() && request.auth.uid == uid;
-      }
-    }
-
-    match /ocorrencias/{id} {
-      allow read: if true;
-      // Novo aviso: ativo, com 1 confirmação (a do autor, gravada no mesmo lote).
-      allow create: if logado()
-        && request.resource.data.status == 'ATIVA'
-        && request.resource.data.confirmacoes == 1
-        && existsAfter(confirmacaoDe(id));
-      // "Ainda está aí": soma exatamente 1 e renova o prazo, uma vez por pessoa.
-      allow update: if ehDefesaCivil() || (logado()
-        && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['confirmacoes', 'expiraEm'])
-        && request.resource.data.confirmacoes == resource.data.confirmacoes + 1
-        && !exists(confirmacaoDe(id))
-        && existsAfter(confirmacaoDe(id)));
-      allow delete: if ehAutor(id) || ehDefesaCivil();
-      match /confirmacoes/{uid} {
-        allow get, create: if logado() && request.auth.uid == uid;
-      }
-      match /denuncias/{denunciaId} {
-        allow read, update, delete: if ehDefesaCivil();
-        allow create: if logado() && request.resource.data.autorId == request.auth.uid;
-      }
-    }
-
-    match /autoresOcorrencias/{id} {
-      allow read: if logado() && (resource.data.autorId == request.auth.uid || ehDefesaCivil());
-      allow create: if logado() && request.resource.data.autorId == request.auth.uid;
-    }
-
-    match /{colecao}/{id} {
-      allow read: if colecao in ['alertas', 'areasRisco', 'guias', 'abrigos', 'rotasFuga'];
-      allow write: if colecao in ['alertas', 'areasRisco', 'guias', 'abrigos', 'rotasFuga'] && ehDefesaCivil();
-    }
-  }
-}
->>>>>>> Stashed changes
 ```
 
 **Como aplicar no projeto do Firebase:** na raiz do repositório, `firebase deploy --only firestore:rules`.
