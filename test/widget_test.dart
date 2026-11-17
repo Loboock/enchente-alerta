@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:enchente_alerta/data/dados_provisorios.dart';
 import 'package:enchente_alerta/main.dart';
+import 'package:enchente_alerta/models/models.dart';
+import 'package:enchente_alerta/models/perigo.dart';
 import 'package:enchente_alerta/navegacao.dart';
 import 'package:enchente_alerta/services/localizacao_service.dart';
+import 'package:enchente_alerta/services/perigos_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
+
+import 'package:enchente_alerta/widgets/mapa/mapa_enchente.dart';
 
 import 'fakes.dart';
 
@@ -189,5 +195,32 @@ void main() {
 
     expect(find.text('Abrigos próximos'), findsNothing);
     expect(find.text('Cadastrar-se'), findsOneWidget);
+  });
+
+  testWidgets('Aviso na posição do usuário abre ao tocar no ponto azul',
+      (tester) async {
+    // Quem reporta onde está fica com o aviso embaixo do próprio ponto.
+    final agora = DateTime.now();
+    PerigosService.instance = PerigosService();
+    PerigosService.instance.perigos.value = [
+      Perigo.daOcorrencia(Ocorrencia(
+        id: 'oc1',
+        tipo: TipoOcorrencia.alagamento,
+        gravidade: Gravidade.grave,
+        endereco: 'Farolândia',
+        localizacao: usuarioProvisorio,
+        nivelAguaCm: 40,
+        criadaEm: agora,
+        expiraEm: agora.add(const Duration(hours: 4)),
+      )),
+    ];
+    await abrirApp(tester);
+    await esperar(tester);
+
+    // O toque atravessa o ponto azul (IgnorePointer) e chega no aviso.
+    await tester.tap(find.byType(MarcadorUsuario).first, warnIfMissed: false);
+    await esperar(tester);
+
+    expect(find.text('Ainda está aí'), findsOneWidget);
   });
 }

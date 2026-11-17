@@ -231,7 +231,9 @@ class _CamadaUsuario extends StatelessWidget {
               point: posicao.ponto,
               width: 44,
               height: 44,
-              child: MarcadorUsuario(rumo: posicao.rumo),
+              // Deixa o toque passar: um aviso reportado na posição da
+              // pessoa fica embaixo do ponto azul e precisa abrir.
+              child: IgnorePointer(child: MarcadorUsuario(rumo: posicao.rumo)),
             ),
           ],
         );
