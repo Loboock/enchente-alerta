@@ -1,5 +1,6 @@
 // Testes das regras do Firestore (../firestore.rules) no emulador local.
 // Não acessa o banco real. Como rodar: ver README.md desta pasta.
+import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { after, before, beforeEach, describe, test } from 'node:test';
 import {
@@ -13,6 +14,8 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  increment,
+  serverTimestamp,
   setDoc,
   updateDoc,
   writeBatch,
@@ -21,6 +24,7 @@ import {
 let env;
 
 const agora = Timestamp.now();
+const daqui4h = Timestamp.fromMillis(agora.toMillis() + 4 * 3600 * 1000);
 const daqui6h = Timestamp.fromMillis(agora.toMillis() + 6 * 3600 * 1000);
 
 const ocorrencia = () => ({
@@ -32,6 +36,7 @@ const ocorrencia = () => ({
   nivelAguaCm: 40,
   criadaEm: agora,
   expiraEm: daqui6h,
+  confirmacoes: 1,
 });
 
 const usuario = (email, perfil = 'MORADOR') => ({
@@ -60,13 +65,22 @@ const defesa = () => env.authenticatedContext('dc', { email: 'dc@exemplo.com' })
 // Grava sem passar pelas regras (prepara o cenário do teste).
 const semRegras = (fn) => env.withSecurityRulesDisabled((ctx) => fn(ctx.firestore()));
 
-// Ana registra uma ocorrência do jeito que o app vai fazer: ocorrência e
-// autor na mesma gravação.
+// Ana registra uma ocorrência do jeito que o app faz: ocorrência, autor e a
+// confirmação do autor na mesma gravação.
 async function anaRegistra(id = 'oc1', dados = ocorrencia()) {
   const db = ana();
   const batch = writeBatch(db);
   batch.set(doc(db, 'ocorrencias', id), dados);
   batch.set(doc(db, 'autoresOcorrencias', id), { autorId: 'ana' });
+  batch.set(doc(db, 'ocorrencias', id, 'confirmacoes', 'ana'), { criadaEm: serverTimestamp() });
+  return batch.commit();
+}
+
+// "Ainda está aí": marca de quem confirmou + soma de 1, na mesma gravação.
+function confirma(db, uid, mudancas = { confirmacoes: increment(1), expiraEm: daqui4h }) {
+  const batch = writeBatch(db);
+  batch.set(doc(db, 'ocorrencias/oc1/confirmacoes', uid), { criadaEm: serverTimestamp() });
+  batch.update(doc(db, 'ocorrencias/oc1'), mudancas);
   return batch.commit();
 }
 
@@ -204,6 +218,60 @@ describe('ocorrencias', () => {
     await assertSucceeds(updateDoc(doc(defesa(), 'ocorrencias/oc1'), { status: 'RESOLVIDA' }));
     await assertSucceeds(getDoc(doc(defesa(), 'autoresOcorrencias/oc1')));
     await assertSucceeds(deleteDoc(doc(defesa(), 'ocorrencias/oc1')));
+  });
+});
+
+describe('confirmacoes ("ainda está aí")', () => {
+  test('aviso novo precisa da confirmação do autor e começa com 1', async () => {
+    const db = ana();
+    const semMarca = writeBatch(db);
+    semMarca.set(doc(db, 'ocorrencias', 'x'), ocorrencia());
+    semMarca.set(doc(db, 'autoresOcorrencias', 'x'), { autorId: 'ana' });
+    await assertFails(semMarca.commit());
+    await assertFails(anaRegistra('y', { ...ocorrencia(), confirmacoes: 5 }));
+  });
+
+  test('outro morador confirma uma vez só', async () => {
+    await anaRegistra();
+    await assertSucceeds(confirma(bia(), 'bia'));
+    await assertFails(confirma(bia(), 'bia'));
+    const snap = await getDoc(doc(visitante(), 'ocorrencias/oc1'));
+    assert.equal(snap.data().confirmacoes, 2);
+  });
+
+  test('o autor não confirma de novo o próprio aviso', async () => {
+    await anaRegistra();
+    await assertFails(confirma(ana(), 'ana'));
+  });
+
+  test('não soma mais de 1, não muda outros campos e não estica o prazo', async () => {
+    await anaRegistra();
+    await assertFails(confirma(bia(), 'bia', { confirmacoes: 3, expiraEm: daqui4h }));
+    await assertFails(confirma(bia(), 'bia', { confirmacoes: increment(1), gravidade: 'GRAVE' }));
+    await assertFails(confirma(bia(), 'bia', { confirmacoes: increment(1), expiraEm: daqui6h }));
+  });
+
+  test('não soma sem a marca, nem grava a marca sem somar', async () => {
+    await anaRegistra();
+    await assertFails(updateDoc(doc(bia(), 'ocorrencias/oc1'),
+      { confirmacoes: increment(1), expiraEm: daqui4h }));
+    await assertFails(setDoc(doc(bia(), 'ocorrencias/oc1/confirmacoes/bia'),
+      { criadaEm: serverTimestamp() }));
+    await assertFails(confirma(bia(), 'ana'));
+  });
+
+  test('Visitante não confirma e aviso resolvido não recebe confirmação', async () => {
+    await anaRegistra();
+    await assertFails(confirma(visitante(), 'x'));
+    await updateDoc(doc(defesa(), 'ocorrencias/oc1'), { status: 'RESOLVIDA' });
+    await assertFails(confirma(bia(), 'bia'));
+  });
+
+  test('cada um só vê a própria marca', async () => {
+    await anaRegistra();
+    await assertSucceeds(getDoc(doc(ana(), 'ocorrencias/oc1/confirmacoes/ana')));
+    await assertSucceeds(getDoc(doc(bia(), 'ocorrencias/oc1/confirmacoes/bia')));
+    await assertFails(getDoc(doc(bia(), 'ocorrencias/oc1/confirmacoes/ana')));
   });
 });
 

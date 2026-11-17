@@ -23,6 +23,11 @@ class Ocorrencia {
   final DateTime criadaEm;
   final DateTime expiraEm;
 
+  /// Quantas pessoas confirmaram o aviso, contando quem reportou (começa
+  /// em 1). Quem confirmou fica em `ocorrencias/{id}/confirmacoes/{uid}`,
+  /// para cada pessoa contar uma vez só.
+  final int confirmacoes;
+
   const Ocorrencia({
     required this.id,
     required this.tipo,
@@ -36,6 +41,7 @@ class Ocorrencia {
     this.areaRiscoId,
     required this.criadaEm,
     required this.expiraEm,
+    this.confirmacoes = 1,
   });
 
   double get latitude => localizacao.latitude;
@@ -65,6 +71,9 @@ class Ocorrencia {
         areaRiscoId: d['areaRiscoId'] as String?,
         criadaEm: lerData(d['criadaEm']),
         expiraEm: lerData(d['expiraEm']),
+        // Documentos antigos não têm o campo: contam só o autor.
+        confirmacoes:
+            d['confirmacoes'] == null ? 1 : lerInt(d['confirmacoes']),
       );
 
   Map<String, dynamic> toFirestore() => {
@@ -79,6 +88,7 @@ class Ocorrencia {
         if (areaRiscoId != null) 'areaRiscoId': areaRiscoId,
         'criadaEm': Timestamp.fromDate(criadaEm),
         'expiraEm': Timestamp.fromDate(expiraEm),
+        'confirmacoes': confirmacoes,
       };
 
   Ocorrencia copyWith({StatusOcorrencia? status, String? id}) => Ocorrencia(
@@ -94,5 +104,6 @@ class Ocorrencia {
         areaRiscoId: areaRiscoId,
         criadaEm: criadaEm,
         expiraEm: expiraEm,
+        confirmacoes: confirmacoes,
       );
 }

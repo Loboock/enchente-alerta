@@ -7,10 +7,18 @@ import 'abrigo.dart';
 /// É um conceito só das telas de rota: não vai para o Firestore e por isso
 /// não está em `models.dart`.
 class Destino {
-  const Destino({required this.nome, required this.posicao, this.abrigoId});
+  const Destino({
+    required this.nome,
+    required this.posicao,
+    this.abrigoId,
+    this.detalhe,
+  });
 
   final String nome;
   final LatLng posicao;
+
+  /// Endereço completo, quando veio da busca de endereços.
+  final String? detalhe;
 
   /// Preenchido quando o destino é um abrigo.
   final String? abrigoId;
