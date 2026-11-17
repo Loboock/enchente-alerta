@@ -130,3 +130,18 @@
 - lib/screens/theme.dart (paleta própria, substituída pelas cores do tema do app).
 - lib/screens/placeholder.dart e a barra inferior própria das telas de conta (AppShell), que duplicava a navegação do app e bloqueava o Visitante.
 - Login falso em memória (teste@gmail.com).
+
+# [17/11/2026]
+
+### Adicionado
+- Tela Histórico (aba Histórico, tela 06 do protótipo): lista dos últimos alagamentos da região, do mais recente ao mais antigo, com ponto colorido pela gravidade, endereço, nível da água e data (lib/screens/historico/tela_historico.dart). Usa a classe `Ocorrencia` de `lib/models/`, com dados provisórios até ligar o Firestore.
+- Tela Guia de segurança (aba Guia, tela 08): orientações de Antes, Durante, Se precisar evacuar e Emergência, com os telefones da Defesa Civil (199), SAMU (192) e Bombeiros (193) (lib/screens/guia/tela_guia.dart). Usa a classe `GuiaOrientacao` e a enumeração `FaseGuia`.
+- Tela Ajuda (tela 13): índice das telas do app; cada item leva à tela correspondente (lib/screens/ajuda/tela_ajuda.dart). Criar avisos e Reportar avisos mostram "em breve" até essas telas existirem.
+- `formatarDataCurta` em lib/utils/formatacao.dart (data no formato 18/09/26).
+- Dados provisórios do histórico e do guia em lib/data/dados_provisorios.dart.
+- Testes de widget das telas Histórico, Guia e Ajuda (test/widget_test.dart).
+
+### Alterado
+- lib/widgets/app_bar_tela.dart: o botão de ajuda abre a tela Ajuda (antes mostrava "em breve") e fica laranja dentro dela, como no protótipo.
+- lib/screens/tela_principal.dart: as abas Histórico e Guia deixam de ser "Em construção".
+
