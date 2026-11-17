@@ -72,9 +72,9 @@ enum StatusOcorrencia implements EnumFirestore {
 /// Os 4 motivos da tela "Reportar aviso" do protótipo.
 enum MotivoDenuncia implements EnumFirestore {
   informacaoIncorreta('INFORMACAO_INCORRETA', 'Informação incorreta'),
-  aguaBaixou('AGUA_BAIXOU', 'A água já baixou'),
-  localizacaoErrada('LOCALIZACAO_ERRADA', 'Localização errada'),
-  spamOuAbuso('SPAM_OU_ABUSO', 'Spam ou abuso');
+  aguaBaixou('AGUA_BAIXOU', 'Água já baixou / não existe mais'),
+  localizacaoErrada('LOCALIZACAO_ERRADA', 'Localização errada no mapa'),
+  spamOuAbuso('SPAM_OU_ABUSO', 'Spam ou conteúdo abusivo');
 
   const MotivoDenuncia(this.codigo, this.rotulo);
   @override

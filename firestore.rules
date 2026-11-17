@@ -226,10 +226,12 @@ service cloud.firestore {
       }
 
       // Denúncia de aviso incorreto: qualquer conta denuncia, só a Defesa
-      // Civil vê e resolve.
+      // Civil vê e resolve. O id é o uid de quem denuncia, então cada pessoa
+      // denuncia o mesmo aviso uma vez só.
       match /denuncias/{denunciaId} {
         allow read, update, delete: if ehDefesaCivil();
         allow create: if logado()
+          && denunciaId == request.auth.uid
           && soCampos(['autorId', 'motivo', 'detalhes', 'criadaEm'],
                       ['autorId', 'motivo', 'criadaEm'])
           && novo().autorId == request.auth.uid

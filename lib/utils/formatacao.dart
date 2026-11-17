@@ -32,3 +32,14 @@ String formatarDataCurta(DateTime data) {
   final ano = (data.year % 100).toString().padLeft(2, '0');
   return '$dia/$mes/$ano';
 }
+
+/// Tempo desde [momento] no formato do protótipo: "agora", "há 10 min",
+/// "há 2 h", "há 3 dias".
+String formatarTempoAtras(DateTime momento, {DateTime? agora}) {
+  final passou = (agora ?? DateTime.now()).difference(momento);
+  if (passou.inMinutes < 1) return 'agora';
+  if (passou.inHours < 1) return 'há ${passou.inMinutes} min';
+  if (passou.inDays < 1) return 'há ${passou.inHours} h';
+  final dias = passou.inDays;
+  return 'há $dias ${dias == 1 ? 'dia' : 'dias'}';
+}

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../navegacao.dart';
-import '../../utils/avisos.dart';
+import '../../utils/exigir_login.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import '../abrigos/tela_abrigos_proximos.dart';
+import '../avisos/tela_criar_aviso.dart';
 import '../conta/tela_registro.dart';
 import '../conta/tela_reset_senha.dart';
 import '../rota/tela_escolher_destino.dart';
@@ -25,6 +26,17 @@ class TelaAjuda extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => tela));
   }
 
+  Future<void> _criarAviso(BuildContext context) async {
+    if (!exigirLogin(context, acao: 'criar avisos')) return;
+    final criado = await abrirCriarAviso(context);
+    if (criado == true && context.mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(
+            content: Text('Aviso criado! Ele já aparece no mapa e em Avisos.')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Abas: 0 Início, 1 Avisos, 2 Histórico, 3 Perfil, 4 Guia.
@@ -40,9 +52,9 @@ class TelaAjuda extends StatelessWidget {
       ),
       ('Histórico', () => irParaAba(context, 2)),
       ('Avisos', () => irParaAba(context, 1)),
-      // Criar e reportar aviso ainda não foram implementados.
-      ('Criar avisos', () => avisoEmBreve(context, 'Criar avisos')),
-      ('Reportar avisos', () => avisoEmBreve(context, 'Reportar avisos')),
+      ('Criar avisos', () => _criarAviso(context)),
+      // Para reportar, a pessoa escolhe o aviso na lista (botão Reportar).
+      ('Reportar avisos', () => irParaAba(context, 1)),
       ('Guia de segurança', () => irParaAba(context, 4)),
       // Sem conta, a aba Perfil mostra o login.
       ('Login', () => irParaAba(context, 3)),

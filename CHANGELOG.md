@@ -170,6 +170,12 @@
 - `formatarDataCurta` em lib/utils/formatacao.dart (data no formato 18/09/26).
 - Dados provisórios do histórico e do guia em lib/data/dados_provisorios.dart.
 - Testes de widget das telas Histórico, Guia e Ajuda (test/widget_test.dart).
+- Tela Avisos (aba Avisos, tela 04 do protótipo): avisos ativos em tempo real, do mais recente ao mais antigo, com a faixa e a etiqueta da gravidade, endereço, nível da água e "há 10 min"; botões Reportar, Excluir (só nos avisos da própria pessoa ou para a Defesa Civil) e "+ Criar aviso" (lib/screens/avisos/tela_avisos.dart).
+- Tela Criar aviso (tela 05): gravidade Leve/Moderado/Grave, endereço com sugestões (começa com o endereço da posição atual), nível da água em cm e descrição opcional, com validação; grava ocorrência e autor separado (RNF07) (lib/screens/avisos/tela_criar_aviso.dart).
+- Tela Reportar aviso (tela 06): aviso selecionado, os 4 motivos do protótipo e detalhes opcionais; vira denúncia para a Defesa Civil (lib/screens/avisos/tela_reportar_aviso.dart).
+- PerigosService: denunciar (com motivo e detalhes), excluir (aviso + autor na mesma gravação) e idsDoAutor (avisos da própria pessoa, sem expor o autor no documento público).
+- formatarTempoAtras em lib/utils/formatacao.dart ("há 10 min", "há 2 h") e testes (test/formatacao_test.dart).
+- Testes de widget das telas Avisos, Criar aviso e Reportar aviso; 3 testes novos das regras (denúncia única, excluir com o autor, listar os próprios avisos), 33 no total.
 
 ### Alterado
 - Resolvidas as marcas de conflito do `git stash` que foram no commit de 16/11 (.gitignore, docs/modelagem-firestore.md, docs/uso-de-ia.md), mantendo o conteúdo dos dois lados.
@@ -178,7 +184,14 @@
 - docs/rotas-e-mapa.md: as regras ficam no firestore.rules e são publicadas pelo Vinicius após o merge.
 - lib/widgets/app_bar_tela.dart: o botão de ajuda abre a tela Ajuda (antes mostrava "em breve") e fica laranja dentro dela, como no protótipo.
 - lib/screens/tela_principal.dart: as abas Histórico e Guia deixam de ser "Em construção".
+- Aba Avisos deixa de ser "Em construção"; na tela Ajuda, "Criar avisos" abre a tela Criar aviso e "Reportar avisos" leva à lista de avisos.
+- Denúncia: cada pessoa denuncia um aviso uma vez só; o id da denúncia é o uid de quem denuncia (firestore.rules, PerigosService). "Não está mais" no mapa conta como denúncia da mesma pessoa.
+- Motivos da denúncia com o texto do protótipo ("Água já baixou / não existe mais", "Localização errada no mapa", "Spam ou conteúdo abusivo").
+- ScaffoldComAbas: parâmetro abaAtiva, para a aba Avisos ficar destacada nas telas Criar e Reportar aviso.
 - Arquivos das telas Histórico, Guia e Ajuda, enviados pelo site do GitHub na raiz do repositório, movidos para as pastas certas (lib/screens/, lib/widgets/, lib/utils/, lib/data/, test/, docs/) e juntados com a develop atual.
+
+### Removido
+- lib/screens/tela_em_construcao.dart e lib/utils/avisos.dart ("Em construção" e "em breve"), que não são mais usados: todas as abas e itens da Ajuda já têm tela.
 
 ### Corrigido
 - Mapa: o ponto azul do usuário ficava por cima do aviso reportado no mesmo lugar e bloqueava o toque, então não dava para abrir o aviso ("Ainda está aí" / "Não está mais"). Agora o ponto deixa o toque passar (IgnorePointer em lib/widgets/mapa/mapa_enchente.dart). Encontrado no teste no emulador.

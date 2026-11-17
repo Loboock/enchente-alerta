@@ -167,6 +167,16 @@ essas telas para mim?
 
 Resultado: telas Histórico, Guia de segurança e Ajuda em `lib/screens/`, usando `Ocorrencia`, `GuiaOrientacao` e `FaseGuia` de `lib/models/`; botão de ajuda do cabeçalho ligado à tela Ajuda. Validar com `flutter analyze`, `flutter test` e no emulador antes de abrir o PR.
 
+### Prompt 11 — Telas Avisos, Criar aviso e Reportar aviso — Vinicius Reis
+
+Funcionou bem porque a IA renderizou as telas 04, 05 e 06 do PDF do protótipo para comparar com o app e reaproveitou o que já existia (gravação do aviso no `PerigosService`, regras do Firestore, cabeçalho e barra das outras telas), em vez de criar código paralelo.
+
+```text
+eu preciso fazer essas tres, pode fazer e colocar em unico PR
+```
+
+Resultado: as três telas em `lib/screens/avisos/`, ligadas ao Firestore (criar, listar em tempo real, excluir o próprio aviso e denunciar uma vez por pessoa). Validado com `flutter analyze`, `flutter test`, `npm test` (regras) e no emulador com o Firebase de verdade.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
@@ -190,6 +200,8 @@ Resultado: telas Histórico, Guia de segurança e Ajuda em `lib/screens/`, usand
 | 15 | Confirmações de aviso ("Ainda está aí") | Criou o campo `confirmacoes` e a subcoleção `confirmacoes/{uid}` sem mudar o `firestore.rules`; com as regras publicadas, reportar e confirmar seriam recusados. O esboço de regras sugerido no documento tirava as validações de campos. | Revisão do PR contra as regras publicadas (os testes do app usam um Firestore falso, que não aplica regras). | Confirmações acrescentadas ao `firestore.rules`, mantendo as validações: aviso novo com 1 confirmação, soma de exatamente 1 por pessoa e prazo de no máximo 5 h; 7 testes novos no emulador. |
 | 16 | Mapa (ponto do usuário) | O ponto azul do usuário era desenhado por cima dos avisos e bloqueava o toque; o aviso reportado na própria posição não podia ser aberto. | Teste no emulador (o teste de widget só tocava em avisos longe do usuário). | Ponto azul com `IgnorePointer` e teste de widget que toca no ponto e espera abrir o aviso. |
 | 17 | `AuthService` (cadastro) | O cadastro e o login automático criavam `usuarios/{uid}` ao mesmo tempo; a segunda gravação chegava como alteração de `criadoEm` e era recusada pelas regras. | Erro `PERMISSION_DENIED` no log durante o teste no emulador. | Documento criado numa transação que só grava se ainda não existir; conferido criando uma conta nova no emulador. |
+| 18 | Telas de aviso (testes de widget) | Os testes tocavam nos botões Criar e Enviar denúncia sem rolar a tela; na tela pequena do teste eles ficam abaixo da área visível e o toque não chegava. | Falha dos testes ("Found 0 widgets"). | `ensureVisible` antes de tocar. |
+| 19 | Excluir aviso | Para mostrar "Excluir" só ao autor, a primeira ideia seria gravar o autor no documento da ocorrência, o que quebraria o anonimato (RNF07). | Revisão contra a decisão de anonimato do grupo. | O app consulta `autoresOcorrencias` filtrando pelo próprio uid, consulta que só o próprio autor consegue fazer pelas regras. |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 

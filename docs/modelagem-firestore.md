@@ -279,7 +279,7 @@ As regras estão em [`firestore.rules`](../firestore.rules), na raiz do reposit�
 | `usuarios/{uid}/notificacoes` | o dono | o dono | o dono, só o campo `lida` | o dono |
 | `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado, junto com o autor (ver abaixo) | Defesa Civil; usuário logado só para somar 1 confirmação | autor e Defesa Civil |
 | `ocorrencias/{id}/confirmacoes/{uid}` | o próprio usuário | o próprio usuário, junto com o aviso novo ou com a soma de 1 | ninguém | Defesa Civil |
-| `ocorrencias/{id}/denuncias` | Defesa Civil | usuário logado, com o próprio uid | Defesa Civil | Defesa Civil |
+| `ocorrencias/{id}/denuncias/{uid}` | Defesa Civil | usuário logado, com o próprio uid como id do documento (uma denúncia por pessoa) | Defesa Civil | Defesa Civil |
 | `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid, na mesma gravação da ocorrência | ninguém | autor e Defesa Civil |
 | `abrigos`, `rotasFuga`, `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil | Defesa Civil |
 | qualquer outra coleção | ninguém | ninguém | ninguém | ninguém |
