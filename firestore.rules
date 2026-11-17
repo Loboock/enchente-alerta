@@ -1,0 +1,331 @@
+rules_version = '2';
+
+// Regras de segurança do EnchenteAlerta (controle de acesso por perfil e
+// validação dos dados). Tabela e explicação em docs/modelagem-firestore.md.
+//
+// Perfis:
+//   Visitante (sem conta) ... só lê dados públicos
+//   MORADOR (conta nova) .... registra e exclui as próprias ocorrências,
+//                             confirma e denuncia avisos e cuida dos
+//                             próprios dados
+//   DEFESA_CIVIL ............ também gerencia abrigos, rotas, alertas,
+//                             áreas de risco e guias (definido no console)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Quem está acessando ----------
+
+    function logado() {
+      return request.auth != null;
+    }
+
+    function caminhoUsuario() {
+      return /databases/$(database)/documents/usuarios/$(request.auth.uid);
+    }
+
+    function ehDefesaCivil() {
+      return logado()
+        && exists(caminhoUsuario())
+        && get(caminhoUsuario()).data.perfil == 'DEFESA_CIVIL';
+    }
+
+    function caminhoAutor(ocorrenciaId) {
+      return /databases/$(database)/documents/autoresOcorrencias/$(ocorrenciaId);
+    }
+
+    function caminhoOcorrencia(ocorrenciaId) {
+      return /databases/$(database)/documents/ocorrencias/$(ocorrenciaId);
+    }
+
+    // Marca de que quem está logado já confirmou o aviso ("ainda está aí").
+    function caminhoConfirmacao(ocorrenciaId) {
+      return /databases/$(database)/documents/ocorrencias/$(ocorrenciaId)/confirmacoes/$(request.auth.uid);
+    }
+
+    function ehAutor(ocorrenciaId) {
+      return logado()
+        && exists(caminhoAutor(ocorrenciaId))
+        && get(caminhoAutor(ocorrenciaId)).data.autorId == request.auth.uid;
+    }
+
+    // ---------- Validação dos dados ----------
+
+    function novo() {
+      return request.resource.data;
+    }
+
+    // O documento só pode ter estes campos e precisa ter os obrigatórios.
+    function soCampos(permitidos, obrigatorios) {
+      return novo().keys().hasOnly(permitidos)
+        && novo().keys().hasAll(obrigatorios);
+    }
+
+    function texto(valor, maximo) {
+      return valor is string && valor.size() > 0 && valor.size() <= maximo;
+    }
+
+    // Campo opcional: se vier, precisa ser texto de até `maximo` caracteres.
+    function textoOpcional(campo, maximo) {
+      return !(campo in novo())
+        || (novo()[campo] is string && novo()[campo].size() <= maximo);
+    }
+
+    function gravidadeValida(valor) {
+      return valor in ['LEVE', 'MODERADO', 'GRAVE'];
+    }
+
+    // ---------- usuarios/{uid} ----------
+
+    match /usuarios/{uid} {
+      function ehDono() {
+        return logado() && request.auth.uid == uid;
+      }
+
+      function preferenciaValida() {
+        return !('preferenciaNotificacao' in novo())
+          || (novo().preferenciaNotificacao.keys().hasOnly(['ativa', 'raioKm'])
+            && novo().preferenciaNotificacao.ativa is bool
+            && novo().preferenciaNotificacao.raioKm is number
+            && novo().preferenciaNotificacao.raioKm > 0
+            && novo().preferenciaNotificacao.raioKm <= 50);
+      }
+
+      allow read: if ehDono();
+
+      // Conta nova é sempre MORADOR e usa o e-mail do próprio login.
+      allow create: if ehDono()
+        && soCampos(['email', 'nome', 'perfil', 'criadoEm', 'preferenciaNotificacao'],
+                    ['email', 'nome', 'perfil', 'criadoEm'])
+        && novo().perfil == 'MORADOR'
+        && novo().email == request.auth.token.email
+        && texto(novo().nome, 80)
+        && novo().criadoEm is timestamp
+        && preferenciaValida();
+
+      // Pode mudar o nome e as notificações, nunca o perfil nem o e-mail.
+      allow update: if ehDono()
+        && novo().diff(resource.data).affectedKeys()
+             .hasOnly(['nome', 'preferenciaNotificacao'])
+        && texto(novo().nome, 80)
+        && preferenciaValida();
+
+      allow delete: if false;
+
+      match /enderecos/{enderecoId} {
+        allow read, delete: if ehDono();
+        allow create, update: if ehDono()
+          && soCampos(['logradouro', 'bairro', 'cidade', 'localizacao', 'padrao'],
+                      ['logradouro', 'bairro', 'cidade', 'localizacao', 'padrao'])
+          && texto(novo().logradouro, 120)
+          && texto(novo().bairro, 80)
+          && texto(novo().cidade, 80)
+          && novo().localizacao is latlng
+          && novo().padrao is bool;
+      }
+
+      // Notificações são criadas pelo app de quem recebe; o usuário só
+      // pode marcar como lida.
+      match /notificacoes/{notificacaoId} {
+        allow read, delete: if ehDono();
+        allow create: if ehDono()
+          && soCampos(['mensagem', 'alertaId', 'enviadaEm', 'lida'],
+                      ['mensagem', 'enviadaEm', 'lida'])
+          && texto(novo().mensagem, 300)
+          && novo().enviadaEm is timestamp
+          && novo().lida is bool;
+        allow update: if ehDono()
+          && novo().diff(resource.data).affectedKeys().hasOnly(['lida'])
+          && novo().lida is bool;
+      }
+    }
+
+    // ---------- ocorrencias/{id} ----------
+
+    match /ocorrencias/{ocorrenciaId} {
+      function ocorrenciaValida() {
+        return soCampos(['tipo', 'gravidade', 'status', 'endereco', 'localizacao',
+                         'nivelAguaCm', 'descricao', 'imagemUrl', 'areaRiscoId',
+                         'criadaEm', 'expiraEm', 'confirmacoes'],
+                        ['tipo', 'gravidade', 'status', 'endereco', 'localizacao',
+                         'nivelAguaCm', 'criadaEm', 'expiraEm'])
+          && novo().tipo in ['ALAGAMENTO', 'VIA_OBSTRUIDA']
+          && gravidadeValida(novo().gravidade)
+          && novo().status in ['ATIVA', 'RESOLVIDA', 'EXPIRADA']
+          && texto(novo().endereco, 200)
+          && novo().localizacao is latlng
+          && novo().nivelAguaCm is int
+          && novo().nivelAguaCm >= 0
+          && novo().nivelAguaCm <= 500
+          && textoOpcional('descricao', 500)
+          && textoOpcional('imagemUrl', 500)
+          && textoOpcional('areaRiscoId', 100)
+          && novo().criadaEm is timestamp
+          && novo().expiraEm is timestamp
+          && novo().expiraEm > novo().criadaEm
+          && (!('confirmacoes' in novo())
+            || (novo().confirmacoes is int && novo().confirmacoes >= 1));
+      }
+
+      // Avisos antigos, sem o campo, contam como 1 confirmação.
+      function confirmacoesAtuais() {
+        return resource.data.get('confirmacoes', 1);
+      }
+
+      // Visitante também vê o mapa de pontos e os avisos.
+      allow read: if true;
+
+      // A ocorrência, o seu autor e a confirmação do autor são gravados
+      // juntos (batch): a ocorrência só é aceita se, no fim da gravação, o
+      // autor dela for quem está logado. Assim toda ocorrência tem dono, e
+      // ele pode excluí-la depois. Quem reporta já conta como 1 confirmação.
+      allow create: if logado()
+        && ocorrenciaValida()
+        && novo().status == 'ATIVA'
+        && novo().get('confirmacoes', 0) == 1
+        && existsAfter(caminhoAutor(ocorrenciaId))
+        && getAfter(caminhoAutor(ocorrenciaId)).data.autorId == request.auth.uid
+        && existsAfter(caminhoConfirmacao(ocorrenciaId));
+
+      // A Defesa Civil altera (ex.: marcar como RESOLVIDA ou EXPIRADA),
+      // sem trocar o momento em que foi criada.
+      allow update: if ehDefesaCivil()
+        && ocorrenciaValida()
+        && novo().criadaEm == resource.data.criadaEm;
+
+      // "Ainda está aí": qualquer conta soma exatamente 1 confirmação a um
+      // aviso ativo e renova o prazo (até 5 h a partir de agora), uma vez por
+      // pessoa. A marca em confirmacoes/{uid} vai na mesma gravação.
+      allow update: if logado()
+        && resource.data.status == 'ATIVA'
+        && novo().diff(resource.data).affectedKeys()
+             .hasOnly(['confirmacoes', 'expiraEm'])
+        && novo().confirmacoes == confirmacoesAtuais() + 1
+        && novo().expiraEm is timestamp
+        && novo().expiraEm > request.time
+        && novo().expiraEm <= request.time + duration.value(5, 'h')
+        && !exists(caminhoConfirmacao(ocorrenciaId))
+        && existsAfter(caminhoConfirmacao(ocorrenciaId));
+
+      allow delete: if ehAutor(ocorrenciaId) || ehDefesaCivil();
+
+      // Quem já confirmou o aviso. Cada pessoa só lê e cria a própria marca,
+      // e só junto com a ocorrência nova (1) ou com a soma de +1.
+      match /confirmacoes/{uid} {
+        allow get: if logado() && request.auth.uid == uid;
+        allow create: if logado()
+          && request.auth.uid == uid
+          && soCampos(['criadaEm'], ['criadaEm'])
+          && novo().criadaEm == request.time
+          && existsAfter(caminhoOcorrencia(ocorrenciaId))
+          && getAfter(caminhoOcorrencia(ocorrenciaId)).data.get('confirmacoes', 0)
+             == (exists(caminhoOcorrencia(ocorrenciaId))
+                 ? get(caminhoOcorrencia(ocorrenciaId)).data.get('confirmacoes', 1) + 1
+                 : 1);
+        allow update: if false;
+        allow delete: if ehDefesaCivil();
+      }
+
+      // Denúncia de aviso incorreto: qualquer conta denuncia, só a Defesa
+      // Civil vê e resolve. O id é o uid de quem denuncia, então cada pessoa
+      // denuncia o mesmo aviso uma vez só.
+      match /denuncias/{denunciaId} {
+        allow read, update, delete: if ehDefesaCivil();
+        allow create: if logado()
+          && denunciaId == request.auth.uid
+          && soCampos(['autorId', 'motivo', 'detalhes', 'criadaEm'],
+                      ['autorId', 'motivo', 'criadaEm'])
+          && novo().autorId == request.auth.uid
+          && novo().motivo in ['INFORMACAO_INCORRETA', 'AGUA_BAIXOU',
+                               'LOCALIZACAO_ERRADA', 'SPAM_OU_ABUSO']
+          && textoOpcional('detalhes', 500)
+          && novo().criadaEm is timestamp;
+      }
+    }
+
+    // ---------- autoresOcorrencias/{id} (RNF07: anonimato) ----------
+
+    // Fica fora da ocorrência para que o autor não apareça para ninguém,
+    // a não ser ele mesmo e a Defesa Civil.
+    match /autoresOcorrencias/{ocorrenciaId} {
+      allow read: if logado()
+        && (resource.data.autorId == request.auth.uid || ehDefesaCivil());
+
+      // Criado na mesma gravação da ocorrência, nunca para uma que já existe.
+      allow create: if logado()
+        && soCampos(['autorId'], ['autorId'])
+        && novo().autorId == request.auth.uid
+        && !exists(caminhoOcorrencia(ocorrenciaId))
+        && existsAfter(caminhoOcorrencia(ocorrenciaId));
+
+      allow update: if false;
+
+      // Sai junto com a ocorrência excluída.
+      allow delete: if logado()
+        && (resource.data.autorId == request.auth.uid || ehDefesaCivil());
+    }
+
+    // ---------- Dados públicos gerenciados pela Defesa Civil ----------
+
+    match /abrigos/{abrigoId} {
+      allow read: if true;
+      allow delete: if ehDefesaCivil();
+      allow create, update: if ehDefesaCivil()
+        && soCampos(['nome', 'bairro', 'localizacao', 'capacidade',
+                     'vagasDisponiveis', 'ativo', 'atualizadoPor', 'atualizadoEm'],
+                    ['nome', 'bairro', 'localizacao', 'capacidade',
+                     'vagasDisponiveis', 'ativo'])
+        && texto(novo().nome, 120)
+        && texto(novo().bairro, 80)
+        && novo().localizacao is latlng
+        && novo().capacidade is int
+        && novo().capacidade > 0
+        && novo().vagasDisponiveis is int
+        && novo().vagasDisponiveis >= 0
+        && novo().vagasDisponiveis <= novo().capacidade
+        && novo().ativo is bool;
+    }
+
+    match /rotasFuga/{rotaId} {
+      allow read: if true;
+      allow delete: if ehDefesaCivil();
+      allow create, update: if ehDefesaCivil()
+        && texto(novo().abrigoId, 100)
+        && novo().pontos is list
+        && novo().pontos.size() >= 2
+        && (!('riscoNaVia' in novo()) || gravidadeValida(novo().riscoNaVia));
+    }
+
+    match /alertas/{alertaId} {
+      allow read: if true;
+      allow delete: if ehDefesaCivil();
+      allow create, update: if ehDefesaCivil()
+        && texto(novo().titulo, 120)
+        && gravidadeValida(novo().nivel)
+        && novo().origem in ['METEOROLOGICA', 'COMUNIDADE']
+        && novo().emitidoEm is timestamp
+        && novo().expiraEm is timestamp
+        && novo().expiraEm > novo().emitidoEm;
+    }
+
+    match /areasRisco/{areaId} {
+      allow read: if true;
+      allow delete: if ehDefesaCivil();
+      allow create, update: if ehDefesaCivil()
+        && texto(novo().nome, 120)
+        && gravidadeValida(novo().nivelAtual)
+        && novo().poligono is list
+        && novo().poligono.size() >= 3;
+    }
+
+    match /guias/{guiaId} {
+      allow read: if true;
+      allow delete: if ehDefesaCivil();
+      allow create, update: if ehDefesaCivil()
+        && texto(novo().titulo, 120)
+        && novo().conteudo is string
+        && novo().fase in ['ANTES', 'DURANTE', 'EVACUACAO', 'DEPOIS', 'EMERGENCIA'];
+    }
+
+    // Qualquer outra coleção fica bloqueada.
+  }
+}

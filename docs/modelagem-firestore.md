@@ -56,7 +56,7 @@ guias/{guiaId}
 | O autor da ocorrência fica em **`autoresOcorrencias`**, separado da ocorrência. | O Firestore não esconde campos: quem lê um documento lê todos. Separando o autor, a ocorrência pode ser pública sem expor quem registrou (RNF07). |
 | Latitude e longitude viram um **`GeoPoint`**. | Tipo nativo do Firestore para coordenadas. |
 | Datas viram **`Timestamp`**. | Tipo nativo; permite ordenar e filtrar por data (histórico, expiração). |
-| Enumerações são gravadas como **texto** (`enum.name`, ex.: `"GRAVE"`). | Fica legível no console do Firebase e não quebra se a ordem do enum mudar. |
+| Enumerações são gravadas como **texto** (campo `codigo` de cada valor, ex.: `Gravidade.grave` grava `"GRAVE"`). | Fica legível no console do Firebase e não quebra se a ordem do enum mudar. |
 | Relações muitos-para-muitos viram **listas de ids** (ex.: `areasRiscoIds`). | O Firestore não tem junção (join); listas de ids são o padrão. |
 | `PacoteOffline` **não** vai para o Firestore. | É o cache local do celular (mapa baixado, abrigos, rotas e últimas ocorrências). O próprio Firestore também mantém cache local dos documentos lidos. |
 | Visitante não tem documento. | Quem usa sem conta só lê dados públicos; nada é salvo sobre ele. |
@@ -92,6 +92,9 @@ Subcoleção `notificacoes/{notificacaoId}` — classe `Notificacao`: `mensagem`
 | `areaRiscoId` | string (opcional) | relação `localizada em` |
 | `criadaEm` | timestamp | `DateTime criadaEm` |
 | `expiraEm` | timestamp | `DateTime expiraEm` |
+| `confirmacoes` | number (começa em 1, o autor) | `int confirmacoes` |
+
+Subcoleção `confirmacoes/{uid}` — marca quem já confirmou o aviso ("Ainda está aí"), para cada pessoa contar uma vez: `criadaEm` (timestamp). As rotas de fuga só desviam de um aviso com 2 ou mais confirmações (`Config.confirmacoesParaBloquear`). Documentos antigos sem o campo contam como 1.
 
 Subcoleção `denuncias/{denunciaId}` — classe `Denuncia`: `autorId` (string), `motivo` (string: `INFORMACAO_INCORRETA` \| `AGUA_BAIXOU` \| `LOCALIZACAO_ERRADA` \| `SPAM_OU_ABUSO`), `detalhes` (string), `criadaEm` (timestamp).
 
@@ -154,14 +157,27 @@ Subcoleção `denuncias/{denunciaId}` — classe `Denuncia`: `autorId` (string),
 
 Cada classe de domínio tem um construtor `fromFirestore`, que monta o objeto a partir do documento, e um método `toFirestore`, que gera o mapa de campos a gravar. O id do documento não é gravado como campo: ele vem de `doc.id`.
 
-Exemplo com `Ocorrencia`:
+Código completo em [`lib/models/`](../lib/models/) (uma classe por arquivo, todas exportadas por `models.dart`). Detalhes da implementação:
+
+- As enumerações seguem o padrão do Dart (`Gravidade.grave`), e cada valor guarda o `codigo` gravado no Firestore (`"GRAVE"`) e o `rotulo` mostrado na tela (`"Grave"`). A leitura usa `enumPorCodigo`, que dá erro se o texto do banco for inválido.
+- Coordenadas usam `LatLng` (pacote `latlong2`, o mesmo do mapa) e viram `GeoPoint` no Firestore.
+- Cada classe tem `fromFirestore(doc)`, que chama `fromMap(id, dados)`. O `fromMap` permite testar o mapeamento sem conexão (`test/models_test.dart`).
+- Os métodos do diagrama que dependem do Firebase (cadastrar, entrar, registrar, excluir) ficam nos serviços, não nas classes.
+
+Exemplo resumido com `Ocorrencia` (`lib/models/ocorrencia.dart`):
 
 ```dart
-import 'package:cloud_firestore/cloud_firestore.dart';
+enum Gravidade implements EnumFirestore {
+  leve('LEVE', 'Leve'),
+  moderado('MODERADO', 'Moderado'),
+  grave('GRAVE', 'Grave');
 
-enum TipoOcorrencia { ALAGAMENTO, VIA_OBSTRUIDA }
-enum Gravidade { LEVE, MODERADO, GRAVE }
-enum StatusOcorrencia { ATIVA, RESOLVIDA, EXPIRADA }
+  const Gravidade(this.codigo, this.rotulo);
+  @override
+  final String codigo;
+  @override
+  final String rotulo;
+}
 
 class Ocorrencia {
   final String id;
@@ -169,63 +185,39 @@ class Ocorrencia {
   final Gravidade gravidade;
   final StatusOcorrencia status;
   final String endereco;
-  final double latitude;
-  final double longitude;
+  final LatLng localizacao;
   final int nivelAguaCm;
   final String? descricao;
-  final String? imagemUrl;
-  final String? areaRiscoId;
   final DateTime criadaEm;
   final DateTime expiraEm;
-
-  Ocorrencia({
-    required this.id,
-    required this.tipo,
-    required this.gravidade,
-    required this.status,
-    required this.endereco,
-    required this.latitude,
-    required this.longitude,
-    required this.nivelAguaCm,
-    this.descricao,
-    this.imagemUrl,
-    this.areaRiscoId,
-    required this.criadaEm,
-    required this.expiraEm,
-  });
+  // ... construtor, imagemUrl e areaRiscoId
 
   // Documento do Firestore -> objeto Dart
-  factory Ocorrencia.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data()!;
-    final GeoPoint ponto = d['localizacao'];
-    return Ocorrencia(
-      id: doc.id,
-      tipo: TipoOcorrencia.values.byName(d['tipo']),
-      gravidade: Gravidade.values.byName(d['gravidade']),
-      status: StatusOcorrencia.values.byName(d['status']),
-      endereco: d['endereco'],
-      latitude: ponto.latitude,
-      longitude: ponto.longitude,
-      nivelAguaCm: d['nivelAguaCm'],
-      descricao: d['descricao'],
-      imagemUrl: d['imagemUrl'],
-      areaRiscoId: d['areaRiscoId'],
-      criadaEm: (d['criadaEm'] as Timestamp).toDate(),
-      expiraEm: (d['expiraEm'] as Timestamp).toDate(),
-    );
-  }
+  factory Ocorrencia.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) =>
+      Ocorrencia.fromMap(doc.id, doc.data()!);
+
+  factory Ocorrencia.fromMap(String id, Map<String, dynamic> d) => Ocorrencia(
+        id: id,
+        tipo: enumPorCodigo(TipoOcorrencia.values, d['tipo']),
+        gravidade: enumPorCodigo(Gravidade.values, d['gravidade']),
+        status: enumPorCodigo(StatusOcorrencia.values, d['status']),
+        endereco: d['endereco'] as String,
+        localizacao: lerPonto(d['localizacao']),   // GeoPoint -> LatLng
+        nivelAguaCm: lerInt(d['nivelAguaCm']),
+        descricao: d['descricao'] as String?,
+        criadaEm: lerData(d['criadaEm']),          // Timestamp -> DateTime
+        expiraEm: lerData(d['expiraEm']),
+      );
 
   // Objeto Dart -> campos gravados no Firestore
   Map<String, dynamic> toFirestore() => {
-        'tipo': tipo.name,
-        'gravidade': gravidade.name,
-        'status': status.name,
+        'tipo': tipo.codigo,
+        'gravidade': gravidade.codigo,
+        'status': status.codigo,
         'endereco': endereco,
-        'localizacao': GeoPoint(latitude, longitude),
+        'localizacao': gravarPonto(localizacao),   // LatLng -> GeoPoint
         'nivelAguaCm': nivelAguaCm,
         if (descricao != null) 'descricao': descricao,
-        if (imagemUrl != null) 'imagemUrl': imagemUrl,
-        if (areaRiscoId != null) 'areaRiscoId': areaRiscoId,
         'criadaEm': Timestamp.fromDate(criadaEm),
         'expiraEm': Timestamp.fromDate(expiraEm),
       };
@@ -244,7 +236,7 @@ final ocorrenciasRef = FirebaseFirestore.instance
 
 // Ocorrências ativas, atualizadas em tempo real no mapa (RF09)
 final ativas = ocorrenciasRef
-    .where('status', isEqualTo: StatusOcorrencia.ATIVA.name)
+    .where('status', isEqualTo: StatusOcorrencia.ativa.codigo)
     .snapshots();
 ```
 
@@ -269,8 +261,8 @@ await lote.commit();
 | `int`, `double` | number |
 | `bool` | boolean |
 | `DateTime` | timestamp (`Timestamp.fromDate` / `.toDate()`) |
-| `latitude` + `longitude` | geopoint (`GeoPoint`) |
-| `enum` | string (`.name` / `values.byName`) |
+| `LatLng` (latitude + longitude) | geopoint (`GeoPoint`) |
+| `enum` | string (`.codigo` / `enumPorCodigo`) |
 | `List` de pontos | array de geopoint |
 | composição 1 para 0..1 | map dentro do documento |
 | composição 1 para muitos | subcoleção |
@@ -278,68 +270,41 @@ await lote.commit();
 
 ## 5. Regras de segurança (controle de acesso)
 
-Resumo de quem pode ler e gravar em cada coleção. O arquivo `firestore.rules` do projeto deve seguir esta tabela.
+As regras estão em [`firestore.rules`](../firestore.rules), na raiz do repositório, e são testadas no emulador do Firestore em [`firestore-testes/`](../firestore-testes/).
 
-| Coleção | Leitura | Criação | Alteração / exclusão |
-|---|---|---|---|
-| `usuarios/{uid}` e subcoleções | o próprio usuário | o próprio usuário | o próprio usuário (não pode mudar o próprio `perfil`) |
-| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado | autor (excluir) e Defesa Civil |
-| `ocorrencias/{id}/denuncias` | Defesa Civil | usuário logado | Defesa Civil |
-| `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid | ninguém |
-| `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil |
-| `abrigos`, `rotasFuga` | qualquer pessoa | Defesa Civil | Defesa Civil |
+| Coleção | Leitura | Criação | Alteração | Exclusão |
+|---|---|---|---|---|
+| `usuarios/{uid}` | o próprio usuário | o próprio usuário, sempre como `MORADOR` e com o e-mail do login | o próprio usuário, só `nome` e `preferenciaNotificacao` | ninguém |
+| `usuarios/{uid}/enderecos` | o dono | o dono | o dono | o dono |
+| `usuarios/{uid}/notificacoes` | o dono | o dono | o dono, só o campo `lida` | o dono |
+| `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado, junto com o autor (ver abaixo) | Defesa Civil; usuário logado só para somar 1 confirmação | autor e Defesa Civil |
+| `ocorrencias/{id}/confirmacoes/{uid}` | o próprio usuário | o próprio usuário, junto com o aviso novo ou com a soma de 1 | ninguém | Defesa Civil |
+| `ocorrencias/{id}/denuncias/{uid}` | Defesa Civil | usuário logado, com o próprio uid como id do documento (uma denúncia por pessoa) | Defesa Civil | Defesa Civil |
+| `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid, na mesma gravação da ocorrência | ninguém | autor e Defesa Civil |
+| `abrigos`, `rotasFuga`, `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil | Defesa Civil |
+| qualquer outra coleção | ninguém | ninguém | ninguém | ninguém |
 
-Esboço das regras:
+**Como funcionam as partes principais:**
 
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+- **Perfil:** a regra lê o campo `perfil` do documento `usuarios/{uid}` de quem está logado. Ninguém consegue virar `DEFESA_CIVIL` pelo app: a conta nova precisa ser `MORADOR` e o `perfil` não pode ser alterado. A Defesa Civil é definida manualmente no console do Firebase.
+- **Ocorrência com autor anônimo (RNF07):** o app grava `ocorrencias/{id}` e `autoresOcorrencias/{id}` na mesma gravação (`WriteBatch`). Com `getAfter`, a regra só aceita a ocorrência se, no fim da gravação, o autor dela for quem está logado. Assim toda ocorrência tem dono, ninguém se registra como autor de uma ocorrência que já existe e o autor nunca aparece no documento público.
+- **Validação dos dados:** cada documento só aceita os campos da modelagem (`keys().hasOnly`) e confere tipos e valores: enumerações só com os códigos válidos, textos com tamanho máximo, `nivelAguaCm` inteiro de 0 a 500, `expiraEm` depois de `criadaEm`, vagas do abrigo entre 0 e a capacidade e, na ocorrência nova, `status` igual a `ATIVA` e `confirmacoes` igual a 1.
+- **Confirmações ("Ainda está aí"):** qualquer conta pode alterar um aviso ativo, mas só os campos `confirmacoes` e `expiraEm`: soma exatamente 1 e renova o prazo para no máximo 5 horas a partir de agora. Na mesma gravação, o app cria `confirmacoes/{uid}`; a regra só aceita a soma se essa marca ainda não existia (`!exists`) e passa a existir (`existsAfter`). Assim cada pessoa confirma uma vez só, e o autor já conta como a primeira confirmação.
 
-    function logado() { return request.auth != null; }
-    function ehDefesaCivil() {
-      return logado() &&
-        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.perfil == 'DEFESA_CIVIL';
-    }
-    function ehAutor(ocorrenciaId) {
-      return logado() &&
-        get(/databases/$(database)/documents/autoresOcorrencias/$(ocorrenciaId)).data.autorId == request.auth.uid;
-    }
+**Exemplo de gravação de ocorrência no app:**
 
-    match /usuarios/{uid} {
-      allow read: if logado() && request.auth.uid == uid;
-      allow create: if logado() && request.auth.uid == uid && request.resource.data.perfil == 'MORADOR';
-      allow update: if logado() && request.auth.uid == uid && request.resource.data.perfil == resource.data.perfil;
-      match /{sub=**} {
-        allow read, write: if logado() && request.auth.uid == uid;
-      }
-    }
-
-    match /ocorrencias/{id} {
-      allow read: if true;
-      allow create: if logado();
-      allow update: if ehDefesaCivil();
-      allow delete: if ehAutor(id) || ehDefesaCivil();
-      match /denuncias/{denunciaId} {
-        allow read, update, delete: if ehDefesaCivil();
-        allow create: if logado() && request.resource.data.autorId == request.auth.uid;
-      }
-    }
-
-    match /autoresOcorrencias/{id} {
-      allow read: if logado() && (resource.data.autorId == request.auth.uid || ehDefesaCivil());
-      allow create: if logado() && request.resource.data.autorId == request.auth.uid;
-    }
-
-    match /{colecao}/{id} {
-      allow read: if colecao in ['alertas', 'areasRisco', 'guias', 'abrigos', 'rotasFuga'];
-      allow write: if colecao in ['alertas', 'areasRisco', 'guias', 'abrigos', 'rotasFuga'] && ehDefesaCivil();
-    }
-  }
-}
+```dart
+final db = FirebaseFirestore.instance;
+final ref = db.collection('ocorrencias').doc();
+final batch = db.batch()
+  ..set(ref, ocorrencia.toFirestore())
+  ..set(db.collection('autoresOcorrencias').doc(ref.id), {'autorId': uid})
+  ..set(ref.collection('confirmacoes').doc(uid),
+      {'criadaEm': FieldValue.serverTimestamp()});
+await batch.commit();
 ```
 
-O perfil `DEFESA_CIVIL` é definido manualmente no console do Firebase; pelo app, toda conta nova é criada como `MORADOR`.
+**Como aplicar no projeto do Firebase:** na raiz do repositório, `firebase deploy --only firestore:rules`.
 
 ## 6. Pontos em aberto
 
