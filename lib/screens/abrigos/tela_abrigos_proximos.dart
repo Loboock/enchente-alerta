@@ -6,6 +6,7 @@ import '../../models/destino.dart';
 import '../../services/localizacao_service.dart';
 import '../../utils/formatacao.dart';
 import '../../utils/situacao_abrigo.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/cartao_local.dart';
 import '../../widgets/scaffold_com_abas.dart';
@@ -24,6 +25,7 @@ class TelaAbrigosProximos extends StatelessWidget {
       appBar: const AppBarTela(
         titulo: 'Abrigos próximos',
         subtitulo: 'Ordenado por distância',
+        ajuda: TextosAjuda.abrigos,
       ),
       // Reordena quando o GPS atualiza.
       body: ValueListenableBuilder<PosicaoUsuario?>(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/dados_provisorios.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 
 /// Tela "08 Guia de segurança" do protótipo: orientações para antes, durante
@@ -31,6 +32,7 @@ class TelaGuia extends StatelessWidget {
       appBar: const AppBarTela(
         titulo: 'Guia de segurança',
         subtitulo: 'Antes, durante e depois',
+        ajuda: TextosAjuda.guia,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),

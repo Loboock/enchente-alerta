@@ -21,11 +21,22 @@ import 'tela_rota_fuga.dart';
 /// Navegação curva a curva, no estilo do Waze: o mapa segue e gira com a
 /// pessoa, o topo mostra a próxima manobra e a rota é recalculada se ela
 /// sair do caminho ou se um alagamento for confirmado à frente.
+///
+/// Com [passoAPasso] (sem GPS ou saindo de uma partida escolhida), o app não
+/// sabe onde a pessoa está: mostra uma manobra por vez, com o mapa nela, e a
+/// pessoa avança com "Próxima" e "Anterior". Funciona sem conta e sem
+/// permissão de localização.
 class TelaNavegacao extends StatefulWidget {
-  const TelaNavegacao({super.key, required this.destino, required this.rota});
+  const TelaNavegacao({
+    super.key,
+    required this.destino,
+    required this.rota,
+    this.passoAPasso = false,
+  });
 
   final Destino destino;
   final RotaCalculada rota;
+  final bool passoAPasso;
 
   @override
   State<TelaNavegacao> createState() => _TelaNavegacaoState();
@@ -57,10 +68,25 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
   bool _chegou = false;
   String? _alerta;
 
+  /// Modo passo a passo: índice do passo mostrado.
+  int _passo = 0;
+
+  bool get _manual => widget.passoAPasso;
+
+  /// Quantos passos dá para percorrer no modo manual (pelo menos 1).
+  int get _totalPassos => math.max(1, _rota.passos.length);
+
+  /// Ponto da rota onde começa o passo mostrado (modo manual).
+  int get _inicioDoPasso {
+    final passos = _rota.passos;
+    if (passos.isEmpty || _rota.pontos.isEmpty) return 0;
+    return math.min(passos[_passo].inicio, _rota.pontos.length - 1);
+  }
+
   @override
   void initState() {
     super.initState();
-    _localizacao.posicao.addListener(_aoMover);
+    if (!_manual) _localizacao.posicao.addListener(_aoMover);
     _perigos.addListener(_aoMudarPerigos);
   }
 
@@ -74,6 +100,10 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
 
   void _aoMover() {
     if (!mounted) return;
+    if (_manual) {
+      _mostrarPasso();
+      return;
+    }
     final posicao = _localizacao.posicao.value;
     if (posicao == null || _chegou) return;
 
@@ -99,7 +129,8 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
     }
 
     final faltam = _rota.distanciaMetros - _rota.percorrido(projecao);
-    final chegou = metrosEntre(posicao.ponto, widget.destino.posicao) < 30 ||
+    final chegou =
+        metrosEntre(posicao.ponto, widget.destino.posicao) < 30 ||
         (projecao.distanciaMetros < limite && faltam < 20);
 
     setState(() {
@@ -108,6 +139,26 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
       _chegou = chegou;
     });
     _moverCamera(posicao);
+  }
+
+  /// Modo manual: põe o mapa no começo do passo atual.
+  void _mostrarPasso() {
+    if (!_mapaPronto || !_seguir || _rota.pontos.isEmpty) return;
+    _controle.move(_rota.pontos[_inicioDoPasso], _zoomNavegacao);
+  }
+
+  void _irParaPasso(int passo) {
+    if (passo >= _totalPassos) {
+      setState(() => _chegou = true);
+      return;
+    }
+    setState(() {
+      _passo = math.max(0, passo);
+      _segmento = _inicioDoPasso;
+      _chegou = false;
+      _seguir = true;
+    });
+    _mostrarPasso();
   }
 
   void _moverCamera(PosicaoUsuario posicao) {
@@ -146,7 +197,10 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
     setState(() => _alerta = motivo);
 
     try {
-      final origem = _localizacao.posicao.value?.ponto ?? _rota.pontos.first;
+      // No modo manual, recalcula a partir do passo mostrado.
+      final origem = _manual && _rota.pontos.isNotEmpty
+          ? _rota.pontos[_inicioDoPasso]
+          : _localizacao.posicao.value?.ponto ?? _rota.pontos.first;
       final nova = await RotasService.instance.calcular(
         origem: origem,
         destino: widget.destino.posicao,
@@ -157,6 +211,7 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
       setState(() {
         _rota = nova;
         _segmento = 0;
+        _passo = 0;
         _leiturasForaDaRota = 0;
         _projecao = null;
         _alerta = null;
@@ -171,6 +226,7 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
 
   void _recentralizar() {
     setState(() => _seguir = true);
+    if (_manual) return _mostrarPasso();
     final posicao = _localizacao.posicao.value;
     if (posicao != null) _moverCamera(posicao);
   }
@@ -181,7 +237,11 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
   Widget build(BuildContext context) {
     final rota = _rota;
     final projecao = _projecao;
-    final percorrido = projecao == null ? 0.0 : rota.percorrido(projecao);
+    final percorrido = _manual
+        ? (rota.acumulado.isEmpty ? 0.0 : rota.acumulado[_inicioDoPasso])
+        : projecao == null
+        ? 0.0
+        : rota.percorrido(projecao);
     final faltamMetros = math.max(0.0, rota.distanciaMetros - percorrido);
     final faltamSeg = rota.distanciaMetros <= 0
         ? 0.0
@@ -190,7 +250,11 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
     // Linha: trecho feito em cinza, trecho que falta em azul.
     final List<LatLng> feito;
     final List<LatLng> falta;
-    if (projecao == null) {
+    if (_manual) {
+      final i = _inicioDoPasso;
+      feito = rota.pontos.take(i + 1).toList();
+      falta = rota.pontos.skip(i).toList();
+    } else if (projecao == null) {
       feito = const [];
       falta = rota.pontos;
     } else {
@@ -205,8 +269,11 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
         children: [
           MapaEnchente(
             controller: _controle,
-            centroInicial: _localizacao.posicao.value?.ponto ??
-                (rota.pontos.isEmpty ? widget.destino.posicao : rota.pontos.first),
+            centroInicial:
+                (_manual ? null : _localizacao.posicao.value?.ponto) ??
+                (rota.pontos.isEmpty
+                    ? widget.destino.posicao
+                    : rota.pontos.first),
             zoomInicial: _zoomNavegacao,
             aoFicarPronto: () {
               _mapaPronto = true;
@@ -239,6 +306,7 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
                     rota: rota,
                     percorrido: percorrido,
                     segmento: projecao?.segmento ?? 0,
+                    passo: _manual ? _passo : null,
                     faltamMetros: faltamMetros,
                   ),
                   if (_alerta case final alerta?) _BannerAlerta(texto: alerta),
@@ -256,7 +324,9 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
                   if (!_seguir) ...[
                     BotaoMapa(
                       icone: Icons.navigation,
-                      dica: 'Voltar a seguir minha posição',
+                      dica: _manual
+                          ? 'Voltar ao passo atual'
+                          : 'Voltar a seguir minha posição',
                       aoTocar: _recentralizar,
                     ),
                     const SizedBox(height: 12),
@@ -283,6 +353,12 @@ class _TelaNavegacaoState extends State<TelaNavegacao> {
                     faltamSeg: faltamSeg,
                     faltamMetros: faltamMetros,
                     aoEncerrar: _encerrar,
+                    passo: _manual ? _passo : null,
+                    totalPassos: _totalPassos,
+                    aoAnterior: _manual && _passo > 0
+                        ? () => _irParaPasso(_passo - 1)
+                        : null,
+                    aoProximo: _manual ? () => _irParaPasso(_passo + 1) : null,
                   ),
           ),
         ],
@@ -298,12 +374,16 @@ class _BannerManobra extends StatelessWidget {
     required this.percorrido,
     required this.segmento,
     required this.faltamMetros,
+    this.passo,
   });
 
   final RotaCalculada rota;
   final double percorrido;
   final int segmento;
   final double faltamMetros;
+
+  /// Passo mostrado no modo manual (null = descobre pelo segmento).
+  final int? passo;
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +394,7 @@ class _BannerManobra extends StatelessWidget {
     double distancia = faltamMetros;
 
     if (passos.isNotEmpty) {
-      final atual = rota.passoNoSegmento(segmento);
+      final atual = passo ?? rota.passoNoSegmento(segmento);
       if (atual + 1 < passos.length) {
         // A instrução do PRÓXIMO passo é a manobra no fim do passo atual.
         final proximo = passos[atual + 1];
@@ -430,11 +510,21 @@ class _PainelInferior extends StatelessWidget {
     required this.faltamSeg,
     required this.faltamMetros,
     required this.aoEncerrar,
+    this.passo,
+    this.totalPassos = 1,
+    this.aoAnterior,
+    this.aoProximo,
   });
 
   final double faltamSeg;
   final double faltamMetros;
   final VoidCallback aoEncerrar;
+
+  /// Modo passo a passo: passo mostrado (null = navegação pelo GPS).
+  final int? passo;
+  final int totalPassos;
+  final VoidCallback? aoAnterior;
+  final VoidCallback? aoProximo;
 
   @override
   Widget build(BuildContext context) {
@@ -449,37 +539,69 @@ class _PainelInferior extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 14, 20, 14),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton.filledTonal(
-                tooltip: 'Encerrar navegação',
-                iconSize: 28,
-                onPressed: aoEncerrar,
-                icon: const Icon(Icons.close),
+              Row(
+                children: [
+                  IconButton.filledTonal(
+                    tooltip: 'Encerrar navegação',
+                    iconSize: 28,
+                    onPressed: aoEncerrar,
+                    icon: const Icon(Icons.close),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Chegada ${horaDeChegada(faltamSeg)}',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: cores.onSurface,
+                          ),
+                        ),
+                        Text(
+                          '$minutos min · ${formatarDistancia(faltamMetros)}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: cores.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              if (passo case final passo?) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Sem GPS: passo ${passo + 1} de $totalPassos',
+                  style: TextStyle(fontSize: 13, color: cores.onSurfaceVariant),
+                ),
+                const SizedBox(height: 8),
+                Row(
                   children: [
-                    Text(
-                      'Chegada ${horaDeChegada(faltamSeg)}',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: cores.onSurface,
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: aoAnterior,
+                        icon: const Icon(Icons.chevron_left),
+                        label: const Text('Anterior'),
                       ),
                     ),
-                    Text(
-                      '$minutos min · ${formatarDistancia(faltamMetros)}',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: cores.onSurfaceVariant,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: aoProximo,
+                        icon: const Icon(Icons.chevron_right),
+                        label: const Text('Próxima'),
                       ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ],
           ),
         ),

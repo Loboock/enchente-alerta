@@ -199,3 +199,18 @@
 ### Corrigido
 - Mapa: o ponto azul do usuário ficava por cima do aviso reportado no mesmo lugar e bloqueava o toque, então não dava para abrir o aviso ("Ainda está aí" / "Não está mais"). Agora o ponto deixa o toque passar (IgnorePointer em lib/widgets/mapa/mapa_enchente.dart). Encontrado no teste no emulador.
 - Cadastro: o documento usuarios/{uid} era gravado duas vezes ao mesmo tempo (pelo cadastro e pelo login automático); a segunda gravação era recusada pelas regras (PERMISSION_DENIED no log). Agora é criado numa transação, só se ainda não existir (lib/services/auth_service.dart). Testado no emulador criando uma conta nova.
+
+# [18/11/2026]
+
+### Adicionado
+- Ponto de partida na Rota de fuga, no estilo do Uber (lib/screens/rota/tela_escolher_destino.dart): campo Partida em cima do Destino. Com a localização ativa, a partida já vem como "Sua localização" e pode ser trocada por outro endereço (o botão de mira volta para o GPS). Sem permissão de localização, a partida fica vazia e é pedida antes de calcular, então a rota funciona sem aceitar o GPS. Com a partida trocada, a tela da rota mostra a partida no mapa.
+- Botão "Cancelar" na tela da rota (lib/screens/rota/tela_rota_fuga.dart), embaixo de "Iniciar navegação" e também enquanto a rota é calculada ou quando dá erro: volta para a escolha de partida e destino, com os campos ainda preenchidos.
+- Navegação passo a passo (lib/screens/rota/tela_navegacao.dart): sem GPS ou saindo de uma partida escolhida, "Iniciar navegação" continua disponível e mostra uma manobra por vez, com o mapa nela e os botões "Anterior" e "Próxima" ("Sem GPS: passo 2 de 7"). Funciona sem conta e sem permissão de localização. Com GPS na própria posição, a navegação continua acompanhando o GPS.
+- Ajuda própria de cada tela (lib/widgets/ajuda.dart, `TextosAjuda`): Entrar, Cadastrar, Recuperar senha, Perfil, Abrigos próximos, Escolher destino, Rota de fuga, Avisos, Criar aviso, Reportar aviso, Histórico e Guia. O "i" mostra o texto da tela com o atalho "Ver ajuda completa" para a tela Ajuda; no Início ele abre direto a tela Ajuda.
+- Testes de widget: partida preenchida com o GPS e trocada por endereço, rota sem GPS pedindo a partida, navegação passo a passo até a chegada e ajuda própria da aba Guia levando à Ajuda completa (test/widget_test.dart).
+
+### Alterado
+- Basta 1 aviso para a rota desviar: `Config.confirmacoesParaBloquear` passou de 2 para 1 (lib/config.dart). Textos de reportar e dos detalhes do aviso ajustados; testes de rotas atualizados (test/rotas_test.dart). As regras do Firestore não mudam. docs/rotas-e-mapa.md e docs/modelagem-firestore.md atualizados.
+- Botão de ajuda com o ícone "i" (info) no lugar do "?", em todas as telas (lib/widgets/app_bar_tela.dart e lib/widgets/widgets_conta.dart).
+- docs/fluxo-navegacao.md: botão "i" com a ajuda da tela e atalho para a Ajuda; ponto a ajustar 1 (ajuda diferente nas telas de conta) resolvido.
+- Botões do aviso no mapa falam da enchente, não do usuário: "Ainda está aí" / "Não está mais" viraram "Ainda alagado" / "Água baixou" (ou "Ainda bloqueada" / "Via liberada" em via obstruída) (lib/widgets/mapa/folha_perigo.dart).

@@ -3,32 +3,20 @@
 // Theme.of(context).colorScheme, que já troca sozinho no modo escuro.
 import 'package:flutter/material.dart';
 
+import 'ajuda.dart';
+
 void showMsg(BuildContext c, String m) {
   ScaffoldMessenger.of(c)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(m)));
 }
 
-void mostrarAjuda(BuildContext c) => showDialog<void>(
-      context: c,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Ajuda'),
-        content: const Text(
-            'O Enchente Alerta envia avisos de alagamento da sua região em tempo real.\n\n'
-            'Você pode usar o app sem conta. A conta serve para criar avisos e '
-            'configurar alertas.\n\n'
-            'Problemas com acesso? Use "Esqueceu a senha?" na tela de login.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Fechar'))
-        ],
-      ),
-    );
-
 /// Barra do topo no mesmo estilo das outras abas (Início, Em construção).
 /// Em telas abertas por cima (Cadastro, Recuperar senha) aparece a seta de
-/// voltar sozinha.
-AppBar barraConta(BuildContext context, String titulo) => AppBar(
+/// voltar sozinha. [ajuda] é o texto do botão "i" (ver TextosAjuda).
+AppBar barraConta(BuildContext context, String titulo,
+        {required String ajuda}) =>
+    AppBar(
       title: Text(titulo),
       centerTitle: false,
       toolbarHeight: 72,
@@ -39,14 +27,7 @@ AppBar barraConta(BuildContext context, String titulo) => AppBar(
         color: Colors.white,
       ),
       actions: [
-        IconButton(
-          tooltip: 'Ajuda',
-          iconSize: 40,
-          padding: const EdgeInsets.all(4),
-          color: Colors.white,
-          icon: const Icon(Icons.help_outline),
-          onPressed: () => mostrarAjuda(context),
-        ),
+        BotaoAjuda(texto: ajuda),
         const SizedBox(width: 12),
       ],
     );

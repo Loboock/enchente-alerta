@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
 import 'tela_login.dart';
 
@@ -108,7 +109,7 @@ class ProfileScreen extends StatelessWidget {
         final cores = Theme.of(context).colorScheme;
         final nome = auth.nome;
         return Scaffold(
-          appBar: barraConta(context, 'Perfil'),
+          appBar: barraConta(context, 'Perfil', ajuda: TextosAjuda.perfil),
           body: ListView(padding: const EdgeInsets.all(20), children: [
             Row(children: [
               CircleAvatar(

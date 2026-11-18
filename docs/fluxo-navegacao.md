@@ -6,8 +6,8 @@ Fluxo **real** do app, levantado do código em `lib/screens/` em 17/11/2026 (nã
 
 - **Barra inferior com 5 abas**, sempre visível: Início, Avisos, Histórico, Perfil e Guia (`lib/screens/tela_principal.dart`). As abas ficam vivas ao trocar (o mapa não recarrega).
 - **Telas abertas por cima** (Rota de fuga, Abrigos, Criar aviso etc.) mantêm a barra inferior. Tocar numa aba fecha as telas abertas e vai direto para ela (`irParaAba` em `lib/navegacao.dart`).
-- **Botão "?"** no topo das telas abre a tela Ajuda, que é um índice com atalho para cada tela.
-- **Visitante** (sem conta) navega por tudo. Ao tocar numa ação que grava dados (Reportar, Criar aviso, Ainda está aí, Não está mais), aparece o aviso "Entre na sua conta..." com o botão **Entrar**, que leva à aba Perfil.
+- **Botão "i"** no topo das telas mostra a ajuda própria daquela tela, com o atalho "Ver ajuda completa" para a tela Ajuda (um índice com atalho para cada tela). No Início, o "i" abre direto a tela Ajuda.
+- **Visitante** (sem conta) navega por tudo. Ao tocar numa ação que grava dados (Reportar, Criar aviso, Ainda alagado, Água baixou), aparece o aviso "Entre na sua conta..." com o botão **Entrar**, que leva à aba Perfil.
 
 ## Diagrama
 
@@ -26,7 +26,7 @@ flowchart LR
     INI -->|Abrigo| ABR[Abrigos próximos]
     INI -->|Rota de fuga| DES[Escolher destino]
     INI -.->|botão Reportar| REP([Folha Reportar])
-    INI -->|toque num alagamento| DET([Folha do aviso:<br/>Ainda está aí / Não está mais])
+    INI -->|toque num alagamento| DET([Folha do aviso:<br/>Ainda alagado / Água baixou])
 
     ABR -->|toque num abrigo| ROT[Rota de fuga]
     DES -->|abrigo ou endereço buscado| ROT
@@ -51,18 +51,19 @@ flowchart LR
     AJU --> ABR & DES & CRI & CAD & REC
 ```
 
-O botão "?" abre a Ajuda a partir de quase todas as telas (as ligações não aparecem no diagrama para não poluir).
+O botão "i" leva à Ajuda a partir de todas as telas (as ligações não aparecem no diagrama para não poluir).
 
 ## Transições
 
 | De | Ação | Para | Precisa de conta |
 |---|---|---|---|
 | Qualquer tela | Aba da barra inferior | Aba escolhida (fecha as telas abertas por cima) | Não |
-| Qualquer tela com "?" | Botão "?" | Ajuda | Não |
+| Início | Botão "i" | Ajuda | Não |
+| Outras telas | Botão "i" → "Ver ajuda completa" | Janela com a ajuda da tela → Ajuda | Não |
 | Início | Abrigo | Abrigos próximos | Não |
 | Início | Rota de fuga | Escolher destino | Não |
 | Início | Botão Reportar (megafone) | Folha Reportar: tipo, gravidade, nível da água | Sim |
-| Início | Toque num alagamento do mapa | Folha do aviso: Ainda está aí / Não está mais | Sim, para responder |
+| Início | Toque num alagamento do mapa | Folha do aviso: Ainda alagado / Água baixou | Sim, para responder |
 | Abrigos próximos | Toque num abrigo | Rota de fuga até o abrigo | Não |
 | Escolher destino | Toque num abrigo ou endereço buscado | Rota de fuga | Não |
 | Rota de fuga | Iniciar navegação | Navegação curva a curva | Não |
@@ -78,6 +79,6 @@ O botão "?" abre a Ajuda a partir de quase todas as telas (as ligações não a
 
 ## Pontos a ajustar (encontrados no levantamento)
 
-1. **"?" nas telas de conta:** em Entrar, Cadastrar, Recuperar senha e Perfil, o botão "?" abre uma janela de texto, e não a tela Ajuda como nas outras telas (`barraConta` em `lib/widgets/widgets_conta.dart`).
+1. ~~**"?" nas telas de conta** abria uma janela de texto, e não a tela Ajuda.~~ Resolvido em 18/11/2026: todas as telas usam o mesmo botão "i" (`BotaoAjuda` em `lib/widgets/ajuda.dart`).
 2. **Endereço padrão** (Perfil) ainda mostra "em breve" (previsto para a Sprint 2).
 3. **Atalhos do Início** (Hosp. Universitário, Escola Exemplo, Farolândia) aparecem no topo do mapa, mas não fazem nada ao tocar. No protótipo eles indicam locais próximos; podem abrir a rota até o local.

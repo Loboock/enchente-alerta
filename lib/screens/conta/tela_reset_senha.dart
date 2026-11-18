@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
 
 /// Recuperar senha: o Firebase envia um e-mail com o link para criar a nova
@@ -53,7 +54,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: barraConta(context, 'Recuperar senha'),
+      appBar: barraConta(context, 'Recuperar senha', ajuda: TextosAjuda.recuperarSenha),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(

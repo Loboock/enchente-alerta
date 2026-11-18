@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/models.dart';
 import '../../services/perigos_service.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import '../../widgets/widgets_conta.dart';
@@ -71,7 +72,10 @@ class _TelaReportarAvisoState extends State<TelaReportarAviso> {
 
     return ScaffoldComAbas(
       abaAtiva: 1,
-      appBar: const AppBarTela(titulo: 'Reportar aviso'),
+      appBar: const AppBarTela(
+        titulo: 'Reportar aviso',
+        ajuda: TextosAjuda.reportarAviso,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

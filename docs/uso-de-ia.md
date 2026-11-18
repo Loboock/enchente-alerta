@@ -198,6 +198,21 @@ gere pra mim [o fluxo de navegação real]
 
 Resultado: `docs/fluxo-navegacao.md` com diagrama Mermaid, tabela de transições e 3 pontos a ajustar ("?" das telas de conta, Endereço padrão e atalhos do Início).
 
+### Prompt 14 — Ajustes de rota, partida e ajuda por tela — Pedro Fraife
+
+Pedido direto, com vários ajustes numa mensagem só; a IA leu as telas antes de mudar e manteve o número de confirmações configurável.
+
+```text
+reduzir para 1 a quantidade de avisos para desviar a rota, colocar local de
+partida para que n seja preciso aceitar localização, a aba de ajuda com o i
+ao inves da interroga e colocar exclusividade na ajuda, tipo cada pagina,
+exceto a inicial, tem um texto de ajuda basico proprio na mesma pegada do de
+login. E mudar os termos de "ainda está ai" para algo que remeta a enchente
+e n ao usuario
+```
+
+Resultado: rota desvia já no primeiro aviso (o grupo reviu a decisão do Prompt 9: em enchente, desviar cedo é mais seguro), escolha do ponto de partida (sem GPS o app pede a partida), ajuda "i" com texto próprio por tela e botões "Ainda alagado" / "Água baixou". Ao trazer a develop, a ajuda por tela foi combinada com a tela Ajuda do Prompt 10: o "i" mostra o texto da tela e tem o atalho "Ver ajuda completa". Depois o pedido foi refinado: "selecionar o local de partida primeiro, em cima do destino, tipo como o uber faz", com a localização preenchida automaticamente. Primeiro a IA escondeu o "Iniciar navegação" com a partida trocada; o grupo corrigiu o pedido, porque a navegação tem que funcionar sem conta e sem localização, e ela virou passo a passo (uma manobra por vez, com "Próxima" e "Anterior") quando não há GPS. Validado com `flutter analyze`, `flutter test` e no emulador.
+
 ---
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
@@ -223,6 +238,7 @@ Resultado: `docs/fluxo-navegacao.md` com diagrama Mermaid, tabela de transiçõe
 | 17 | `AuthService` (cadastro) | O cadastro e o login automático criavam `usuarios/{uid}` ao mesmo tempo; a segunda gravação chegava como alteração de `criadoEm` e era recusada pelas regras. | Erro `PERMISSION_DENIED` no log durante o teste no emulador. | Documento criado numa transação que só grava se ainda não existir; conferido criando uma conta nova no emulador. |
 | 18 | Telas de aviso (testes de widget) | Os testes tocavam nos botões Criar e Enviar denúncia sem rolar a tela; na tela pequena do teste eles ficam abaixo da área visível e o toque não chegava. | Falha dos testes ("Found 0 widgets"). | `ensureVisible` antes de tocar. |
 | 19 | Excluir aviso | Para mostrar "Excluir" só ao autor, a primeira ideia seria gravar o autor no documento da ocorrência, o que quebraria o anonimato (RNF07). | Revisão contra a decisão de anonimato do grupo. | O app consulta `autoresOcorrencias` filtrando pelo próprio uid, consulta que só o próprio autor consegue fazer pelas regras. |
+| 20 | Ponto de partida da rota | O botão "Usar minha localização" mantinha a partida escolhida antes, em vez de voltar ao GPS. | Revisão do código antes dos testes. | O botão passa a limpar a partida sempre que há GPS (`lib/screens/rota/tela_escolher_destino.dart`). |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 

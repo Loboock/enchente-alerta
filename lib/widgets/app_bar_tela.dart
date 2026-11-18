@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 
-import '../screens/ajuda/tela_ajuda.dart';
-import '../theme/app_theme.dart';
+import 'ajuda.dart';
 
-/// Cabeçalho azul das telas: título (com subtítulo opcional) e botão de ajuda.
+/// Cabeçalho azul das telas: título (com subtítulo opcional) e o botão de
+/// ajuda "i".
 ///
-/// O botão abre a tela Ajuda. Na própria Ajuda ([ajudaAtiva]) ele fica
-/// laranja, como no protótipo, e não abre outra Ajuda por cima.
+/// - Com [ajuda]: o botão mostra o texto próprio da tela, com o atalho para
+///   a tela Ajuda completa.
+/// - Sem [ajuda] (Início): o botão abre direto a tela Ajuda.
+/// - Na própria Ajuda ([ajudaAtiva]) ele fica laranja, como no protótipo, e
+///   não abre outra Ajuda por cima.
 class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
   const AppBarTela({
     super.key,
     required this.titulo,
     this.subtitulo,
+    this.ajuda,
     this.ajudaAtiva = false,
   });
 
   final String titulo;
   final String? subtitulo;
+  final String? ajuda;
   final bool ajudaAtiva;
 
   @override
@@ -54,15 +59,7 @@ class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          tooltip: 'Ajuda',
-          iconSize: 40,
-          padding: const EdgeInsets.all(4),
-          color: ajudaAtiva ? AppColors.alerta : Colors.white,
-          disabledColor: AppColors.alerta,
-          icon: const Icon(Icons.help_outline),
-          onPressed: ajudaAtiva ? null : () => abrirAjuda(context),
-        ),
+        BotaoAjuda(texto: ajuda, ativa: ajudaAtiva),
         const SizedBox(width: 12),
       ],
     );

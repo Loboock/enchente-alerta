@@ -11,6 +11,7 @@ import '../../services/localizacao_service.dart';
 import '../../services/perigos_service.dart';
 import '../../services/rotas_service.dart';
 import '../../utils/cores_gravidade.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import '../../widgets/widgets_conta.dart';
@@ -191,7 +192,10 @@ class _TelaCriarAvisoState extends State<TelaCriarAviso> {
 
     return ScaffoldComAbas(
       abaAtiva: 1,
-      appBar: const AppBarTela(titulo: 'Criar aviso'),
+      appBar: const AppBarTela(
+        titulo: 'Criar aviso',
+        ajuda: TextosAjuda.criarAviso,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(

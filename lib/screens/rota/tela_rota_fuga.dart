@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../config.dart';
 import '../../models/destino.dart';
 import '../../models/perigo.dart';
 import '../../models/rota_calculada.dart';
@@ -10,16 +11,20 @@ import '../../services/perigos_service.dart';
 import '../../services/rotas_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/formatacao.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/mapa/mapa_enchente.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import 'tela_navegacao.dart';
 
-/// Abre a rota de fuga do usuário até [destino].
-void abrirRotaFuga(BuildContext context, Destino destino) {
+/// Abre a rota de fuga até [destino], saindo de [partida] (ou da
+/// localização atual, se for null).
+void abrirRotaFuga(BuildContext context, Destino destino, {Destino? partida}) {
   FocusScope.of(context).unfocus();
   Navigator.of(context).push(
-    MaterialPageRoute<void>(builder: (_) => TelaRotaFuga(destino: destino)),
+    MaterialPageRoute<void>(
+      builder: (_) => TelaRotaFuga(destino: destino, partida: partida),
+    ),
   );
 }
 
@@ -29,34 +34,52 @@ const corBordaRota = Color(0xFF1A4D8F);
 
 /// Linha da rota no estilo do Waze.
 Polyline<Object> linhaRota(List<LatLng> pontos) => Polyline(
-      points: pontos,
-      strokeWidth: 8,
+  points: pontos,
+  strokeWidth: 8,
+  color: corRota,
+  borderStrokeWidth: 2.5,
+  borderColor: corBordaRota,
+);
+
+/// Bolinha azul do ponto de partida escolhido.
+Marker marcaPartida(LatLng ponto) => Marker(
+  point: ponto,
+  width: 22,
+  height: 22,
+  child: Container(
+    decoration: BoxDecoration(
       color: corRota,
-      borderStrokeWidth: 2.5,
-      borderColor: corBordaRota,
-    );
+      shape: BoxShape.circle,
+      border: Border.all(color: Colors.white, width: 4),
+      boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+    ),
+  ),
+);
 
 /// Pino verde do destino.
 Marker pinoDestino(LatLng ponto) => Marker(
-      point: ponto,
-      width: 44,
-      height: 44,
-      // A ponta do pino fica sobre o ponto.
-      alignment: Alignment.topCenter,
-      child: const Icon(
-        Icons.location_on,
-        color: AppColors.seguro,
-        size: 44,
-        shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
-      ),
-    );
+  point: ponto,
+  width: 44,
+  height: 44,
+  // A ponta do pino fica sobre o ponto.
+  alignment: Alignment.topCenter,
+  child: const Icon(
+    Icons.location_on,
+    color: AppColors.seguro,
+    size: 44,
+    shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
+  ),
+);
 
 /// Tela "02 Rota de fuga" do protótipo: rota real até o destino, desviando
 /// dos alagamentos, com tempo, distância e o botão de navegação.
 class TelaRotaFuga extends StatefulWidget {
-  const TelaRotaFuga({super.key, required this.destino});
+  const TelaRotaFuga({super.key, required this.destino, this.partida});
 
   final Destino destino;
+
+  /// Ponto de partida escolhido; null = localização atual (GPS).
+  final Destino? partida;
 
   @override
   State<TelaRotaFuga> createState() => _TelaRotaFugaState();
@@ -77,6 +100,12 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
   int _pedido = 0;
 
   RotaCalculada? get _rota => _rotas[_modo];
+
+  /// Sem acompanhar o GPS (partida escolhida ou localização negada), a
+  /// navegação mostra a rota passo a passo.
+  bool get _passoAPasso =>
+      widget.partida != null ||
+      (!Config.usarLocalizacaoDeTeste && (_origem?.deTeste ?? false));
 
   @override
   void initState() {
@@ -104,7 +133,10 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
       });
     }
     try {
-      final origem = await LocalizacaoService.instance.atual();
+      final partida = widget.partida;
+      final origem = partida != null
+          ? PosicaoUsuario(ponto: partida.posicao)
+          : await LocalizacaoService.instance.atual();
       final rota = await RotasService.instance.calcular(
         origem: origem.ponto,
         destino: widget.destino.posicao,
@@ -185,7 +217,11 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
     if (rota == null) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => TelaNavegacao(destino: widget.destino, rota: rota),
+        builder: (_) => TelaNavegacao(
+          destino: widget.destino,
+          rota: rota,
+          passoAPasso: _passoAPasso,
+        ),
       ),
     );
   }
@@ -198,6 +234,7 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
       appBar: AppBarTela(
         titulo: 'Rota de fuga',
         subtitulo: 'Menor risco até ${widget.destino.nome}',
+        ajuda: TextosAjuda.rotaFuga,
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -214,7 +251,13 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
             camadasExtras: [
               if (rota != null)
                 PolylineLayer(polylines: [linhaRota(rota.pontos)]),
-              MarkerLayer(markers: [pinoDestino(widget.destino.posicao)]),
+              MarkerLayer(
+                markers: [
+                  if (widget.partida case final partida?)
+                    marcaPartida(partida.posicao),
+                  pinoDestino(widget.destino.posicao),
+                ],
+              ),
             ],
           ),
           Positioned(
@@ -225,11 +268,16 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
               modo: _modo,
               rota: rota,
               origem: _origem,
+              partidaEscolhida: widget.partida != null,
+              passoAPasso: _passoAPasso,
               carregando: _carregando,
               erro: _erro,
               aoTrocarModo: _trocarModo,
               aoTentarDeNovo: _calcular,
               aoIniciar: _iniciarNavegacao,
+              // Volta para a escolha de partida e destino (ou para a lista
+              // de abrigos), com o que já estava preenchido.
+              aoCancelar: () => Navigator.of(context).pop(),
             ),
           ),
         ],
@@ -255,21 +303,31 @@ class _PainelRota extends StatelessWidget {
     required this.modo,
     required this.rota,
     required this.origem,
+    required this.partidaEscolhida,
+    required this.passoAPasso,
     required this.carregando,
     required this.erro,
     required this.aoTrocarModo,
     required this.aoTentarDeNovo,
     required this.aoIniciar,
+    required this.aoCancelar,
   });
 
   final ModoTransporte modo;
   final RotaCalculada? rota;
   final PosicaoUsuario? origem;
+
+  /// A rota sai de um ponto escolhido, não da posição da pessoa.
+  final bool partidaEscolhida;
+
+  /// A navegação vai ser passo a passo (sem acompanhar o GPS).
+  final bool passoAPasso;
   final bool carregando;
   final String? erro;
   final ValueChanged<ModoTransporte> aoTrocarModo;
   final VoidCallback aoTentarDeNovo;
   final VoidCallback aoIniciar;
+  final VoidCallback aoCancelar;
 
   @override
   Widget build(BuildContext context) {
@@ -277,15 +335,26 @@ class _PainelRota extends StatelessWidget {
     final rota = this.rota;
     final erro = this.erro;
 
+    final botaoCancelar = OutlinedButton(
+      onPressed: aoCancelar,
+      child: const Text('Cancelar'),
+    );
+
     final Widget conteudo;
     if (carregando) {
-      conteudo = const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
+      conteudo = Padding(
+        padding: const EdgeInsets.only(top: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            LinearProgressIndicator(),
-            SizedBox(height: 12),
-            Text('Calculando a rota mais segura...'),
+            const LinearProgressIndicator(),
+            const SizedBox(height: 12),
+            const Text(
+              'Calculando a rota mais segura...',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            botaoCancelar,
           ],
         ),
       );
@@ -304,9 +373,17 @@ class _PainelRota extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: aoTentarDeNovo,
-              child: const Text('Tentar de novo'),
+            Row(
+              children: [
+                Expanded(child: botaoCancelar),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: aoTentarDeNovo,
+                    child: const Text('Tentar de novo'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -317,15 +394,15 @@ class _PainelRota extends StatelessWidget {
         children: [
           Row(
             children: [
-              _Dado(valor: '${rota.duracaoMin} min', rotulo: modo.rotulo.toLowerCase()),
+              _Dado(
+                valor: '${rota.duracaoMin} min',
+                rotulo: modo.rotulo.toLowerCase(),
+              ),
               _Dado(
                 valor: formatarDistancia(rota.distanciaMetros, compacto: true),
                 rotulo: 'distância',
               ),
-              _Dado(
-                valor: horaDeChegada(rota.duracaoSeg),
-                rotulo: 'chegada',
-              ),
+              _Dado(valor: horaDeChegada(rota.duracaoSeg), rotulo: 'chegada'),
             ],
           ),
           const SizedBox(height: 12),
@@ -336,6 +413,8 @@ class _PainelRota extends StatelessWidget {
             icon: const Icon(Icons.navigation),
             label: const Text('Iniciar navegação'),
           ),
+          const SizedBox(height: 8),
+          botaoCancelar,
         ],
       );
     }
@@ -392,7 +471,8 @@ class _PainelRota extends StatelessWidget {
         _LinhaAviso(
           icone: Icons.warning_amber,
           cor: AppColors.alerta,
-          texto: '${_plural(naoConfirmados, 'aviso', 'avisos')} ainda sem '
+          texto:
+              '${_plural(naoConfirmados, 'aviso', 'avisos')} ainda sem '
               'confirmação no caminho. Fique atento.',
         ),
       for (final p in rota.perigosInevitaveis)
@@ -401,7 +481,17 @@ class _PainelRota extends StatelessWidget {
           cor: cores.error,
           texto: _textoInevitavel(p, origem),
         ),
-      if (origem != null && origem.deTeste)
+      if (passoAPasso)
+        _LinhaAviso(
+          icone: Icons.format_list_numbered,
+          cor: cores.onSurfaceVariant,
+          texto: partidaEscolhida
+              ? 'Saindo do ponto escolhido: a navegação mostra uma manobra '
+                    'por vez e você avança com "Próxima".'
+              : 'Sem GPS: a navegação mostra uma manobra por vez e você '
+                    'avança com "Próxima".',
+        ),
+      if (origem != null && origem.deTeste && !partidaEscolhida)
         _LinhaAviso(
           icone: Icons.gps_off,
           cor: cores.onSurfaceVariant,
@@ -412,7 +502,9 @@ class _PainelRota extends StatelessWidget {
 
   String _textoInevitavel(Perigo p, PosicaoUsuario? origem) {
     if (origem != null && p.contem(origem.ponto)) {
-      return 'Você está numa área de risco (${p.titulo}). Saia com cuidado.';
+      return partidaEscolhida
+          ? 'A partida fica numa área de risco (${p.titulo}).'
+          : 'Você está numa área de risco (${p.titulo}). Saia com cuidado.';
     }
     return 'O destino fica numa área de risco (${p.titulo}).';
   }

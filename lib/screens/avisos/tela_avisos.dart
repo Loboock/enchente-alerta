@@ -9,6 +9,7 @@ import '../../services/perigos_service.dart';
 import '../../utils/cores_gravidade.dart';
 import '../../utils/exigir_login.dart';
 import '../../utils/formatacao.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import 'tela_criar_aviso.dart';
 import 'tela_reportar_aviso.dart';
@@ -129,6 +130,7 @@ class _TelaAvisosState extends State<TelaAvisos> {
       appBar: const AppBarTela(
         titulo: 'Avisos de alagamento',
         subtitulo: 'Atualizado agora',
+        ajuda: TextosAjuda.avisos,
       ),
       body: ValueListenableBuilder<List<Perigo>>(
         valueListenable: PerigosService.instance.perigos,
