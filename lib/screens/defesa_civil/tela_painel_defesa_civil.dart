@@ -17,13 +17,11 @@ class TelaPainelDefesaCivil extends StatefulWidget {
   const TelaPainelDefesaCivil({
     super.key,
     required this.nome,
-    required this.email,
     required this.aoEditarDados,
     required this.aoSair,
   });
 
   final String nome;
-  final String email;
   final VoidCallback aoEditarDados;
   final VoidCallback aoSair;
 
@@ -68,7 +66,7 @@ class _TelaPainelDefesaCivilState extends State<TelaPainelDefesaCivil> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _Cabecalho(nome: widget.nome, email: widget.email),
+          _Cabecalho(nome: widget.nome),
           const SizedBox(height: 24),
           _TituloSecao('Gerenciar'),
           ValueListenableBuilder<List<GrupoDenuncias>>(
@@ -120,6 +118,7 @@ class _TelaPainelDefesaCivilState extends State<TelaPainelDefesaCivil> {
             contentPadding: EdgeInsets.zero,
             leading: Icon(Icons.badge_outlined, color: cores.primary),
             title: const Text('Meus dados'),
+            subtitle: const Text('Nome, e-mail e senha'),
             trailing: const Icon(Icons.chevron_right),
             onTap: widget.aoEditarDados,
           ),
@@ -137,10 +136,9 @@ class _TelaPainelDefesaCivilState extends State<TelaPainelDefesaCivil> {
 }
 
 class _Cabecalho extends StatelessWidget {
-  const _Cabecalho({required this.nome, required this.email});
+  const _Cabecalho({required this.nome});
 
   final String nome;
-  final String email;
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +187,6 @@ class _Cabecalho extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(email, style: TextStyle(color: cores.onPrimary)),
               ],
             ),
           ),

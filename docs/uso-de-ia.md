@@ -225,6 +225,16 @@ a gente precisa partir para a parte do perfil de defesa civil [...] do perfil se
 
 Resultado: aba "Painel" para a Defesa Civil, revisão de denúncias, CRUD de alertas e de abrigos, faixa de alertas para todos e abrigos lidos do Firestore. Validado com `flutter analyze`, `flutter test` (8 testes novos) e `npm test` (5 testes novos de regras).
 
+### Prompt 16 — Perfil no padrão dos apps comuns — Vinicius Reis
+
+Funcionou bem porque o pedido descreveu o resultado esperado com um exemplo concreto (o nome sem o e-mail embaixo e os dados dentro de "Meus dados"), e a IA conferiu no emulador com uma conta de teste.
+
+```text
+eu preciso que esse perfil esteja [nos] padrões de outros aplicativos [...] meus dados, você aperta em meus dados, ele só aparece algo simples, um nome [...] deixe só Lucas, sem o Gmail embaixo, e [...] coloque as informações dele nos meus dados
+```
+
+Resultado: Perfil com avatar e nome, opções agrupadas com ícone, interruptor de alertas e "Sair" em vermelho; tela Meus dados com nome editável, e-mail, tipo de conta, data de criação e Alterar senha. Validado com `flutter analyze`, `flutter test` (3 testes novos) e no emulador, salvando o nome no Firestore.
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |

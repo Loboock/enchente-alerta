@@ -76,10 +76,17 @@ abstract final class TextosAjuda {
       'Não recebeu? Confira a caixa de spam ou tente de novo em alguns minutos.';
 
   static const perfil =
-      'Aqui ficam os dados da sua conta: em "Meus dados" você muda o nome e '
-      'em "Notificações" liga ou desliga os alertas de alagamento.\n\n'
+      'Em "Meus dados" você vê o e-mail da conta, muda o nome e pede uma '
+      'senha nova. "Alertas de alagamento" liga ou desliga os alertas da '
+      'Defesa Civil no Início.\n\n'
       'Seus avisos são anônimos: os outros moradores não veem quem enviou.\n\n'
       'Use "Sair" para desconectar deste aparelho.';
+
+  static const meusDados =
+      'Altere o seu nome e toque em "Salvar alterações".\n\n'
+      'O e-mail é o login da conta e não muda por aqui. "Alterar senha" '
+      'envia um link para o seu e-mail.\n\n'
+      'Seu nome nunca aparece nos avisos que você envia.';
 
   static const abrigos =
       'Lista dos abrigos do mais perto para o mais longe, com a situação de '

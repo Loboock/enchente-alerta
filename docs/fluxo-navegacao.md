@@ -45,7 +45,9 @@ flowchart LR
     CAD -->|conta criada| PER
     REC -->|e-mail enviado| ENT
     ENT -->|login| PER
-    PER -->|com conta| OPC([Meus dados / Notificações / Sair])
+    PER -->|com conta| MDA[Meus dados]
+    PER -->|com conta| OPC([Alertas de alagamento / Sair])
+    PAI -->|Meus dados| MDA
 
     PER ==>|conta Defesa Civil| PAI[Painel da Defesa Civil]
     PAI --> DEN[Denúncias]
@@ -82,7 +84,9 @@ O botão "i" leva à Ajuda a partir de todas as telas (as ligações não aparec
 | Perfil (sem conta) | — | Mostra a tela Entrar | — |
 | Entrar | Cadastrar-se | Cadastrar; ao criar a conta, volta para o Perfil | Não |
 | Entrar | Esqueceu a senha? | Recuperar senha; ao enviar o e-mail, volta para Entrar | Não |
-| Perfil (com conta) | Meus dados / Notificações / Sair | Janelas de edição e confirmação | Sim |
+| Perfil (com conta) | Meus dados | Tela Meus dados: nome, e-mail, tipo de conta e Alterar senha | Sim |
+| Perfil (com conta) | Alertas de alagamento | Interruptor na própria tela (liga ou desliga a faixa de alertas do Início) | Sim |
+| Perfil (com conta) | Sair | Janela de confirmação; volta para a tela Entrar | Sim |
 | Perfil (conta Defesa Civil) | — | A aba aparece como "Painel" e mostra o Painel da Defesa Civil | Defesa Civil |
 | Painel | Denúncias | Avisos denunciados: Resolver, Manter ou Excluir (cada um com confirmação) | Defesa Civil |
 | Painel | Alertas | Lista de alertas; Emitir alerta / Editar abrem o formulário; Encerrar e Excluir pedem confirmação | Defesa Civil |

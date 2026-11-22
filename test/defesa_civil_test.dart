@@ -87,7 +87,6 @@ void main() {
       tester,
       TelaPainelDefesaCivil(
         nome: 'Defesa Civil Aracaju',
-        email: 'dc@exemplo.com',
         aoEditarDados: () {},
         aoSair: () {},
       ),
@@ -121,7 +120,6 @@ void main() {
       tester,
       TelaPainelDefesaCivil(
         nome: 'DC',
-        email: 'dc@exemplo.com',
         aoEditarDados: () {},
         aoSair: () {},
       ),
@@ -158,7 +156,7 @@ void main() {
     await abrir(
       tester,
       TelaPainelDefesaCivil(
-          nome: 'DC', email: '', aoEditarDados: () {}, aoSair: () {}),
+          nome: 'DC', aoEditarDados: () {}, aoSair: () {}),
     );
     await tester.tap(find.text('Denúncias'));
     await esperar(tester);

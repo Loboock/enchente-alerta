@@ -114,6 +114,7 @@ Cada integrante faz commits com a própria conta, em uma branch `feature/` com P
 **Vinicius Reis**
 - Perfil da Defesa Civil: aba "Painel" com revisão de denúncias (resolver, manter ou excluir avisos), CRUD de alertas e CRUD de abrigos com ajuste de vagas.
 - Faixa de alertas da Defesa Civil no Início e na aba Avisos; abrigos lidos do Firestore.
+- Perfil do morador no padrão dos apps comuns e tela Meus dados (nome, e-mail, tipo de conta e alterar senha).
 - Regras do Firestore para o painel (lista de denúncias e validação de alertas e abrigos), com testes no emulador.
 
 A definir com o grupo: Histórico lendo do Firestore, uso offline e telas do Perfil (Meus dados, Notificações e Endereço padrão).
