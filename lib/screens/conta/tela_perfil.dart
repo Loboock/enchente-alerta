@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
+import '../defesa_civil/tela_painel_defesa_civil.dart';
 import 'tela_login.dart';
 
 /// Aba Perfil: mostra o login para quem não tem conta (Visitante) e os dados
@@ -106,6 +107,22 @@ class ProfileScreen extends StatelessWidget {
         // Visitante: a aba Perfil vira a tela de login.
         if (u == null) return const LoginScreen();
 
+        void editarDados() => _editText(context,
+            title: 'Meus dados',
+            initial: auth.nome,
+            hint: 'Seu nome',
+            onSave: (v) => auth.updateProfile(nome: v));
+
+        // Defesa Civil: perfil diferente, com o painel de gestão.
+        if (auth.usuario?.ehDefesaCivil ?? false) {
+          return TelaPainelDefesaCivil(
+            nome: auth.nome,
+            email: u.email ?? '',
+            aoEditarDados: editarDados,
+            aoSair: () => _sair(context),
+          );
+        }
+
         final cores = Theme.of(context).colorScheme;
         final nome = auth.nome;
         return Scaffold(
@@ -134,11 +151,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _Item(
                 'Meus dados',
-                () => _editText(context,
-                    title: 'Meus dados',
-                    initial: nome,
-                    hint: 'Seu nome',
-                    onSave: (v) => auth.updateProfile(nome: v))),
+                editarDados),
             _Item('Notificações',
                 () => _notifications(context, auth.notificacoesAtivas)),
             // O endereço precisa da localização no mapa (subcoleção

@@ -11,7 +11,7 @@ Fluxo **real** do app, levantado do código em `lib/screens/` em 17/11/2026 (nã
 
 ## Diagrama
 
-Retângulos são telas; retângulos arredondados são folhas e janelas que abrem por cima da tela. Linhas tracejadas pedem conta (sem login, levam ao Entrar).
+Retângulos são telas; retângulos arredondados são folhas e janelas que abrem por cima da tela. Linhas tracejadas pedem conta (sem login, levam ao Entrar). Linhas grossas são só da conta da Defesa Civil.
 
 ```mermaid
 flowchart LR
@@ -47,6 +47,14 @@ flowchart LR
     ENT -->|login| PER
     PER -->|com conta| OPC([Meus dados / Notificações / Sair])
 
+    PER ==>|conta Defesa Civil| PAI[Painel da Defesa Civil]
+    PAI --> DEN[Denúncias]
+    PAI --> ALE[Alertas]
+    PAI --> ABD[Abrigos - cadastro]
+    ALE -->|Emitir / Editar| FAL[Formulário de alerta]
+    ABD -->|Novo / Editar| FAB[Formulário de abrigo]
+    DEN -->|Resolver / Manter / Excluir| DEN
+
     AJU[Ajuda] --> INI & AVI & HIS & GUI & PER
     AJU --> ABR & DES & CRI & CAD & REC
 ```
@@ -75,6 +83,12 @@ O botão "i" leva à Ajuda a partir de todas as telas (as ligações não aparec
 | Entrar | Cadastrar-se | Cadastrar; ao criar a conta, volta para o Perfil | Não |
 | Entrar | Esqueceu a senha? | Recuperar senha; ao enviar o e-mail, volta para Entrar | Não |
 | Perfil (com conta) | Meus dados / Notificações / Sair | Janelas de edição e confirmação | Sim |
+| Perfil (conta Defesa Civil) | — | A aba aparece como "Painel" e mostra o Painel da Defesa Civil | Defesa Civil |
+| Painel | Denúncias | Avisos denunciados: Resolver, Manter ou Excluir (cada um com confirmação) | Defesa Civil |
+| Painel | Alertas | Lista de alertas; Emitir alerta / Editar abrem o formulário; Encerrar e Excluir pedem confirmação | Defesa Civil |
+| Painel | Abrigos | Lista de abrigos com − e + nas vagas; Novo abrigo / Editar abrem o formulário | Defesa Civil |
+| Avisos (conta Defesa Civil) | Resolver | Janela de confirmação; o aviso sai do mapa | Defesa Civil |
+| Início ou Avisos | Faixa de alerta da Defesa Civil | Folha com todos os alertas ativos | Não |
 | Ajuda | Item da lista | Tela correspondente (aba ou tela aberta por cima) | Criar avisos: sim |
 
 ## Pontos a ajustar (encontrados no levantamento)

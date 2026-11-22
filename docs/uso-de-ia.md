@@ -215,6 +215,16 @@ Resultado: rota desvia já no primeiro aviso (o grupo reviu a decisão do Prompt
 
 ---
 
+### Prompt 15 — Perfil e telas da Defesa Civil — Vinicius Reis
+
+Funcionou bem porque a IA partiu das regras do Firestore que já davam as permissões da Defesa Civil e das sugestões aprovadas pelo grupo (denúncias, alertas, abrigos e resolver aviso), então o trabalho foi quase todo de telas, com uma regra nova só onde faltava (lista de todas as denúncias).
+
+```text
+a gente precisa partir para a parte do perfil de defesa civil [...] do perfil ser completamente diferente de um perfil normal [...] tudo que você sugeriu da defesa civil do perfil eu quero que você implemente
+```
+
+Resultado: aba "Painel" para a Defesa Civil, revisão de denúncias, CRUD de alertas e de abrigos, faixa de alertas para todos e abrigos lidos do Firestore. Validado com `flutter analyze`, `flutter test` (8 testes novos) e `npm test` (5 testes novos de regras).
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |
@@ -239,6 +249,7 @@ Resultado: rota desvia já no primeiro aviso (o grupo reviu a decisão do Prompt
 | 18 | Telas de aviso (testes de widget) | Os testes tocavam nos botões Criar e Enviar denúncia sem rolar a tela; na tela pequena do teste eles ficam abaixo da área visível e o toque não chegava. | Falha dos testes ("Found 0 widgets"). | `ensureVisible` antes de tocar. |
 | 19 | Excluir aviso | Para mostrar "Excluir" só ao autor, a primeira ideia seria gravar o autor no documento da ocorrência, o que quebraria o anonimato (RNF07). | Revisão contra a decisão de anonimato do grupo. | O app consulta `autoresOcorrencias` filtrando pelo próprio uid, consulta que só o próprio autor consegue fazer pelas regras. |
 | 20 | Ponto de partida da rota | O botão "Usar minha localização" mantinha a partida escolhida antes, em vez de voltar ao GPS. | Revisão do código antes dos testes. | O botão passa a limpar a partida sempre que há GPS (`lib/screens/rota/tela_escolher_destino.dart`). |
+| 21 | Testes da Defesa Civil | Os testes tocavam no botão salvar logo depois de digitar; o campo em foco rola a tela até o cursor e, durante a rolagem, o Flutter ignora os toques, então o alerta não era salvo. | Falha do teste e o aviso "tap() ... off-screen". | Teste do formulário numa tela mais alta, onde tudo cabe sem rolar. |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 

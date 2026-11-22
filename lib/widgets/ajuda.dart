@@ -129,6 +129,44 @@ abstract final class TextosAjuda {
       'Serve para conhecer os pontos que costumam alagar e evitá-los em dias '
       'de chuva.';
 
+  static const painelDefesaCivil =
+      'Painel exclusivo das contas da Defesa Civil.\n\n'
+      '"Denúncias" mostra os avisos que os moradores marcaram como errados: '
+      'resolva o aviso, mantenha-o ou exclua se for falso.\n\n'
+      '"Alertas" emite os alertas que aparecem para todos no Início e na aba '
+      'Avisos. "Abrigos" cadastra os abrigos e atualiza as vagas.';
+
+  static const denuncias =
+      'Cada cartão é um aviso denunciado, com os motivos dos moradores.\n\n'
+      '"Resolver" tira o aviso do mapa (a água baixou) e guarda no histórico. '
+      '"Manter" apaga as denúncias e o aviso continua. "Excluir" apaga o '
+      'aviso falso ou abusivo.\n\n'
+      'Os moradores que denunciaram não são identificados aqui.';
+
+  static const alertasDefesaCivil =
+      'Alertas emitidos pela Defesa Civil. Os ativos aparecem para todos no '
+      'Início e na aba Avisos, do mais grave ao mais leve.\n\n'
+      '"Encerrar" tira o alerta da tela dos moradores antes do prazo. '
+      'Alertas encerrados ficam na lista até serem excluídos.';
+
+  static const formularioAlerta =
+      'Escreva um título curto e direto (ex.: "Chuva forte nas próximas 3 '
+      'horas"). A descrição é opcional.\n\n'
+      'O nível define a cor do alerta. A validade conta a partir de agora; '
+      'depois dela o alerta some sozinho.';
+
+  static const abrigosDefesaCivil =
+      'Abrigos cadastrados que os moradores veem em "Abrigos próximos" e nas '
+      'rotas de fuga.\n\n'
+      'Use − e + para atualizar as vagas na hora. Um abrigo desativado some '
+      'da lista dos moradores sem ser excluído.';
+
+  static const formularioAbrigo =
+      'Informe nome, bairro, capacidade e vagas livres (no máximo a '
+      'capacidade).\n\n'
+      'Para o local, busque o endereço e escolha uma sugestão, ou use a sua '
+      'posição atual se estiver no abrigo.';
+
   static const guia =
       'O que fazer antes, durante e depois de uma enchente, e o que levar se '
       'precisar sair de casa.\n\n'

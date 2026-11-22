@@ -214,3 +214,22 @@
 - Botão de ajuda com o ícone "i" (info) no lugar do "?", em todas as telas (lib/widgets/app_bar_tela.dart e lib/widgets/widgets_conta.dart).
 - docs/fluxo-navegacao.md: botão "i" com a ajuda da tela e atalho para a Ajuda; ponto a ajustar 1 (ajuda diferente nas telas de conta) resolvido.
 - Botões do aviso no mapa falam da enchente, não do usuário: "Ainda está aí" / "Não está mais" viraram "Ainda alagado" / "Água baixou" (ou "Ainda bloqueada" / "Via liberada" em via obstruída) (lib/widgets/mapa/folha_perigo.dart).
+
+# [22/11/2026]
+
+### Adicionado
+- Perfil da Defesa Civil diferente do morador: a aba Perfil vira "Painel" (ícone de escudo) e abre o Painel da Defesa Civil (lib/screens/defesa_civil/tela_painel_defesa_civil.dart), com cabeçalho "DEFESA CIVIL", resumo de denúncias pendentes, alertas ativos e abrigos cadastrados, e os itens Meus dados e Sair.
+- Revisão de denúncias (lib/screens/defesa_civil/tela_denuncias.dart): denúncias agrupadas por aviso, com motivo e detalhes. "Resolver" marca o aviso como RESOLVIDA (sai do mapa e das rotas e fica para o histórico), "Manter" apaga as denúncias e "Excluir" apaga o aviso falso com o autor e as denúncias. Denúncia de aviso que já acabou só pode ser arquivada.
+- CRUD de alertas (lib/screens/defesa_civil/tela_alertas_defesa_civil.dart e tela_formulario_alerta.dart): emitir com título, descrição opcional, nível, origem e validade (1 a 72 h), editar, encerrar antes do prazo e excluir.
+- CRUD de abrigos (lib/screens/defesa_civil/tela_abrigos_defesa_civil.dart e tela_formulario_abrigo.dart): cadastrar com local por busca de endereço ou posição atual, editar, desativar, excluir, botões − e + para as vagas e "Cadastrar os abrigos de exemplo" quando a coleção está vazia.
+- Faixa de alertas da Defesa Civil para todos (lib/widgets/faixa_alertas.dart), no topo do Início e da aba Avisos, com o alerta mais grave; tocar mostra todos os ativos. No Início, some para quem desligou os alertas em Perfil > Notificações (RF08).
+- Serviços AbrigosService, AlertasService e DefesaCivilService (lib/services/), com tempo real do Firestore, e erro_servico.dart, que traduz os erros e avisa quando a gravação fica guardada no aparelho por falta de internet.
+- Botão "Resolver" nos cartões da aba Avisos para a Defesa Civil.
+- Textos de ajuda "i" das telas da Defesa Civil (lib/widgets/ajuda.dart).
+- Testes: 8 testes de widget da Defesa Civil (test/defesa_civil_test.dart, serviços falsos em test/fakes_defesa_civil.dart) e 5 testes de regras (firestore-testes/regras.test.js, agora 38).
+
+### Alterado
+- Regras do Firestore: a Defesa Civil lista as denúncias de todos os avisos numa consulta só (collectionGroup, `match /{caminho=**}/denuncias/{id}`); alertas só aceitam os campos da modelagem, com descrição de até 1000 caracteres; abrigo só registra o próprio uid em `atualizadoPor`.
+- Abrigos próximos lê os abrigos do Firestore; enquanto a Defesa Civil não cadastrar nenhum, mostra os de exemplo (`abrigosDeExemplo` em lib/data/dados_provisorios.dart).
+- Botão de gravidade de Criar aviso virou widget compartilhado (lib/widgets/botao_gravidade.dart), usado também no formulário de alerta.
+- docs/modelagem-firestore.md, docs/fluxo-navegacao.md, docs/planejamento.md, README.md e docs/uso-de-ia.md atualizados.

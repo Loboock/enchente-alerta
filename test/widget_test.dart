@@ -8,6 +8,8 @@ import 'package:enchente_alerta/models/perigo.dart';
 import 'package:enchente_alerta/screens/avisos/tela_criar_aviso.dart';
 import 'package:enchente_alerta/screens/avisos/tela_reportar_aviso.dart';
 import 'package:enchente_alerta/navegacao.dart';
+import 'package:enchente_alerta/services/abrigos_service.dart';
+import 'package:enchente_alerta/services/alertas_service.dart';
 import 'package:enchente_alerta/services/localizacao_service.dart';
 import 'package:enchente_alerta/services/perigos_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
@@ -27,6 +29,8 @@ void main() {
     rotas = RotasFalsas();
     RotasService.instance = rotas;
     PerigosService.instance = PerigosService();
+    AbrigosService.instance = AbrigosService();
+    AlertasService.instance = AlertasService();
   });
 
   Future<void> abrirApp(WidgetTester tester) async {
