@@ -77,10 +77,24 @@ abstract final class TextosAjuda {
 
   static const perfil =
       'Em "Meus dados" você vê o e-mail da conta, muda o nome e pede uma '
-      'senha nova. "Alertas de alagamento" liga ou desliga os alertas da '
-      'Defesa Civil no Início.\n\n'
+      'senha nova. "Notificações" guarda os alertas que chegaram para você.\n\n'
+      '"Alertas de alagamento" liga ou desliga os alertas no Início, e '
+      '"Raio dos alertas" e "Endereço padrão" definem a sua região.\n\n'
       'Seus avisos são anônimos: os outros moradores não veem quem enviou.\n\n'
       'Use "Sair" para desconectar deste aparelho.';
+
+  static const enderecos =
+      'Cadastre a sua casa (e outros lugares, se quiser) buscando a rua ou '
+      'usando a posição atual.\n\n'
+      'O endereço padrão é o ponto de partida do raio dos alertas: alertas '
+      'ligados a áreas de risco só aparecem se a área estiver perto dele. '
+      'Use o menu de cada endereço para trocar o padrão, editar ou excluir.';
+
+  static const notificacoes =
+      'Cada alerta da Defesa Civil que chegou para a sua região fica aqui. '
+      'Toque para ver o alerta e marcar como lido.\n\n'
+      'Notificação excluída não volta enquanto o alerta continuar ativo. '
+      'Para não receber mais, desligue "Alertas de alagamento" no Perfil.';
 
   static const meusDados =
       'Altere o seu nome e toque em "Salvar alterações".\n\n'

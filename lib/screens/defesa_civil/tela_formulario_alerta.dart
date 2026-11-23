@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/models.dart';
 import '../../services/alertas_service.dart';
 import '../../services/erro_servico.dart';
+import '../../services/perigos_service.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/botao_gravidade.dart';
@@ -46,6 +47,9 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
   late OrigemAlerta _origem =
       widget.alerta?.origem ?? OrigemAlerta.meteorologica;
   Duration _validade = const Duration(hours: 6);
+
+  /// Áreas de risco onde o alerta vale. Vazio = cidade toda.
+  late final Set<String> _areas = {...?widget.alerta?.areasRiscoIds};
   bool _salvando = false;
   String? _erro;
 
@@ -70,7 +74,7 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
       descricao: _descricao.text.trim(),
       nivel: _nivel,
       origem: _origem,
-      areasRiscoIds: antigo?.areasRiscoIds ?? const [],
+      areasRiscoIds: _areas.toList(),
       ocorrenciasIds: antigo?.ocorrenciasIds ?? const [],
       guiasIds: antigo?.guiasIds ?? const [],
       // Editar mantém a data de emissão; a validade recomeça agora.
@@ -173,6 +177,14 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
                 onSelectionChanged: (s) => setState(() => _origem = s.first),
               ),
               const SizedBox(height: 20),
+              Text('Onde vale', style: rotulo),
+              const SizedBox(height: 6),
+              _EscolhaAreas(
+                selecionadas: _areas,
+                aoMudar: (id, marcada) => setState(() =>
+                    marcada ? _areas.add(id) : _areas.remove(id)),
+              ),
+              const SizedBox(height: 20),
               Text(_editando ? 'Válido por mais' : 'Válido por', style: rotulo),
               const SizedBox(height: 6),
               DropdownButtonFormField<Duration>(
@@ -201,6 +213,52 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Áreas de risco cadastradas, para ligar ao alerta. Sem nenhuma marcada,
+/// o alerta vale para a cidade toda.
+class _EscolhaAreas extends StatelessWidget {
+  const _EscolhaAreas({required this.selecionadas, required this.aoMudar});
+
+  final Set<String> selecionadas;
+  final void Function(String id, bool marcada) aoMudar;
+
+  @override
+  Widget build(BuildContext context) {
+    final cores = Theme.of(context).colorScheme;
+    final areas = PerigosService.instance.areas;
+    final dica = TextStyle(fontSize: 13, color: cores.onSurfaceVariant);
+    if (areas.isEmpty) {
+      return Text(
+          'Toda a cidade. Cadastre áreas de risco no Painel para avisar só '
+          'quem mora perto delas.',
+          style: dica);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          selecionadas.isEmpty
+              ? 'Toda a cidade (nenhuma área marcada).'
+              : 'Só para quem está perto das áreas marcadas.',
+          style: dica,
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final a in areas)
+              FilterChip(
+                label: Text(a.nome),
+                selected: selecionadas.contains(a.id),
+                onSelected: (v) => aoMudar(a.id, v),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

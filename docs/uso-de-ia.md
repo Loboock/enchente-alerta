@@ -254,6 +254,8 @@ Vamos fazer todas as coisas pendentes [...] Como você faria tudo isso?
 
 Resultado (mapa offline): cache próprio dos pedaços do mapa em arquivos, em vez do pacote flutter_map_tile_caching (licença GPL e banco nativo), e faixa "Sem internet". Validado com testes e no emulador com Wi-Fi e dados desligados, inclusive fechando e abrindo o app.
 
+Resultado (preferências): endereços, raio dos alertas, alertas ligados a áreas de risco e notificações, usando as subcoleções e regras que já estavam na modelagem. Validado com testes (filtro por região, formulário, lista e notificações) e no emulador cadastrando um endereço e mudando o raio.
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |

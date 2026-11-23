@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/models.dart';
 import '../../services/alertas_service.dart';
+import '../../services/perigos_service.dart';
 import '../../utils/cores_gravidade.dart';
 import '../../utils/formatacao.dart';
 import '../../widgets/ajuda.dart';
@@ -219,6 +220,10 @@ class _CartaoAlerta extends StatelessWidget {
               '${_validade(a, agora)}',
               style: TextStyle(color: cores.onSurfaceVariant, fontSize: 13),
             ),
+            Text(
+              _ondeVale(a),
+              style: TextStyle(color: cores.onSurfaceVariant, fontSize: 13),
+            ),
             Wrap(
               children: [
                 TextButton(onPressed: aoEditar, child: const Text('Editar')),
@@ -237,4 +242,14 @@ class _CartaoAlerta extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Toda a cidade" ou os nomes das áreas de risco do alerta.
+String _ondeVale(Alerta a) {
+  if (a.areasRiscoIds.isEmpty) return 'Vale para toda a cidade';
+  final nomes = {for (final r in PerigosService.instance.areas) r.id: r.nome};
+  final lista = [
+    for (final id in a.areasRiscoIds) nomes[id] ?? 'área excluída',
+  ];
+  return 'Vale perto de: ${lista.join(', ')}';
 }

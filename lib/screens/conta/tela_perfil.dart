@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../../models/models.dart';
 import '../../services/auth_service.dart';
+import '../../services/enderecos_service.dart';
+import '../../services/notificacoes_service.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
 import '../defesa_civil/tela_painel_defesa_civil.dart';
 import '../offline/tela_mapa_offline.dart';
+import 'tela_enderecos.dart';
 import 'tela_login.dart';
 import 'tela_meus_dados.dart';
+import 'tela_notificacoes.dart';
 
 /// Aba Perfil: mostra o login para quem não tem conta (Visitante), o painel
 /// para a Defesa Civil e, para o morador, o perfil no formato dos apps
@@ -28,6 +32,18 @@ class ProfileScreen extends StatelessWidget {
         aoAlterarSenha: () => auth.resetPassword(email),
       ),
     ));
+  }
+
+  void _abrir(BuildContext context, Widget tela) => Navigator.of(context)
+      .push(MaterialPageRoute<void>(builder: (_) => tela));
+
+  Future<void> _alterarRaio(BuildContext c, double km) async {
+    try {
+      await AuthService.instance.updateProfile(raioKm: km);
+      if (c.mounted) showMsg(c, 'Alertas num raio de ${_km(km)}.');
+    } catch (e) {
+      if (c.mounted) showMsg(c, AuthService.message(e));
+    }
   }
 
   Future<void> _alterarNotificacoes(BuildContext c, bool ativas) async {
@@ -68,8 +84,11 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = AuthService.instance;
-    return AnimatedBuilder(
-      animation: auth,
+    final enderecos = EnderecosService.instance..iniciar();
+    final notificacoes = NotificacoesService.instance..iniciar();
+    return ListenableBuilder(
+      listenable: Listenable.merge(
+          [auth, enderecos.enderecos, notificacoes.notificacoes]),
       builder: (context, _) {
         final u = auth.user;
         // Visitante: a aba Perfil vira a tela de login.
@@ -87,10 +106,14 @@ class ProfileScreen extends StatelessWidget {
         return PerfilMorador(
           nome: auth.nome,
           notificacoesAtivas: auth.notificacoesAtivas,
+          raioKm: auth.usuario?.preferenciaNotificacao?.raioKm ?? 2,
+          enderecoPadrao: enderecos.padrao?.logradouro,
+          naoLidas: notificacoes.naoLidas,
           aoMeusDados: () => _abrirMeusDados(context),
+          aoNotificacoes: () => _abrir(context, const TelaNotificacoes()),
           aoMudarNotificacoes: (v) => _alterarNotificacoes(context, v),
-          aoEnderecoPadrao: () =>
-              showMsg(context, 'Endereço padrão: em breve'),
+          aoMudarRaio: (km) => _alterarRaio(context, km),
+          aoEnderecoPadrao: () => _abrir(context, const TelaEnderecos()),
           aoSair: () => _sair(context),
         );
       },
@@ -108,14 +131,48 @@ class PerfilMorador extends StatelessWidget {
     required this.aoMudarNotificacoes,
     required this.aoEnderecoPadrao,
     required this.aoSair,
+    this.raioKm = 2,
+    this.enderecoPadrao,
+    this.naoLidas = 0,
+    this.aoNotificacoes,
+    this.aoMudarRaio,
   });
 
   final String nome;
   final bool notificacoesAtivas;
+  final double raioKm;
+
+  /// Rua do endereço padrão, ou `null` se não houver.
+  final String? enderecoPadrao;
+  final int naoLidas;
   final VoidCallback aoMeusDados;
+  final VoidCallback? aoNotificacoes;
   final ValueChanged<bool> aoMudarNotificacoes;
+  final ValueChanged<double>? aoMudarRaio;
   final VoidCallback aoEnderecoPadrao;
   final VoidCallback aoSair;
+
+  Future<void> _escolherRaio(BuildContext context) async {
+    final km = await showDialog<double>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Raio dos alertas'),
+        children: [
+          RadioGroup<double>(
+            groupValue: raioKm,
+            onChanged: (v) => Navigator.pop(ctx, v),
+            child: Column(
+              children: [
+                for (final op in raiosAlerta)
+                  RadioListTile<double>(title: Text(_km(op)), value: op),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (km != null && km != raioKm) aoMudarRaio?.call(km);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +214,21 @@ class PerfilMorador extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: aoMeusDados,
           ),
+          ListTile(
+            leading: Badge(
+              isLabelVisible: naoLidas > 0,
+              label: Text('$naoLidas'),
+              child: const Icon(Icons.notifications_none),
+            ),
+            title: const Text('Notificações'),
+            subtitle: Text(naoLidas == 0
+                ? 'Alertas recebidos'
+                : naoLidas == 1
+                    ? '1 não lida'
+                    : '$naoLidas não lidas'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: aoNotificacoes,
+          ),
           const Divider(indent: 16, endIndent: 16),
           const _Secao('Preferências'),
           SwitchListTile(
@@ -169,9 +241,16 @@ class PerfilMorador extends StatelessWidget {
             onChanged: aoMudarNotificacoes,
           ),
           ListTile(
+            leading: const Icon(Icons.radar),
+            title: const Text('Raio dos alertas'),
+            subtitle: Text('${_km(raioKm)} em volta do seu endereço'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _escolherRaio(context),
+          ),
+          ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text('Endereço padrão'),
-            subtitle: const Text('Sua casa, para alertas da região'),
+            subtitle: Text(enderecoPadrao ?? 'Cadastre sua casa'),
             trailing: const Icon(Icons.chevron_right),
             onTap: aoEnderecoPadrao,
           ),
@@ -197,6 +276,13 @@ class PerfilMorador extends StatelessWidget {
     );
   }
 }
+
+/// Opções de raio (em km) dos alertas por região. As regras do Firestore
+/// aceitam até 50 km.
+const raiosAlerta = <double>[1, 2, 5, 10, 20];
+
+String _km(double km) =>
+    '${km == km.roundToDouble() ? km.toStringAsFixed(0) : km.toString().replaceAll('.', ',')} km';
 
 class _Secao extends StatelessWidget {
   const _Secao(this.texto);
