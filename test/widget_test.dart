@@ -10,6 +10,7 @@ import 'package:enchente_alerta/screens/avisos/tela_reportar_aviso.dart';
 import 'package:enchente_alerta/navegacao.dart';
 import 'package:enchente_alerta/services/abrigos_service.dart';
 import 'package:enchente_alerta/services/alertas_service.dart';
+import 'package:enchente_alerta/services/historico_service.dart';
 import 'package:enchente_alerta/services/localizacao_service.dart';
 import 'package:enchente_alerta/services/perigos_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
@@ -31,6 +32,7 @@ void main() {
     PerigosService.instance = PerigosService();
     AbrigosService.instance = AbrigosService();
     AlertasService.instance = AlertasService();
+    HistoricoService.instance = HistoricoService();
   });
 
   Future<void> abrirApp(WidgetTester tester) async {
@@ -340,17 +342,66 @@ void main() {
     expect(find.text('Ainda alagado'), findsOneWidget);
   });
 
-  testWidgets('Aba Histórico lista os alagamentos, do mais recente ao mais antigo',
+  Ocorrencia registro(String id, String endereco, DateTime criadaEm,
+          {StatusOcorrencia status = StatusOcorrencia.resolvida,
+          Duration duracao = const Duration(hours: 6),
+          TipoOcorrencia tipo = TipoOcorrencia.alagamento,
+          Gravidade gravidade = Gravidade.grave,
+          int nivel = 80}) =>
+      Ocorrencia(
+        id: id,
+        tipo: tipo,
+        gravidade: gravidade,
+        status: status,
+        endereco: endereco,
+        localizacao: usuarioProvisorio,
+        nivelAguaCm: nivel,
+        criadaEm: criadaEm,
+        expiraEm: criadaEm.add(duracao),
+      );
+
+  testWidgets('Aba Histórico mostra os registros do Firestore com a situação',
       (tester) async {
+    final agora = DateTime.now();
+    // Vem do Firestore já em ordem decrescente de criadaEm.
+    HistoricoService.instance.ocorrencias.value = [
+      registro('a', 'Rua Ativa, Centro', agora,
+          status: StatusOcorrencia.ativa, nivel: 40,
+          gravidade: Gravidade.moderado),
+      registro('v', 'Rua Vencida, Atalaia', DateTime(2026, 9, 18),
+          status: StatusOcorrencia.ativa),
+      registro('o', 'Av. Obstruída, Jardins', DateTime(2026, 8, 2),
+          tipo: TipoOcorrencia.viaObstruida, nivel: 0),
+      registro('r', 'Av. Ivo do Prado, Centro', DateTime(2026, 7, 11)),
+    ];
     await abrirApp(tester);
 
     await tester.tap(find.text('Histórico'));
     await tester.pump();
 
     expect(find.text('Últimos alagamentos na sua região'), findsOneWidget);
-    expect(find.text('Av. Ivo do Prado, Centro'), findsOneWidget);
+    expect(find.text('4 registros'), findsOneWidget);
+    expect(find.text('Rua Ativa, Centro'), findsOneWidget);
+    expect(find.text('Ativo agora'), findsOneWidget);
+    // ATIVA com o prazo vencido conta como expirado (expiração feita no app).
     expect(find.text('Grave · 80 cm · 18/09/26'), findsOneWidget);
-    expect(find.text('Moderado · 35 cm · 11/07/26'), findsOneWidget);
+    expect(find.text('Expirado'), findsOneWidget);
+    expect(find.text('Via obstruída · Grave · 02/08/26'), findsOneWidget);
+    expect(find.text('Resolvido'), findsNWidgets(2));
+  });
+
+  testWidgets('Histórico sem registros e com erro de conexão', (tester) async {
+    await abrirApp(tester);
+    await tester.tap(find.text('Histórico'));
+    await tester.pump();
+    // Sem Firebase no teste, a consulta devolve a lista vazia.
+    expect(find.text('Nenhum alagamento registrado na sua região.'),
+        findsOneWidget);
+
+    HistoricoService.instance.erro.value = 'Não foi possível carregar.';
+    await tester.pump();
+    expect(find.text('Não foi possível carregar.'), findsOneWidget);
+    expect(find.text('Tentar de novo'), findsOneWidget);
   });
 
   testWidgets('Aba Guia mostra as orientações e os telefones de emergência',

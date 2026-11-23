@@ -25,7 +25,7 @@ Entregar um app Android em Flutter, com Firebase Authentication e Cloud Firestor
 | Rotas de fuga reais que desviam dos alagamentos confirmados, com navegação curva a curva | RF04 | Pronto |
 | Abrigos próximos, ordenados pela distância | RF05 | Pronto (dados de exemplo) |
 | Guia de segurança (antes, durante, evacuação e emergência) | RF06 | Pronto (dados de exemplo) |
-| Histórico de alagamentos | Funcionalidade 7 | Pronto (dados de exemplo) |
+| Histórico de alagamentos | Funcionalidade 7 | Pronto (lê do Firestore) |
 | Entrar, cadastrar, recuperar senha e perfil | RNF06 | Pronto |
 | Regras de segurança do Firestore: perfis, anonimato e validação dos dados | RNF06, RNF07 | Pronto |
 | Modo noturno, alto contraste e textos maiores | RNF02, RNF03, RNF10 | Pronto |
@@ -137,7 +137,7 @@ Resultado: as 13 telas do protótipo no app, com Firebase Auth e Firestore.
 |---|---|
 | Perfil da Defesa Civil: emitir alertas, gerenciar abrigos, revisar denúncias e resolver avisos — feito em 22/11 | Vinicius |
 | Alertas no app por localização, com opção de desativar (RF01, RF08) | Vinicius |
-| Histórico lendo do Firestore (avisos resolvidos ou expirados) | Bernardo |
+| Histórico lendo do Firestore (avisos resolvidos ou expirados) — feito em 22/11 | Vinicius |
 | Mapa da região em cache e aviso de falta de conexão (RF07, RNF05) | Pedro |
 | Perfil: Meus dados, Notificações e Endereço padrão | Christian |
 | Revisão da documentação (fluxo de navegação feito em 17/11: [`fluxo-navegacao.md`](fluxo-navegacao.md)) | Todos |
