@@ -257,6 +257,7 @@
 - Ajuda lista também Mapa sem internet, Perfil (ou Painel da Defesa Civil), Notificações e Endereço padrão.
 - Seta de voltar nas telas abertas pelo Painel da Defesa Civil (`voltar` em AppBarTela); as telas do protótipo continuam sem a seta.
 - 3 testes novos: atalhos do Início, rota oficial e endereço curto.
+- Rota de fuga: a partida escolhida (outro endereço) aparece como pino escuro com a etiqueta "Partida", em vez de uma bolinha azul parecida com o ponto da posição atual. O ponto azul continua mostrando onde o celular está. Teste de widget novo.
 
 ### Alterado
 - lib/main.dart: o tema do app vem de `ModoTema` em vez de ficar fixo em `ThemeMode.system`.

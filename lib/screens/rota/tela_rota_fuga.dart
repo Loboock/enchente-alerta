@@ -43,17 +43,53 @@ Polyline<Object> linhaRota(List<LatLng> pontos) => Polyline(
   borderColor: corBordaRota,
 );
 
-/// Bolinha azul do ponto de partida escolhido.
+/// Pino do ponto de partida escolhido, com a etiqueta "Partida".
+///
+/// Fica bem diferente do ponto azul, que continua mostrando onde o celular
+/// está: a partida pode ser outro endereço (como no Uber).
 Marker marcaPartida(LatLng ponto) => Marker(
   point: ponto,
-  width: 22,
-  height: 22,
-  child: Container(
-    decoration: BoxDecoration(
-      color: corRota,
-      shape: BoxShape.circle,
-      border: Border.all(color: Colors.white, width: 4),
-      boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+  width: 84,
+  height: 62,
+  // A ponta do pino fica sobre o ponto.
+  alignment: Alignment.topCenter,
+  child: Semantics(
+    label: 'Ponto de partida',
+    excludeSemantics: true,
+    // Encolhe junto se a fonte do aparelho estiver maior.
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.azulMarinho,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white, width: 1.5),
+              boxShadow: const [
+                BoxShadow(color: Colors.black38, blurRadius: 3),
+              ],
+            ),
+            child: const Text(
+              'Partida',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const Icon(
+            Icons.location_on,
+            color: AppColors.azulMarinho,
+            size: 38,
+            shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
+          ),
+        ],
+      ),
     ),
   ),
 );
@@ -482,7 +518,8 @@ class _PainelRota extends StatelessWidget {
         _LinhaAviso(
           icone: Icons.alt_route,
           cor: AppColors.seguro,
-          texto: 'Rota oficial da Defesa Civil até o abrigo: '
+          texto:
+              'Rota oficial da Defesa Civil até o abrigo: '
               '${formatarDistancia(oficial.distanciaMetros)} · '
               '${oficial.tempoAPeMin} min a pé (linha verde no mapa).',
         ),

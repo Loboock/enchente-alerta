@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'package:enchente_alerta/data/dados_provisorios.dart';
 import 'package:enchente_alerta/main.dart';
 import 'package:enchente_alerta/models/models.dart';
+import 'package:enchente_alerta/models/destino.dart';
 import 'package:enchente_alerta/models/perigo.dart';
 import 'package:enchente_alerta/screens/avisos/tela_criar_aviso.dart';
 import 'package:enchente_alerta/screens/avisos/tela_reportar_aviso.dart';
 import 'package:enchente_alerta/navegacao.dart';
+import 'package:enchente_alerta/screens/rota/tela_rota_fuga.dart';
 import 'package:enchente_alerta/services/abrigos_service.dart';
 import 'package:enchente_alerta/services/alertas_service.dart';
 import 'package:enchente_alerta/services/historico_service.dart';
@@ -81,6 +84,20 @@ void main() {
     expect(find.text('Início'), findsWidgets);
     expect(find.text('Abrigo'), findsOneWidget);
     expect(find.text('Rota de fuga'), findsOneWidget);
+  });
+
+  testWidgets('Partida escolhida aparece como pino "Partida", diferente do ponto azul',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      theme: AppTheme.claro,
+      home: TelaRotaFuga(
+        destino: abrigosDeExemplo.first.comoDestino,
+        partida: const Destino(nome: 'Rua A', posicao: LatLng(-10.97, -37.06)),
+      ),
+    ));
+    await esperar(tester);
+
+    expect(find.text('Partida'), findsOneWidget);
   });
 
   testWidgets('Atalhos do Início mostram os abrigos mais próximos e abrem a rota',
