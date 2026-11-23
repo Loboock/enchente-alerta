@@ -234,6 +234,15 @@ eu preciso que esse perfil esteja [nos] padrões de outros aplicativos [...] meu
 ```
 
 Resultado: Perfil com avatar e nome, opções agrupadas com ícone, interruptor de alertas e "Sair" em vermelho; tela Meus dados com nome editável, e-mail, tipo de conta, data de criação e Alterar senha. Validado com `flutter analyze`, `flutter test` (3 testes novos) e no emulador, salvando o nome no Firestore.
+### Prompt 17 — Histórico lendo do Firestore — Vinicius Reis
+
+Funcionou bem porque o pedido foi curto e direto, e a IA seguiu o padrão dos serviços que já existiam (`AlertasService`, `AbrigosService`).
+
+```text
+A tela de histórico não está vinculada com o banco. Eu preciso que o histórico seja vinculado ao banco.
+```
+
+Resultado: `HistoricoService` com a consulta `ocorrencias` ordenada por `criadaEm` (índice automático, sem índice composto) e selo de situação em cada aviso. Validado com `flutter analyze`, `flutter test` (2 testes novos) e no emulador com os avisos reais do banco.
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
 

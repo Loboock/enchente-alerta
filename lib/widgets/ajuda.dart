@@ -131,8 +131,11 @@ abstract final class TextosAjuda {
       'aviso uma vez só.';
 
   static const historico =
-      'Últimos alagamentos registrados na sua região, inclusive os que já '
-      'acabaram.\n\n'
+      'Últimos alagamentos e vias obstruídas registrados na sua região, '
+      'inclusive os que já acabaram.\n\n'
+      'O selo mostra a situação: "Ativo agora", "Resolvido" (a Defesa Civil '
+      'confirmou que a água baixou) ou "Expirado" (o prazo do aviso venceu). '
+      'Sem internet, aparece o histórico salvo no aparelho.\n\n'
       'Serve para conhecer os pontos que costumam alagar e evitá-los em dias '
       'de chuva.';
 

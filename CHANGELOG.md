@@ -227,11 +227,13 @@
 - Botão "Resolver" nos cartões da aba Avisos para a Defesa Civil.
 - Textos de ajuda "i" das telas da Defesa Civil (lib/widgets/ajuda.dart).
 - Tela Meus dados (lib/screens/conta/tela_meus_dados.dart), no padrão dos apps comuns: nome editável ("Salvar alterações" só liga quando o nome muda), e-mail, tipo de conta e data de criação só para consulta, e "Alterar senha", que envia o link para o e-mail da conta. Usada pelo morador e pela Defesa Civil. 3 testes de widget (test/perfil_test.dart).
+- Histórico ligado ao Firestore (lib/services/historico_service.dart): a aba Histórico lê a coleção `ocorrencias` em tempo real, os 100 avisos mais recentes por `criadaEm`, com selo de situação ("Ativo agora", "Resolvido" ou "Expirado"; aviso ATIVA com prazo vencido conta como expirado), vias obstruídas identificadas, quantidade de registros, aviso de "Sem internet" quando os dados vêm do cache do aparelho e botão "Tentar de novo" em caso de erro. 2 testes de widget novos.
 - Testes: 8 testes de widget da Defesa Civil (test/defesa_civil_test.dart, serviços falsos em test/fakes_defesa_civil.dart) e 5 testes de regras (firestore-testes/regras.test.js, agora 38).
 
 ### Alterado
 - Regras do Firestore: a Defesa Civil lista as denúncias de todos os avisos numa consulta só (collectionGroup, `match /{caminho=**}/denuncias/{id}`); alertas só aceitam os campos da modelagem, com descrição de até 1000 caracteres; abrigo só registra o próprio uid em `atualizadoPor`.
 - Perfil do morador reorganizado (lib/screens/conta/tela_perfil.dart): avatar com a inicial e só o nome em destaque (o e-mail foi para Meus dados), opções agrupadas em Conta e Preferências com ícone e descrição, "Alertas de alagamento" como interruptor na própria tela e "Sair" em vermelho no fim. O painel da Defesa Civil também deixou de mostrar o e-mail no cabeçalho.
+- Removidos os dados de exemplo do histórico (`historicoProvisorio` em lib/data/dados_provisorios.dart).
 - Abrigos próximos lê os abrigos do Firestore; enquanto a Defesa Civil não cadastrar nenhum, mostra os de exemplo (`abrigosDeExemplo` em lib/data/dados_provisorios.dart).
 - Botão de gravidade de Criar aviso virou widget compartilhado (lib/widgets/botao_gravidade.dart), usado também no formulário de alerta.
 - docs/modelagem-firestore.md, docs/fluxo-navegacao.md, docs/planejamento.md, README.md e docs/uso-de-ia.md atualizados.

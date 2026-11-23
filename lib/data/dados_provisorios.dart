@@ -61,42 +61,6 @@ final abrigosDeExemplo = <Abrigo>[
   ),
 ];
 
-/// Alagamentos já encerrados, como no protótipo (tela "06 Histórico").
-/// Depois virá da consulta das ocorrências resolvidas ou expiradas.
-final historicoProvisorio = <Ocorrencia>[
-  _ocorrenciaEncerrada('h1', 'Av. Ivo do Prado, Centro', Gravidade.grave, 80,
-      DateTime(2026, 9, 18)),
-  _ocorrenciaEncerrada('h2', 'Rua Laranjeiras, Siqueira Campos',
-      Gravidade.moderado, 35, DateTime(2026, 7, 11)),
-  _ocorrenciaEncerrada('h3', 'Av. Beira Mar, Atalaia', Gravidade.grave, 65,
-      DateTime(2026, 4, 10)),
-  _ocorrenciaEncerrada('h4', 'Rua José do Prado Franco, Salgado Filho',
-      Gravidade.moderado, 28, DateTime(2026, 1, 21)),
-  _ocorrenciaEncerrada('h5', 'Av. Tancredo Neves, Ponto Novo', Gravidade.leve,
-      12, DateTime(2025, 3, 30)),
-  _ocorrenciaEncerrada('h6', 'Rua Dep. Silvério Leite Fontes, Coroa do Meio',
-      Gravidade.grave, 90, DateTime(2024, 7, 31)),
-];
-
-Ocorrencia _ocorrenciaEncerrada(
-  String id,
-  String endereco,
-  Gravidade gravidade,
-  int nivelAguaCm,
-  DateTime data,
-) =>
-    Ocorrencia(
-      id: id,
-      tipo: TipoOcorrencia.alagamento,
-      gravidade: gravidade,
-      status: StatusOcorrencia.resolvida,
-      endereco: endereco,
-      localizacao: usuarioProvisorio,
-      nivelAguaCm: nivelAguaCm,
-      criadaEm: data,
-      expiraEm: data.add(const Duration(hours: 6)),
-    );
-
 /// Orientações do Guia de segurança, como no protótipo (tela "08").
 /// Depois virão da coleção `guias` do Firestore.
 const guiasProvisorios = <GuiaOrientacao>[

@@ -116,5 +116,6 @@ Cada integrante faz commits com a própria conta, em uma branch `feature/` com P
 - Faixa de alertas da Defesa Civil no Início e na aba Avisos; abrigos lidos do Firestore.
 - Perfil do morador no padrão dos apps comuns e tela Meus dados (nome, e-mail, tipo de conta e alterar senha).
 - Regras do Firestore para o painel (lista de denúncias e validação de alertas e abrigos), com testes no emulador.
+- Histórico lendo do Firestore em tempo real, com a situação de cada aviso (ativo, resolvido ou expirado).
 
-A definir com o grupo: Histórico lendo do Firestore, uso offline e telas do Perfil (Meus dados, Notificações e Endereço padrão).
+A definir com o grupo: uso offline e Endereço padrão no Perfil.
