@@ -4,11 +4,17 @@ import '../../models/models.dart';
 import '../../services/abrigos_service.dart';
 import '../../services/alertas_service.dart';
 import '../../services/defesa_civil_service.dart';
+import '../../services/guias_service.dart';
+import '../../services/perigos_service.dart';
+import '../../services/rotas_fuga_service.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import 'tela_abrigos_defesa_civil.dart';
 import 'tela_alertas_defesa_civil.dart';
+import 'tela_areas_risco.dart';
 import 'tela_denuncias.dart';
+import 'tela_guia_defesa_civil.dart';
+import 'tela_rotas_fuga_defesa_civil.dart';
 
 /// Aba Perfil das contas da Defesa Civil: no lugar dos dados de morador,
 /// um painel com o que só esse perfil pode fazer (denúncias, alertas e
@@ -36,6 +42,9 @@ class _TelaPainelDefesaCivilState extends State<TelaPainelDefesaCivil> {
     DefesaCivilService.instance.iniciar();
     AlertasService.instance.iniciar();
     AbrigosService.instance.iniciar();
+    PerigosService.instance.iniciar();
+    RotasFugaService.instance.iniciar();
+    GuiasService.instance.iniciar();
   }
 
   @override
@@ -110,6 +119,43 @@ class _TelaPainelDefesaCivilState extends State<TelaPainelDefesaCivil> {
                 final n => '$n abrigos cadastrados',
               },
               aoTocar: () => _abrir(const TelaAbrigosDefesaCivil()),
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: PerigosService.instance.perigos,
+            builder: (context, _, _) => _CartaoPainel(
+              icone: Icons.layers_outlined,
+              titulo: 'Áreas de risco',
+              detalhe: switch (PerigosService.instance.areas.length) {
+                0 => 'Nenhuma desenhada no mapa',
+                1 => '1 área de risco',
+                final n => '$n áreas de risco',
+              },
+              aoTocar: () => _abrir(const TelaAreasRisco()),
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: RotasFugaService.instance.rotas,
+            builder: (context, rotas, _) => _CartaoPainel(
+              icone: Icons.alt_route,
+              titulo: 'Rotas de fuga',
+              detalhe: switch (rotas.length) {
+                0 => 'Nenhuma traçada (só as calculadas)',
+                1 => '1 rota oficial',
+                final n => '$n rotas oficiais',
+              },
+              aoTocar: () => _abrir(const TelaRotasFugaDefesaCivil()),
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: GuiasService.instance.publicadas,
+            builder: (context, guias, _) => _CartaoPainel(
+              icone: Icons.menu_book_outlined,
+              titulo: 'Guia de segurança',
+              detalhe: guias.isEmpty
+                  ? 'Usando o guia de exemplo'
+                  : '${guias.length} orientações publicadas',
+              aoTocar: () => _abrir(const TelaGuiaDefesaCivil()),
             ),
           ),
           const SizedBox(height: 24),

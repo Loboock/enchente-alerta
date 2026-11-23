@@ -234,6 +234,9 @@
 - Alertas por região (RF08): a Defesa Civil escolhe no formulário do alerta as áreas de risco onde ele vale (sem área = cidade toda); o morador só vê os alertas cujas áreas ficam dentro do raio escolhido em Perfil (1 a 20 km), contado a partir do endereço padrão ou da posição atual (lib/services/alertas_regiao.dart).
 - Notificações (lib/screens/conta/tela_notificacoes.dart e lib/services/notificacoes_service.dart): cada alerta que chega para a região da pessoa fica em `usuarios/{uid}/notificacoes`, com contador de não lidas no Perfil, marcar como lida, marcar todas e excluir. Sem Cloud Functions, o próprio app de quem recebe grava a notificação.
 - 9 testes novos (test/preferencias_test.dart).
+- Cadastros da Defesa Civil no Painel: áreas de risco desenhadas tocando no mapa (lib/screens/defesa_civil/tela_areas_risco.dart), rotas de fuga oficiais até um abrigo, com distância e tempos calculados e interruptor Liberada/Interditada (tela_rotas_fuga_defesa_civil.dart), e orientações do Guia (tela_guia_defesa_civil.dart), com "Publicar o guia de exemplo". Editor de pontos no mapa em lib/widgets/mapa/editor_pontos_mapa.dart. Serviços areas_risco_service.dart, rotas_fuga_service.dart e guias_service.dart.
+- Rotas de fuga oficiais aparecem em verde no mapa de todos (cinza tracejado quando interditadas). A aba Guia lê a coleção `guias` (guia de exemplo enquanto nada for publicado).
+- 6 testes novos (test/cadastros_test.dart).
 - Testes: 8 testes de widget da Defesa Civil (test/defesa_civil_test.dart, serviços falsos em test/fakes_defesa_civil.dart) e 5 testes de regras (firestore-testes/regras.test.js, agora 38).
 
 ### Alterado

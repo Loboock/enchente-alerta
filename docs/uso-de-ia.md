@@ -256,6 +256,8 @@ Resultado (mapa offline): cache próprio dos pedaços do mapa em arquivos, em ve
 
 Resultado (preferências): endereços, raio dos alertas, alertas ligados a áreas de risco e notificações, usando as subcoleções e regras que já estavam na modelagem. Validado com testes (filtro por região, formulário, lista e notificações) e no emulador cadastrando um endereço e mudando o raio.
 
+Resultado (cadastros da Defesa Civil): áreas de risco e rotas de fuga desenhadas tocando no mapa e guia lendo do Firestore. Validado com testes de widget (desenho, validação e salvar). O teste no emulador depende da conta com perfil DEFESA_CIVIL e da publicação das regras.
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |

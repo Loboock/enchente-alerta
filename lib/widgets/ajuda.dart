@@ -158,7 +158,9 @@ abstract final class TextosAjuda {
       '"Denúncias" mostra os avisos que os moradores marcaram como errados: '
       'resolva o aviso, mantenha-o ou exclua se for falso.\n\n'
       '"Alertas" emite os alertas que aparecem para todos no Início e na aba '
-      'Avisos. "Abrigos" cadastra os abrigos e atualiza as vagas.';
+      'Avisos. "Abrigos" cadastra os abrigos e atualiza as vagas.\n\n'
+      '"Áreas de risco", "Rotas de fuga" e "Guia de segurança" cadastram o '
+      'que os moradores veem no mapa e no Guia.';
 
   static const denuncias =
       'Cada cartão é um aviso denunciado, com os motivos dos moradores.\n\n'
@@ -198,6 +200,24 @@ abstract final class TextosAjuda {
       'Sem internet, o app mostra a faixa "Sem internet" e usa o mapa, os '
       'avisos, os abrigos e o histórico salvos. Criar aviso e calcular rota '
       'nova precisam de conexão.';
+
+  static const areasRisco =
+      'Desenhe a área tocando no mapa em volta dela (pelo menos 3 pontos). '
+      'Use "Desfazer" para tirar o último ponto.\n\n'
+      'A área aparece no mapa de todos, as rotas calculadas desviam dela e '
+      'os alertas podem ser ligados a ela para avisar só quem mora perto.';
+
+  static const rotasFugaDefesaCivil =
+      'Rotas oficiais até os abrigos, traçadas pela Defesa Civil. Aparecem '
+      'em verde no mapa de todos (em cinza quando interditadas) e continuam '
+      'visíveis sem internet.\n\n'
+      'Escolha o abrigo e toque no mapa do ponto de partida até ele. '
+      'Distância e tempos são calculados sozinhos.';
+
+  static const guiaDefesaCivil =
+      'Orientações que os moradores veem na aba Guia, separadas por seção.\n\n'
+      'Enquanto nada for publicado, o app mostra o guia de exemplo. '
+      '"Publicar o guia de exemplo" copia esse guia para você ajustar.';
 
   static const guia =
       'O que fazer antes, durante e depois de uma enchente, e o que levar se '

@@ -10,6 +10,7 @@ import '../../models/perigo.dart';
 import '../../services/localizacao_service.dart';
 import '../../services/mapa_offline_service.dart';
 import '../../services/perigos_service.dart';
+import '../../services/rotas_fuga_service.dart';
 import '../../theme/app_theme.dart';
 import 'folha_perigo.dart';
 
@@ -32,6 +33,8 @@ class MapaEnchente extends StatelessWidget {
     this.aoFicarPronto,
     this.aoMexerNoMapa,
     this.mostrarPerigos = true,
+    this.mostrarRotasFuga = true,
+    this.aoTocar,
   });
 
   final MapController? controller;
@@ -44,6 +47,12 @@ class MapaEnchente extends StatelessWidget {
   /// Chamado quando a PESSOA arrasta/gira/dá zoom (não quando o app move).
   final VoidCallback? aoMexerNoMapa;
   final bool mostrarPerigos;
+
+  /// Rotas de fuga oficiais da Defesa Civil (linhas verdes).
+  final bool mostrarRotasFuga;
+
+  /// Toque num ponto do mapa (usado para desenhar áreas e rotas).
+  final void Function(LatLng ponto)? aoTocar;
 
   static const _gestosDoUsuario = {
     MapEventSource.dragStart,
@@ -77,6 +86,7 @@ class MapaEnchente extends StatelessWidget {
             : () => WidgetsBinding.instance.addPostFrameCallback(
                   (_) => aoFicarPronto!(),
                 ),
+        onTap: aoTocar == null ? null : (_, ponto) => aoTocar!(ponto),
         onMapEvent: aoMexerNoMapa == null
             ? null
             : (evento) {
@@ -87,6 +97,7 @@ class MapaEnchente extends StatelessWidget {
       ),
       children: [
         _camadaFundo(escuro),
+        if (mostrarRotasFuga) const _CamadaRotasFuga(),
         if (mostrarPerigos) ..._camadasPerigo(context),
         ...camadasExtras,
         const _CamadaUsuario(),
@@ -171,6 +182,36 @@ class MapaEnchente extends StatelessWidget {
         ),
       ),
     ];
+  }
+}
+
+/// Rotas de fuga traçadas pela Defesa Civil: verdes quando liberadas,
+/// cinza tracejado quando interditadas.
+class _CamadaRotasFuga extends StatelessWidget {
+  const _CamadaRotasFuga();
+
+  @override
+  Widget build(BuildContext context) {
+    final servico = RotasFugaService.instance..iniciar();
+    return ValueListenableBuilder<List<RotaFuga>>(
+      valueListenable: servico.rotas,
+      builder: (context, rotas, _) => PolylineLayer(
+        polylines: [
+          for (final r in rotas)
+            if (r.pontos.length >= 2)
+              Polyline(
+                points: r.pontos,
+                strokeWidth: 5,
+                color: r.interditada ? Colors.grey : AppColors.seguro,
+                borderStrokeWidth: 1.5,
+                borderColor: Colors.white,
+                pattern: r.interditada
+                    ? StrokePattern.dashed(segments: const [10, 8])
+                    : const StrokePattern.solid(),
+              ),
+        ],
+      ),
+    );
   }
 }
 

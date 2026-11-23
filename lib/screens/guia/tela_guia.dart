@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../data/dados_provisorios.dart';
 import '../../models/models.dart';
+import '../../services/guias_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
@@ -12,7 +12,8 @@ import '../offline/tela_mapa_offline.dart';
 class TelaGuia extends StatelessWidget {
   const TelaGuia({super.key, this.orientacoes});
 
-  /// Orientações a exibir. Se não vier nada, usa os dados provisórios.
+  /// Orientações a exibir. Sem nada, usa as publicadas pela Defesa Civil
+  /// no Firestore (ou o guia de exemplo, se nenhuma foi publicada).
   final List<GuiaOrientacao>? orientacoes;
 
   // Fases mostradas no protótipo, na ordem da tela. A fase `depois` existe
@@ -26,7 +27,15 @@ class TelaGuia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final guias = orientacoes ?? guiasProvisorios;
+    final servico = GuiasService.instance..iniciar();
+    return ValueListenableBuilder<List<GuiaOrientacao>>(
+      valueListenable: servico.publicadas,
+      builder: (context, _, _) =>
+          _conteudo(context, orientacoes ?? servico.paraMoradores),
+    );
+  }
+
+  Widget _conteudo(BuildContext context, List<GuiaOrientacao> guias) {
     final cores = Theme.of(context).colorScheme;
 
     return Scaffold(
