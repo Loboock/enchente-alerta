@@ -5,11 +5,16 @@ import 'package:flutter/material.dart';
 import '../../models/models.dart';
 import '../../models/perigo.dart';
 import '../../services/auth_service.dart';
+import '../../services/defesa_civil_service.dart';
+import '../../services/erro_servico.dart';
 import '../../services/perigos_service.dart';
 import '../../utils/cores_gravidade.dart';
 import '../../utils/exigir_login.dart';
 import '../../utils/formatacao.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
+import '../../widgets/faixa_alertas.dart';
+import '../defesa_civil/acoes_comuns.dart';
 import 'tela_criar_aviso.dart';
 import 'tela_reportar_aviso.dart';
 
@@ -70,8 +75,27 @@ class _TelaAvisosState extends State<TelaAvisos> {
     );
   }
 
-  bool _podeExcluir(Ocorrencia o) =>
-      _meus.contains(o.id) || (_auth.usuario?.ehDefesaCivil ?? false);
+  bool get _ehDefesaCivil => _auth.usuario?.ehDefesaCivil ?? false;
+
+  bool _podeExcluir(Ocorrencia o) => _meus.contains(o.id) || _ehDefesaCivil;
+
+  /// Defesa Civil: a água baixou, o aviso sai do mapa e vai para o histórico.
+  Future<void> _resolver(Ocorrencia o) async {
+    final ok = await confirmarAcao(
+      context,
+      titulo: 'Resolver aviso?',
+      texto: 'O aviso em ${o.endereco} sai do mapa e das rotas e fica no '
+          'histórico.',
+      botao: 'Resolver',
+    );
+    if (!ok || !mounted) return;
+    try {
+      await DefesaCivilService.instance.resolverAviso(o.id);
+      _mostrar('Aviso resolvido. Ele saiu do mapa.');
+    } on ServicoException catch (e) {
+      _mostrar(e.mensagem);
+    }
+  }
 
   Future<void> _criar() async {
     if (!exigirLogin(context, acao: 'criar avisos')) return;
@@ -129,6 +153,7 @@ class _TelaAvisosState extends State<TelaAvisos> {
       appBar: const AppBarTela(
         titulo: 'Avisos de alagamento',
         subtitulo: 'Atualizado agora',
+        ajuda: TextosAjuda.avisos,
       ),
       body: ValueListenableBuilder<List<Perigo>>(
         valueListenable: PerigosService.instance.perigos,
@@ -141,12 +166,14 @@ class _TelaAvisosState extends State<TelaAvisos> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              const FaixaAlertas(margem: EdgeInsets.only(bottom: 14)),
               if (avisos.isEmpty) const _ListaVazia(),
               for (final o in avisos) ...[
                 _CartaoAviso(
                   ocorrencia: o,
                   aoReportar: () => _reportar(o),
                   aoExcluir: _podeExcluir(o) ? () => _excluir(o) : null,
+                  aoResolver: _ehDefesaCivil ? () => _resolver(o) : null,
                 ),
                 const SizedBox(height: 14),
               ],
@@ -169,6 +196,7 @@ class _CartaoAviso extends StatelessWidget {
     required this.ocorrencia,
     required this.aoReportar,
     this.aoExcluir,
+    this.aoResolver,
   });
 
   final Ocorrencia ocorrencia;
@@ -176,6 +204,9 @@ class _CartaoAviso extends StatelessWidget {
 
   /// Null quando a pessoa não pode excluir este aviso.
   final VoidCallback? aoExcluir;
+
+  /// Só para a Defesa Civil.
+  final VoidCallback? aoResolver;
 
   @override
   Widget build(BuildContext context) {
@@ -246,8 +277,18 @@ class _CartaoAviso extends StatelessWidget {
                       Text('"$descricao"'),
                     ],
                     const SizedBox(height: 12),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+                        if (aoResolver != null)
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(110, 44),
+                            ),
+                            onPressed: aoResolver,
+                            child: const Text('Resolver'),
+                          ),
                         OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size(120, 44),
@@ -255,13 +296,11 @@ class _CartaoAviso extends StatelessWidget {
                           onPressed: aoReportar,
                           child: const Text('Reportar'),
                         ),
-                        if (aoExcluir != null) ...[
-                          const SizedBox(width: 8),
+                        if (aoExcluir != null)
                           TextButton(
                             onPressed: aoExcluir,
                             child: const Text('Excluir'),
                           ),
-                        ],
                       ],
                     ),
                   ],

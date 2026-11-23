@@ -26,8 +26,12 @@ class Config {
       bool.fromEnvironment('LOCALIZACAO_TESTE');
 
   /// Quantas pessoas (contando quem reportou) precisam confirmar um aviso
-  /// da comunidade para que as rotas passem a desviar dele.
-  static const confirmacoesParaBloquear = 2;
+  /// da comunidade para que as rotas passem a desviar dele. Com 1, a rota
+  /// desvia assim que o aviso é enviado.
+  static const confirmacoesParaBloquear = 1;
+
+  /// true = basta o aviso de quem reportou para as rotas desviarem.
+  static bool get desviaNoPrimeiroAviso => confirmacoesParaBloquear <= 1;
 
   /// Tempo que um aviso da comunidade fica ativo. Cada confirmação renova.
   static const duracaoOcorrencia = Duration(hours: 4);

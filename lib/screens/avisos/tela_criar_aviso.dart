@@ -10,8 +10,9 @@ import '../../models/models.dart';
 import '../../services/localizacao_service.dart';
 import '../../services/perigos_service.dart';
 import '../../services/rotas_service.dart';
-import '../../utils/cores_gravidade.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
+import '../../widgets/botao_gravidade.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import '../../widgets/widgets_conta.dart';
 
@@ -191,7 +192,10 @@ class _TelaCriarAvisoState extends State<TelaCriarAviso> {
 
     return ScaffoldComAbas(
       abaAtiva: 1,
-      appBar: const AppBarTela(titulo: 'Criar aviso'),
+      appBar: const AppBarTela(
+        titulo: 'Criar aviso',
+        ajuda: TextosAjuda.criarAviso,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -228,7 +232,7 @@ class _TelaCriarAvisoState extends State<TelaCriarAviso> {
                           if (g != Gravidade.values.first)
                             const SizedBox(width: 10),
                           Expanded(
-                            child: _BotaoGravidade(
+                            child: BotaoGravidade(
                               gravidade: g,
                               selecionada: _gravidade == g,
                               aoTocar: () {
@@ -321,62 +325,6 @@ class _TelaCriarAvisoState extends State<TelaCriarAviso> {
                 loading: _enviando,
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Botão arredondado colorido da gravidade (Leve, Moderado, Grave).
-class _BotaoGravidade extends StatelessWidget {
-  const _BotaoGravidade({
-    required this.gravidade,
-    required this.selecionada,
-    required this.aoTocar,
-  });
-
-  final Gravidade gravidade;
-  final bool selecionada;
-  final VoidCallback aoTocar;
-
-  @override
-  Widget build(BuildContext context) {
-    final cor = gravidade.cor(Theme.of(context).colorScheme);
-    return Semantics(
-      button: true,
-      selected: selecionada,
-      label: 'Gravidade ${gravidade.rotulo}',
-      excludeSemantics: true,
-      child: Material(
-        color: selecionada ? cor : cor.withValues(alpha: 0.15),
-        shape: StadiumBorder(
-          side: BorderSide(color: cor, width: selecionada ? 3 : 1.5),
-        ),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: aoTocar,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (selecionada) ...[
-                  const Icon(Icons.check, color: Colors.white, size: 18),
-                  const SizedBox(width: 4),
-                ],
-                Flexible(
-                  child: Text(
-                    gravidade.rotulo,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: selecionada ? Colors.white : cor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

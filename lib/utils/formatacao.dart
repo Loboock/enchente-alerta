@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+
 /// Distância no formato do protótipo: "630 m", "1,2 km", "21 km".
 ///
 /// Com [compacto] sai sem espaço ("950m"), como nos números da rota.
@@ -43,3 +45,8 @@ String formatarTempoAtras(DateTime momento, {DateTime? agora}) {
   final dias = passou.inDays;
   return 'há $dias ${dias == 1 ? 'dia' : 'dias'}';
 }
+
+/// Coordenada curta para conferência ("-10.96400, -37.05100").
+String formatarCoordenada(LatLng ponto) =>
+    '${ponto.latitude.toStringAsFixed(5)}, '
+    '${ponto.longitude.toStringAsFixed(5)}';

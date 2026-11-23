@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: barraConta(context, 'Cadastrar'),
+      appBar: barraConta(context, 'Cadastrar', ajuda: TextosAjuda.cadastro),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(

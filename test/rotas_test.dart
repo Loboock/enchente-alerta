@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:enchente_alerta/config.dart';
 import 'package:enchente_alerta/models/models.dart';
 import 'package:enchente_alerta/models/perigo.dart';
 import 'package:enchente_alerta/models/rota_calculada.dart';
@@ -33,21 +34,17 @@ void main() {
       );
 
   group('Perigo', () {
-    test('aviso da comunidade só bloqueia com 2 confirmações', () {
+    test('aviso da comunidade já bloqueia com a confirmação de quem avisou',
+        () {
+      expect(Config.confirmacoesParaBloquear, 1);
       final meio = LatLng(
         (origem.latitude + destino.latitude) / 2,
         (origem.longitude + destino.longitude) / 2,
       );
       final sozinho = Perigo.daOcorrencia(ocorrencia(em: meio), agora: agora);
-      final confirmado = Perigo.daOcorrencia(
-        ocorrencia(em: meio, confirmacoes: 2),
-        agora: agora,
-      );
 
-      expect(sozinho.bloqueia, isFalse);
-      expect(sozinho.faltamConfirmacoes, 1);
-      expect(confirmado.bloqueia, isTrue);
-      expect(confirmado.faltamConfirmacoes, 0);
+      expect(sozinho.bloqueia, isTrue);
+      expect(sozinho.faltamConfirmacoes, 0);
     });
 
     test('aviso expirado não bloqueia', () {
@@ -192,9 +189,10 @@ void main() {
         ocorrencia(em: perto, confirmacoes: 3, id: 'ok'),
         agora: agora,
       );
-      final naoConfirmado = Perigo.daOcorrencia(
-        ocorrencia(em: perto, id: 'novo'),
-        agora: agora,
+      // Expirado: continua na lista, mas não bloqueia.
+      final expirado = Perigo.daOcorrencia(
+        ocorrencia(em: perto, id: 'velho'),
+        agora: agora.add(const Duration(hours: 5)),
       );
       // Na origem: não dá para evitar, só avisa.
       final naOrigem = Perigo.daOcorrencia(
@@ -206,7 +204,7 @@ void main() {
         origem: origem,
         destino: destino,
         modo: ModoTransporte.carro,
-        perigos: [confirmado, naoConfirmado, naOrigem],
+        perigos: [confirmado, expirado, naOrigem],
       );
 
       expect(pedido.url.host, 'api.heigit.org');
@@ -222,7 +220,7 @@ void main() {
       final evitar = corpoEnviado['options']['avoid_polygons'] as Map;
       expect(evitar['type'], 'MultiPolygon');
       final poligonos = evitar['coordinates'] as List;
-      expect(poligonos, hasLength(1)); // só o confirmado
+      expect(poligonos, hasLength(1)); // só o que está ativo
       final anel = (poligonos.first as List).first as List;
       expect(anel.first, anel.last); // anel fechado (GeoJSON)
 
@@ -235,7 +233,8 @@ void main() {
       expect(rota.passos[2].via, ''); // "-" vira vazio
       expect(rota.perigosEvitados.map((p) => p.id), ['oc:ok']);
       expect(rota.perigosInevitaveis.map((p) => p.id), ['oc:origem']);
-      expect(rota.avisosNoCaminho.map((p) => p.id), ['oc:novo']);
+      // O que não bloqueia só vira alerta no caminho.
+      expect(rota.avisosNoCaminho.map((p) => p.id), ['oc:velho']);
     });
 
     test('sem caminho possível vira mensagem clara', () async {

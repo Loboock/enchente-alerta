@@ -4,8 +4,9 @@ import '../models/models.dart';
 
 export '../utils/geo.dart' show metrosEntre;
 
-// DADOS PROVISÓRIOS: abrigos de exemplo. Depois serão
-// trocados pela coleção `abrigos` do Firestore. A posição do usuário e as
+// DADOS PROVISÓRIOS: abrigos de exemplo, mostrados enquanto a Defesa Civil
+// não cadastrar abrigos na coleção `abrigos` (AbrigosService). A posição
+// do usuário e as
 // rotas já são reais (LocalizacaoService e RotasService).
 
 /// Posição de teste (Farolândia, Aracaju): usada quando não há GPS.
@@ -17,7 +18,7 @@ final _calculo = Distance();
 LatLng _aPartirDoUsuario(double metros, double rumo) =>
     _calculo.offset(usuarioProvisorio, metros, rumo);
 
-final abrigos = <Abrigo>[
+final abrigosDeExemplo = <Abrigo>[
   Abrigo(
     id: 'ab1',
     nome: 'Esc. Gonçalo Rollemberg Leite',
@@ -59,14 +60,6 @@ final abrigos = <Abrigo>[
     vagasDisponiveis: 60,
   ),
 ];
-
-/// Abrigos ativos, do mais perto para o mais longe de [de] (por padrão,
-/// a posição de teste).
-List<Abrigo> abrigosPorDistancia({LatLng de = usuarioProvisorio}) {
-  final lista = abrigos.where((abrigo) => abrigo.ativo).toList();
-  lista.sort((a, b) => a.distanciaAte(de).compareTo(b.distanciaAte(de)));
-  return lista;
-}
 
 /// Alagamentos já encerrados, como no protótipo (tela "06 Histórico").
 /// Depois virá da consulta das ocorrências resolvidas ou expiradas.

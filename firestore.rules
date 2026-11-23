@@ -9,7 +9,8 @@ rules_version = '2';
 //                             confirma e denuncia avisos e cuida dos
 //                             próprios dados
 //   DEFESA_CIVIL ............ também gerencia abrigos, rotas, alertas,
-//                             áreas de risco e guias (definido no console)
+//                             áreas de risco e guias, revisa as denúncias
+//                             e resolve avisos (definido no console)
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -68,6 +69,11 @@ service cloud.firestore {
     function textoOpcional(campo, maximo) {
       return !(campo in novo())
         || (novo()[campo] is string && novo()[campo].size() <= maximo);
+    }
+
+    // Campo opcional: se vier, precisa ser uma lista.
+    function listaOpcional(campo) {
+      return !(campo in novo()) || novo()[campo] is list;
     }
 
     function gravidadeValida(valor) {
@@ -242,6 +248,12 @@ service cloud.firestore {
       }
     }
 
+    // Lista de todas as denúncias numa consulta só (collectionGroup), para
+    // o painel da Defesa Civil. Ninguém mais lista as denúncias.
+    match /{caminho=**}/denuncias/{denunciaId} {
+      allow read: if ehDefesaCivil();
+    }
+
     // ---------- autoresOcorrencias/{id} (RNF07: anonimato) ----------
 
     // Fica fora da ocorrência para que o autor não apareça para ninguém,
@@ -282,7 +294,9 @@ service cloud.firestore {
         && novo().vagasDisponiveis is int
         && novo().vagasDisponiveis >= 0
         && novo().vagasDisponiveis <= novo().capacidade
-        && novo().ativo is bool;
+        && novo().ativo is bool
+        && (!('atualizadoPor' in novo()) || novo().atualizadoPor == request.auth.uid)
+        && (!('atualizadoEm' in novo()) || novo().atualizadoEm is timestamp);
     }
 
     match /rotasFuga/{rotaId} {
@@ -299,7 +313,14 @@ service cloud.firestore {
       allow read: if true;
       allow delete: if ehDefesaCivil();
       allow create, update: if ehDefesaCivil()
+        && soCampos(['titulo', 'descricao', 'nivel', 'origem', 'areasRiscoIds',
+                     'ocorrenciasIds', 'guiasIds', 'emitidoEm', 'expiraEm'],
+                    ['titulo', 'nivel', 'origem', 'emitidoEm', 'expiraEm'])
         && texto(novo().titulo, 120)
+        && textoOpcional('descricao', 1000)
+        && listaOpcional('areasRiscoIds')
+        && listaOpcional('ocorrenciasIds')
+        && listaOpcional('guiasIds')
         && gravidadeValida(novo().nivel)
         && novo().origem in ['METEOROLOGICA', 'COMUNIDADE']
         && novo().emitidoEm is timestamp

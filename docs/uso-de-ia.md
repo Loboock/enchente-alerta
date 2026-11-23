@@ -198,7 +198,42 @@ gere pra mim [o fluxo de navegação real]
 
 Resultado: `docs/fluxo-navegacao.md` com diagrama Mermaid, tabela de transições e 3 pontos a ajustar ("?" das telas de conta, Endereço padrão e atalhos do Início).
 
+### Prompt 14 — Ajustes de rota, partida e ajuda por tela — Pedro Fraife
+
+Pedido direto, com vários ajustes numa mensagem só; a IA leu as telas antes de mudar e manteve o número de confirmações configurável.
+
+```text
+reduzir para 1 a quantidade de avisos para desviar a rota, colocar local de
+partida para que n seja preciso aceitar localização, a aba de ajuda com o i
+ao inves da interroga e colocar exclusividade na ajuda, tipo cada pagina,
+exceto a inicial, tem um texto de ajuda basico proprio na mesma pegada do de
+login. E mudar os termos de "ainda está ai" para algo que remeta a enchente
+e n ao usuario
+```
+
+Resultado: rota desvia já no primeiro aviso (o grupo reviu a decisão do Prompt 9: em enchente, desviar cedo é mais seguro), escolha do ponto de partida (sem GPS o app pede a partida), ajuda "i" com texto próprio por tela e botões "Ainda alagado" / "Água baixou". Ao trazer a develop, a ajuda por tela foi combinada com a tela Ajuda do Prompt 10: o "i" mostra o texto da tela e tem o atalho "Ver ajuda completa". Depois o pedido foi refinado: "selecionar o local de partida primeiro, em cima do destino, tipo como o uber faz", com a localização preenchida automaticamente. Primeiro a IA escondeu o "Iniciar navegação" com a partida trocada; o grupo corrigiu o pedido, porque a navegação tem que funcionar sem conta e sem localização, e ela virou passo a passo (uma manobra por vez, com "Próxima" e "Anterior") quando não há GPS. Validado com `flutter analyze`, `flutter test` e no emulador.
+
 ---
+
+### Prompt 15 — Perfil e telas da Defesa Civil — Vinicius Reis
+
+Funcionou bem porque a IA partiu das regras do Firestore que já davam as permissões da Defesa Civil e das sugestões aprovadas pelo grupo (denúncias, alertas, abrigos e resolver aviso), então o trabalho foi quase todo de telas, com uma regra nova só onde faltava (lista de todas as denúncias).
+
+```text
+a gente precisa partir para a parte do perfil de defesa civil [...] do perfil ser completamente diferente de um perfil normal [...] tudo que você sugeriu da defesa civil do perfil eu quero que você implemente
+```
+
+Resultado: aba "Painel" para a Defesa Civil, revisão de denúncias, CRUD de alertas e de abrigos, faixa de alertas para todos e abrigos lidos do Firestore. Validado com `flutter analyze`, `flutter test` (8 testes novos) e `npm test` (5 testes novos de regras).
+
+### Prompt 16 — Perfil no padrão dos apps comuns — Vinicius Reis
+
+Funcionou bem porque o pedido descreveu o resultado esperado com um exemplo concreto (o nome sem o e-mail embaixo e os dados dentro de "Meus dados"), e a IA conferiu no emulador com uma conta de teste.
+
+```text
+eu preciso que esse perfil esteja [nos] padrões de outros aplicativos [...] meus dados, você aperta em meus dados, ele só aparece algo simples, um nome [...] deixe só Lucas, sem o Gmail embaixo, e [...] coloque as informações dele nos meus dados
+```
+
+Resultado: Perfil com avatar e nome, opções agrupadas com ícone, interruptor de alertas e "Sair" em vermelho; tela Meus dados com nome editável, e-mail, tipo de conta, data de criação e Alterar senha. Validado com `flutter analyze`, `flutter test` (3 testes novos) e no emulador, salvando o nome no Firestore.
 
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
@@ -223,6 +258,8 @@ Resultado: `docs/fluxo-navegacao.md` com diagrama Mermaid, tabela de transiçõe
 | 17 | `AuthService` (cadastro) | O cadastro e o login automático criavam `usuarios/{uid}` ao mesmo tempo; a segunda gravação chegava como alteração de `criadoEm` e era recusada pelas regras. | Erro `PERMISSION_DENIED` no log durante o teste no emulador. | Documento criado numa transação que só grava se ainda não existir; conferido criando uma conta nova no emulador. |
 | 18 | Telas de aviso (testes de widget) | Os testes tocavam nos botões Criar e Enviar denúncia sem rolar a tela; na tela pequena do teste eles ficam abaixo da área visível e o toque não chegava. | Falha dos testes ("Found 0 widgets"). | `ensureVisible` antes de tocar. |
 | 19 | Excluir aviso | Para mostrar "Excluir" só ao autor, a primeira ideia seria gravar o autor no documento da ocorrência, o que quebraria o anonimato (RNF07). | Revisão contra a decisão de anonimato do grupo. | O app consulta `autoresOcorrencias` filtrando pelo próprio uid, consulta que só o próprio autor consegue fazer pelas regras. |
+| 20 | Ponto de partida da rota | O botão "Usar minha localização" mantinha a partida escolhida antes, em vez de voltar ao GPS. | Revisão do código antes dos testes. | O botão passa a limpar a partida sempre que há GPS (`lib/screens/rota/tela_escolher_destino.dart`). |
+| 21 | Testes da Defesa Civil | Os testes tocavam no botão salvar logo depois de digitar; o campo em foco rola a tela até o cursor e, durante a rolagem, o Flutter ignora os toques, então o alerta não era salvo. | Falha do teste e o aviso "tap() ... off-screen". | Teste do formulário numa tela mais alta, onde tudo cabe sem rolar. |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 

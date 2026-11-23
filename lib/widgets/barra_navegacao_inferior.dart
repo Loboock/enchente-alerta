@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
 /// Item da barra de navegação inferior.
@@ -11,13 +12,24 @@ class ItemNavegacao {
 }
 
 /// As cinco abas do app, na ordem em que aparecem na barra.
-const itensNavegacao = [
+const _abas = [
   ItemNavegacao(rotulo: 'Início', icone: Icons.home_outlined),
   ItemNavegacao(rotulo: 'Avisos', icone: Icons.notifications_none),
   ItemNavegacao(rotulo: 'Histórico', icone: Icons.history_toggle_off),
   ItemNavegacao(rotulo: 'Perfil', icone: Icons.person_outline),
   ItemNavegacao(rotulo: 'Guia', icone: Icons.menu_book_outlined),
 ];
+
+/// Abas de quem está usando: na conta da Defesa Civil, "Perfil" vira
+/// "Painel" (a aba abre o painel de gestão).
+List<ItemNavegacao> get itensNavegacao {
+  if (!(AuthService.instance.usuario?.ehDefesaCivil ?? false)) return _abas;
+  return [
+    ..._abas.take(3),
+    const ItemNavegacao(rotulo: 'Painel', icone: Icons.shield_outlined),
+    _abas[4],
+  ];
+}
 
 /// Barra inferior azul do protótipo: ícone + rótulo, com o item ativo em
 /// laranja de alerta (RNF10 — alto contraste). Com `indiceAtual` -1 nenhuma

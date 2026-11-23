@@ -8,6 +8,8 @@ import 'package:enchente_alerta/models/perigo.dart';
 import 'package:enchente_alerta/screens/avisos/tela_criar_aviso.dart';
 import 'package:enchente_alerta/screens/avisos/tela_reportar_aviso.dart';
 import 'package:enchente_alerta/navegacao.dart';
+import 'package:enchente_alerta/services/abrigos_service.dart';
+import 'package:enchente_alerta/services/alertas_service.dart';
 import 'package:enchente_alerta/services/localizacao_service.dart';
 import 'package:enchente_alerta/services/perigos_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
@@ -27,6 +29,8 @@ void main() {
     rotas = RotasFalsas();
     RotasService.instance = rotas;
     PerigosService.instance = PerigosService();
+    AbrigosService.instance = AbrigosService();
+    AlertasService.instance = AlertasService();
   });
 
   Future<void> abrirApp(WidgetTester tester) async {
@@ -107,8 +111,10 @@ void main() {
   });
 
   // A busca espera a pessoa parar de digitar antes de chamar o serviço.
-  Future<void> buscar(WidgetTester tester, String texto) async {
-    await tester.enterText(find.byType(TextField), texto);
+  // [campo]: 'campo-destino' (padrão) ou 'campo-partida'.
+  Future<void> buscar(WidgetTester tester, String texto,
+      {String campo = 'campo-destino'}) async {
+    await tester.enterText(find.byKey(Key(campo)), texto);
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pump();
   }
@@ -140,6 +146,113 @@ void main() {
 
     expect(find.text('13 min'), findsOneWidget);
     expect(rotas.pedidos.map((p) => p.modo.rotulo), ['De carro', 'A pé']);
+
+    // Cancelar volta para a escolha, com o destino ainda preenchido.
+    await tester.tap(find.text('Cancelar'));
+    await esperar(tester);
+    expect(find.text('Menor risco até Rua Teste'), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('campo-destino')),
+        matching: find.text('Rua Teste'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Com GPS a partida vem preenchida e pode ser trocada',
+      (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Rota de fuga'));
+    await esperar(tester);
+
+    // Partida em cima do destino, já com a localização atual.
+    expect(find.text('Sua localização'), findsOneWidget);
+    final yPartida = tester.getTopLeft(find.byKey(const Key('campo-partida'))).dy;
+    final yDestino = tester.getTopLeft(find.byKey(const Key('campo-destino'))).dy;
+    expect(yPartida, lessThan(yDestino));
+
+    // Troca a partida por um endereço.
+    await buscar(tester, 'Rua Teste', campo: 'campo-partida');
+    await tester.tap(find.text('Rua Teste, Farolândia, Aracaju'));
+    await esperar(tester);
+    expect(find.text('Sua localização'), findsNothing);
+
+    await buscar(tester, 'Rua Teste');
+    await tester.tap(find.text('Rua Teste, Farolândia, Aracaju'));
+    await esperar(tester);
+
+    expect(find.text('Menor risco até Rua Teste'), findsOneWidget);
+
+    // Partida trocada: a navegação existe, mas passo a passo.
+    await tester.tap(find.text('Iniciar navegação'));
+    await esperar(tester);
+    expect(find.text('Sem GPS: passo 1 de 2'), findsOneWidget);
+    expect(find.text('Siga para o norte'), findsNothing); // é o passo atual
+    expect(find.text('Você chegou'), findsOneWidget); // próxima manobra
+
+    await tester.tap(find.text('Próxima'));
+    await esperar(tester);
+    expect(find.text('Sem GPS: passo 2 de 2'), findsOneWidget);
+
+    await tester.tap(find.text('Próxima'));
+    await esperar(tester);
+    expect(find.text('Você chegou em Rua Teste'), findsOneWidget);
+  });
+
+  testWidgets('Sem GPS a rota pede o ponto de partida antes de calcular',
+      (tester) async {
+    // Permissão negada: o serviço cai na posição de exemplo.
+    LocalizacaoService.instance.posicao.value = const PosicaoUsuario.teste();
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Rota de fuga'));
+    await esperar(tester);
+    expect(find.text('Sem localização: digite a partida'), findsOneWidget);
+
+    await buscar(tester, 'Rua Teste');
+    await tester.tap(find.text('Rua Teste, Farolândia, Aracaju'));
+    await esperar(tester);
+
+    // Ainda não calculou: pede a partida.
+    expect(find.text('Sem localização. Escolha de onde você vai sair.'),
+        findsOneWidget);
+    expect(rotas.pedidos, isEmpty);
+
+    await buscar(tester, 'Rua Teste', campo: 'campo-partida');
+    await tester.tap(find.text('Rua Teste, Farolândia, Aracaju'));
+    await esperar(tester);
+
+    expect(find.text('Menor risco até Rua Teste'), findsOneWidget);
+    expect(rotas.pedidos, hasLength(1));
+
+    // Sem conta e sem GPS a navegação também abre (passo a passo).
+    // Espera o aviso de baixo sumir: ele cobre o botão.
+    await tester.pump(const Duration(seconds: 5));
+    await esperar(tester);
+    await tester.tap(find.text('Iniciar navegação'));
+    await esperar(tester);
+    expect(find.text('Próxima'), findsOneWidget);
+    expect(find.text('Anterior'), findsOneWidget);
+  });
+
+  testWidgets('Ajuda "i" da aba mostra o texto dela e leva à Ajuda completa',
+      (tester) async {
+    await abrirApp(tester);
+
+    await tester.tap(find.text('Guia'));
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.info_outline).hitTestable());
+    await esperar(tester);
+
+    expect(find.textContaining('telefones de emergência'), findsOneWidget);
+
+    await tester.tap(find.text('Ver ajuda completa'));
+    await esperar(tester);
+
+    // Tela Ajuda: índice das telas.
+    expect(find.text('Abrigos próximos'), findsOneWidget);
   });
 
   testWidgets('Busca de endereço sem resultado mostra aviso', (tester) async {
@@ -224,7 +337,7 @@ void main() {
     await tester.tap(find.byType(MarcadorUsuario).first, warnIfMissed: false);
     await esperar(tester);
 
-    expect(find.text('Ainda está aí'), findsOneWidget);
+    expect(find.text('Ainda alagado'), findsOneWidget);
   });
 
   testWidgets('Aba Histórico lista os alagamentos, do mais recente ao mais antigo',

@@ -90,7 +90,7 @@ Cada integrante faz commits com a própria conta, em uma branch `feature/` com P
 **Vinicius Reis**
 - Inicialização do Firebase no app e tema claro/escuro com as cores do protótipo.
 - Classes de domínio em `lib/models/` com `fromFirestore`/`toFirestore`.
-- Regras de segurança do Firestore: controle de acesso por perfil (Visitante, Morador, Defesa Civil), anonimato do autor da ocorrência (RNF07), validação dos campos, confirmações de aviso e uma denúncia por pessoa, com 33 testes no emulador (`firestore-testes/`).
+- Regras de segurança do Firestore: controle de acesso por perfil (Visitante, Morador, Defesa Civil), anonimato do autor da ocorrência (RNF07), validação dos campos, confirmações de aviso e uma denúncia por pessoa, com testes no emulador (`firestore-testes/`).
 - Telas Avisos, Criar aviso e Reportar aviso, ligadas ao Firestore.
 - Fluxo de branches (`CONTRIBUTING.md`), revisão e merge dos PRs, resolução de conflitos nas branches dos colegas e correções encontradas nos testes (cadastro gravando o usuário duas vezes, aviso escondido sob o ponto do usuário).
 
@@ -111,4 +111,10 @@ Cada integrante faz commits com a própria conta, em uma branch `feature/` com P
 
 ### Sprint 2 (17 a 23/11)
 
-A definir com o grupo. Previsto: perfil da Defesa Civil (Vinicius), Histórico lendo do Firestore, uso offline e telas do Perfil (Meus dados, Notificações e Endereço padrão).
+**Vinicius Reis**
+- Perfil da Defesa Civil: aba "Painel" com revisão de denúncias (resolver, manter ou excluir avisos), CRUD de alertas e CRUD de abrigos com ajuste de vagas.
+- Faixa de alertas da Defesa Civil no Início e na aba Avisos; abrigos lidos do Firestore.
+- Perfil do morador no padrão dos apps comuns e tela Meus dados (nome, e-mail, tipo de conta e alterar senha).
+- Regras do Firestore para o painel (lista de denúncias e validação de alertas e abrigos), com testes no emulador.
+
+A definir com o grupo: Histórico lendo do Firestore, uso offline e telas do Perfil (Meus dados, Notificações e Endereço padrão).

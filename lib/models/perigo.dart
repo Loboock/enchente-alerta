@@ -48,8 +48,8 @@ class Perigo {
       centro: o.localizacao,
       raioMetros: raio,
       poligono: circuloComoPoligono(o.localizacao, raio),
-      // Só desvia de aviso da comunidade depois de confirmado por mais
-      // gente; antes disso ele só aparece no mapa, em laranja.
+      // Só desvia depois de atingir Config.confirmacoesParaBloquear;
+      // antes disso o aviso só aparece no mapa, em laranja.
       bloqueia: o.estaAtiva(agora) &&
           o.confirmacoes >= Config.confirmacoesParaBloquear,
       ocorrencia: o,

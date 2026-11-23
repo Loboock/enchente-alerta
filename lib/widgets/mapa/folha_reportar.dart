@@ -76,10 +76,12 @@ class _FolhaReportarState extends State<_FolhaReportar> {
         ScaffoldMessenger.of(tela)
           ..hideCurrentSnackBar()
           ..showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
-                'Aviso enviado! Quando mais alguém confirmar, as rotas '
-                'passam a desviar deste ponto.',
+                Config.desviaNoPrimeiroAviso
+                    ? 'Aviso enviado! As rotas já desviam deste ponto.'
+                    : 'Aviso enviado! Quando mais alguém confirmar, as rotas '
+                        'passam a desviar deste ponto.',
               ),
             ),
           );
@@ -176,8 +178,11 @@ class _FolhaReportarState extends State<_FolhaReportar> {
                 child: Text(erro, style: TextStyle(color: cores.error)),
               ),
             Text(
-              'Seu nome não aparece no aviso. As rotas só desviam depois de '
-              '${Config.confirmacoesParaBloquear} confirmações.',
+              Config.desviaNoPrimeiroAviso
+                  ? 'Seu nome não aparece no aviso. As rotas passam a desviar '
+                      'deste ponto assim que você enviar.'
+                  : 'Seu nome não aparece no aviso. As rotas só desviam depois de '
+                      '${Config.confirmacoesParaBloquear} confirmações.',
               style: TextStyle(fontSize: 12, color: cores.onSurfaceVariant),
             ),
             const SizedBox(height: 12),

@@ -4,6 +4,7 @@ import '../../data/dados_provisorios.dart';
 import '../../models/models.dart';
 import '../../utils/cores_gravidade.dart';
 import '../../utils/formatacao.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 
 /// Tela "06 Histórico" do protótipo: lista dos últimos alagamentos
@@ -23,6 +24,7 @@ class TelaHistorico extends StatelessWidget {
       appBar: const AppBarTela(
         titulo: 'Histórico',
         subtitulo: 'Últimos alagamentos na sua região',
+        ajuda: TextosAjuda.historico,
       ),
       body: lista.isEmpty
           ? const _HistoricoVazio()
