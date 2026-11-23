@@ -21,7 +21,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 - Q1c (1,0, individual): commits com a própria conta, README (responsabilidades reais) e CHANGELOG atualizados, sprints semanais.
 - Q1d (1,0): escopo, EAP simplificada, planejamento em sprints — feito em `docs/planejamento.md` (17/11); atualizar a cada sprint.
 - Q1e (1,0): protótipos de baixa e alta fidelidade.
-- O **aditivo de regras de negócio** citado no enunciado ainda não foi localizado; perguntar à professora.
+- Regras de negócio do aditivo atendidas pelo app: **controle de acesso** por perfil (`firestore.rules` e telas), **validações** nos formulários e repetidas nas regras do Firestore, e **falhas de conexão** (faixa "Sem internet", mapa salvo da região, cache do Firestore e botão "Tentar de novo").
 
 ## Regras de trabalho neste repositório
 
@@ -31,7 +31,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 4. Ao fim de cada tarefa feita com IA, atualizar `docs/uso-de-ia.md` só com o essencial que o enunciado pede: ferramentas, prompts eficientes, erros da IA com a solução, bibliotecas e validação. Sem detalhes desnecessários.
 5. Mensagens de commit no padrão `tipo: descrição` (`feat`, `fix`, `docs`, `refactor`), em português.
 6. Não commitar `BRIEFING-EnchenteAlerta.md` (anotação local).
-7. **Fluxo de branches** (detalhes em `CONTRIBUTING.md`): cada tarefa em `feature/<nome>`, criada a partir da `develop`, com PR para a `develop`. O Vinicius revisa e mescla. A `main` só recebe a `develop` quando estiver estável. Não commitar direto na `main` nem na `develop`.
+7. **Fluxo de branches** (detalhes em `CONTRIBUTING.md`): cada tarefa em `feature/<nome>`, criada a partir da `develop`, com PR para a `develop`. O Vinicius revisa e mescla. A `main` só recebe a `develop` quando estiver estável. Não commitar direto na `main` nem na `develop`.
 
 ## Decisões já tomadas
 
@@ -55,10 +55,10 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 | `docs/planejamento.md` | Escopo, EAP simplificada e sprints (Q1d) |
 | `docs/uso-de-ia.md` | Registro de uso de IA |
 
-## Estado atual (09/11/2026)
+## Estado atual (23/11/2026)
 
 - Firebase: projeto `enchente-alerta`, plano Spark, Auth por e-mail/senha ativo, Firestore em `southamerica-east1`, regras em `firestore.rules` (controle de acesso por perfil, anonimato e validações), testadas no emulador em `firestore-testes/` (`npm test`, precisa do Java do Android Studio no PATH) e aplicadas com `firebase deploy --only firestore:rules`. Toda ocorrência é gravada em batch junto com `autoresOcorrencias/{id}`.
-- Flutter: projeto criado na raiz (`br.unit.enchentealerta.enchente_alerta`, só Android), FlutterFire configurado, pacotes `firebase_core`, `firebase_auth`, `cloud_firestore`. `lib/main.dart` inicializa o Firebase e usa o tema de `lib/theme/app_theme.dart` (claro/escuro, segue o aparelho); a tela inicial ainda é provisória.
+- Flutter: projeto criado na raiz (`br.unit.enchentealerta.enchente_alerta`, só Android), FlutterFire configurado, pacotes `firebase_core`, `firebase_auth`, `cloud_firestore`. `lib/main.dart` inicializa o Firebase, a conexão e o mapa salvo, e usa o tema de `lib/theme/app_theme.dart` (claro/escuro, escolhido pelo botão do Início via `ModoTema`). Todas as telas do protótipo estão implementadas; a `main` está pronta para a apresentação.
 - Cores do protótipo: o destaque é laranja `#FF8D28` (não amarelo puro), usado como `secondary`.
 - Ambiente: Windows, emulador Pixel 8 (Android 17). Precisou instalar o NDK 28.2.13676358 pelo SDK Manager.
 
