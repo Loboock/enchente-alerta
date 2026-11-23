@@ -25,6 +25,7 @@ flowchart LR
     end
 
     INI -->|Abrigo| ABR[Abrigos próximos]
+    INI -->|atalho de abrigo| ROT
     INI -->|Rota de fuga| DES[Escolher destino]
     INI -.->|botão Reportar| REP([Folha Reportar])
     INI -->|toque num alagamento| DET([Folha do aviso:<br/>Ainda alagado / Água baixou])
@@ -82,6 +83,8 @@ O botão "i" leva à Ajuda a partir de todas as telas (as ligações não aparec
 | Qualquer tela | Aba da barra inferior | Aba escolhida (fecha as telas abertas por cima) | Não |
 | Início | Botão "i" | Ajuda | Não |
 | Outras telas | Botão "i" → "Ver ajuda completa" | Janela com a ajuda da tela → Ajuda | Não |
+| Início | Botão lua/sol | Alterna entre modo claro e escuro (vale para todas as telas) | Não |
+| Início | Atalho de um dos 3 abrigos mais próximos (barra azul sobre o mapa) | Rota de fuga até o abrigo | Não |
 | Início | Abrigo | Abrigos próximos | Não |
 | Início | Rota de fuga | Escolher destino | Não |
 | Início | Botão Reportar (megafone) | Folha Reportar: tipo, gravidade, nível da água | Sim |
@@ -118,4 +121,4 @@ O botão "i" leva à Ajuda a partir de todas as telas (as ligações não aparec
 
 1. ~~**"?" nas telas de conta** abria uma janela de texto, e não a tela Ajuda.~~ Resolvido em 18/11/2026: todas as telas usam o mesmo botão "i" (`BotaoAjuda` em `lib/widgets/ajuda.dart`).
 2. ~~**Endereço padrão** (Perfil) ainda mostrava "em breve".~~ Resolvido em 22/11/2026: tela Meus endereços.
-3. **Atalhos do Início** (Hosp. Universitário, Escola Exemplo, Farolândia) aparecem no topo do mapa, mas não fazem nada ao tocar. No protótipo eles indicam locais próximos; podem abrir a rota até o local.
+3. ~~**Atalhos do Início** não faziam nada ao tocar.~~ Resolvido em 23/11/2026: mostram os 3 abrigos mais próximos e abrem a rota até eles.

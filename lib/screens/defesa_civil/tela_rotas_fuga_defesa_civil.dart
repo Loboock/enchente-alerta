@@ -37,21 +37,29 @@ class _TelaRotasFugaDefesaCivilState extends State<TelaRotasFugaDefesaCivil> {
 
   Future<void> _abrir([RotaFuga? rota]) async {
     final salvo = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(builder: (_) => TelaFormularioRota(rota: rota)));
+      MaterialPageRoute(builder: (_) => TelaFormularioRota(rota: rota)),
+    );
     if (salvo == true && mounted) {
       mostrarMensagem(
-          context, rota == null ? 'Rota cadastrada.' : 'Rota atualizada.');
+        context,
+        rota == null ? 'Rota cadastrada.' : 'Rota atualizada.',
+      );
     }
   }
 
   Future<void> _excluir(RotaFuga r, String abrigo) async {
-    final ok = await confirmarAcao(context,
-        titulo: 'Excluir rota de fuga?',
-        texto: 'A rota até "$abrigo" sai do mapa dos moradores.',
-        botao: 'Excluir');
+    final ok = await confirmarAcao(
+      context,
+      titulo: 'Excluir rota de fuga?',
+      texto: 'A rota até "$abrigo" sai do mapa dos moradores.',
+      botao: 'Excluir',
+    );
     if (!ok || !mounted) return;
-    await executarComAviso(context, () => _servico.excluir(r),
-        sucesso: 'Rota excluída.');
+    await executarComAviso(
+      context,
+      () => _servico.excluir(r),
+      sucesso: 'Rota excluída.',
+    );
   }
 
   @override
@@ -60,13 +68,16 @@ class _TelaRotasFugaDefesaCivilState extends State<TelaRotasFugaDefesaCivil> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: const AppBarTela(
+        voltar: true,
         titulo: 'Rotas de fuga',
         subtitulo: 'Caminhos oficiais até os abrigos',
         ajuda: TextosAjuda.rotasFugaDefesaCivil,
       ),
       body: ListenableBuilder(
-        listenable: Listenable.merge(
-            [_servico.rotas, AbrigosService.instance.cadastrados]),
+        listenable: Listenable.merge([
+          _servico.rotas,
+          AbrigosService.instance.cadastrados,
+        ]),
         builder: (context, _) {
           final nomes = {
             for (final a in AbrigosService.instance.cadastrados.value)
@@ -84,9 +95,10 @@ class _TelaRotasFugaDefesaCivilState extends State<TelaRotasFugaDefesaCivil> {
               const SizedBox(height: 16),
               if (rotas.isEmpty)
                 Text(
-                    'Nenhuma rota cadastrada. Os moradores continuam com as '
-                    'rotas calculadas na hora, que desviam dos alagamentos.',
-                    style: TextStyle(color: cores.onSurfaceVariant)),
+                  'Nenhuma rota cadastrada. Os moradores continuam com as '
+                  'rotas calculadas na hora, que desviam dos alagamentos.',
+                  style: TextStyle(color: cores.onSurfaceVariant),
+                ),
               for (final r in rotas)
                 Card(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -98,9 +110,10 @@ class _TelaRotasFugaDefesaCivilState extends State<TelaRotasFugaDefesaCivil> {
                         Text(
                           'Até ${nomes[r.abrigoId] ?? 'abrigo excluído'}',
                           style: TextStyle(
-                              color: cores.primary,
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold),
+                            color: cores.primary,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(
                           '${formatarDistancia(r.distanciaMetros)} · '
@@ -109,31 +122,37 @@ class _TelaRotasFugaDefesaCivilState extends State<TelaRotasFugaDefesaCivil> {
                           'risco ${r.riscoNaVia.rotulo.toLowerCase()}',
                           style: TextStyle(color: cores.onSurfaceVariant),
                         ),
-                        Row(children: [
-                          Switch(
-                            value: !r.interditada,
-                            activeThumbColor: AppColors.seguro,
-                            onChanged: (liberada) => executarComAviso(
-                              context,
-                              () => _servico.alterarInterdicao(r, !liberada),
-                              sucesso: liberada
-                                  ? 'Rota liberada.'
-                                  : 'Rota interditada.',
+                        Row(
+                          children: [
+                            Switch(
+                              value: !r.interditada,
+                              activeThumbColor: AppColors.seguro,
+                              onChanged: (liberada) => executarComAviso(
+                                context,
+                                () => _servico.alterarInterdicao(r, !liberada),
+                                sucesso: liberada
+                                    ? 'Rota liberada.'
+                                    : 'Rota interditada.',
+                              ),
                             ),
-                          ),
-                          Text(r.interditada ? 'Interditada' : 'Liberada'),
-                          const Spacer(),
-                          TextButton(
+                            Text(r.interditada ? 'Interditada' : 'Liberada'),
+                            const Spacer(),
+                            TextButton(
                               onPressed: () => _abrir(r),
-                              child: const Text('Editar')),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                                foregroundColor: cores.error),
-                            onPressed: () => _excluir(
-                                r, nomes[r.abrigoId] ?? 'abrigo excluído'),
-                            child: const Text('Excluir'),
-                          ),
-                        ]),
+                              child: const Text('Editar'),
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: cores.error,
+                              ),
+                              onPressed: () => _excluir(
+                                r,
+                                nomes[r.abrigoId] ?? 'abrigo excluído',
+                              ),
+                              child: const Text('Excluir'),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -191,13 +210,15 @@ class _TelaFormularioRotaState extends State<TelaFormularioRota> {
       _salvando = true;
     });
     try {
-      await RotasFugaService.instance.salvar(RotasFugaService.montar(
-        id: widget.rota?.id ?? '',
-        abrigoId: abrigo.id,
-        pontos: pontos,
-        riscoNaVia: _risco,
-        interditada: _interditada,
-      ));
+      await RotasFugaService.instance.salvar(
+        RotasFugaService.montar(
+          id: widget.rota?.id ?? '',
+          abrigoId: abrigo.id,
+          pontos: pontos,
+          riscoNaVia: _risco,
+          interditada: _interditada,
+        ),
+      );
       if (mounted) Navigator.pop(context, true);
     } on ServicoException catch (e) {
       if (mounted) setState(() => _erro = e.mensagem);
@@ -215,6 +236,7 @@ class _TelaFormularioRotaState extends State<TelaFormularioRota> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: AppBarTela(
+        voltar: true,
         titulo: editando ? 'Editar rota' : 'Nova rota de fuga',
         ajuda: TextosAjuda.rotasFugaDefesaCivil,
       ),
@@ -223,12 +245,14 @@ class _TelaFormularioRotaState extends State<TelaFormularioRota> {
         children: [
           if (abrigos.isEmpty)
             Text(
-                'Cadastre um abrigo no Painel antes de traçar a rota até ele.',
-                style: TextStyle(color: cores.error))
+              'Cadastre um abrigo no Painel antes de traçar a rota até ele.',
+              style: TextStyle(color: cores.error),
+            )
           else
             DropdownButtonFormField<String>(
-              initialValue:
-                  abrigos.any((a) => a.id == _abrigoId) ? _abrigoId : null,
+              initialValue: abrigos.any((a) => a.id == _abrigoId)
+                  ? _abrigoId
+                  : null,
               decoration: const InputDecoration(labelText: 'Abrigo de destino'),
               items: [
                 for (final a in abrigos)
@@ -255,18 +279,20 @@ class _TelaFormularioRotaState extends State<TelaFormularioRota> {
           const SizedBox(height: 12),
           Text('Risco no caminho', style: rotulo),
           const SizedBox(height: 8),
-          Row(children: [
-            for (final g in Gravidade.values) ...[
-              if (g != Gravidade.values.first) const SizedBox(width: 10),
-              Expanded(
-                child: BotaoGravidade(
-                  gravidade: g,
-                  selecionada: _risco == g,
-                  aoTocar: () => setState(() => _risco = g),
+          Row(
+            children: [
+              for (final g in Gravidade.values) ...[
+                if (g != Gravidade.values.first) const SizedBox(width: 10),
+                Expanded(
+                  child: BotaoGravidade(
+                    gravidade: g,
+                    selecionada: _risco == g,
+                    aoTocar: () => setState(() => _risco = g),
+                  ),
                 ),
-              ),
+              ],
             ],
-          ]),
+          ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Rota interditada'),

@@ -50,3 +50,20 @@ String formatarTempoAtras(DateTime momento, {DateTime? agora}) {
 String formatarCoordenada(LatLng ponto) =>
     '${ponto.latitude.toStringAsFixed(5)}, '
     '${ponto.longitude.toStringAsFixed(5)}';
+
+/// Endereço curto, como no protótipo ("Av. Ivo do Prado, Centro"): tira do
+/// fim o país, a sigla do estado e a cidade que a busca de endereços
+/// acrescenta ("..., Aracaju, SE, Brasil").
+String encurtarEndereco(String endereco, {String cidade = 'Aracaju'}) {
+  final partes = [
+    for (final p in endereco.split(',')) if (p.trim().isNotEmpty) p.trim(),
+  ];
+  bool sobra(String p) =>
+      p == 'Brasil' ||
+      RegExp(r'^[A-Z]{2}$').hasMatch(p) ||
+      normalizarTexto(p) == normalizarTexto(cidade);
+  while (partes.length > 1 && sobra(partes.last)) {
+    partes.removeLast();
+  }
+  return partes.join(', ');
+}

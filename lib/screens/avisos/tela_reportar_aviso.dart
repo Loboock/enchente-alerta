@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/models.dart';
 import '../../services/perigos_service.dart';
+import '../../utils/formatacao.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/scaffold_com_abas.dart';
@@ -67,7 +68,7 @@ class _TelaReportarAvisoState extends State<TelaReportarAviso> {
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
     final o = widget.ocorrencia;
-    final resumo = '${o.endereco} · '
+    final resumo = '${encurtarEndereco(o.endereco)} · '
         '${o.tipo.rotulo} ${o.gravidade.rotulo.toLowerCase()}';
 
     return ScaffoldComAbas(

@@ -209,8 +209,10 @@ class _Cabecalho extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: cores.secondary,
                     borderRadius: BorderRadius.circular(20),
@@ -248,16 +250,16 @@ class _TituloSecao extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Text(
-          texto,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
+      texto,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.primary,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }
 
 /// Cartão grande do painel: ícone, título, situação e seta.
@@ -316,8 +318,9 @@ class _CartaoPainel extends StatelessWidget {
                         detalhe,
                         style: TextStyle(
                           color: destaque ? cor : cores.onSurfaceVariant,
-                          fontWeight:
-                              destaque ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight: destaque
+                              ? FontWeight.w600
+                              : FontWeight.normal,
                         ),
                       ),
                     ],

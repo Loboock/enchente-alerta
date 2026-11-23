@@ -84,7 +84,7 @@ class _TelaAvisosState extends State<TelaAvisos> {
     final ok = await confirmarAcao(
       context,
       titulo: 'Resolver aviso?',
-      texto: 'O aviso em ${o.endereco} sai do mapa e das rotas e fica no '
+      texto: 'O aviso em ${encurtarEndereco(o.endereco)} sai do mapa e das rotas e fica no '
           'histórico.',
       botao: 'Resolver',
     );
@@ -118,7 +118,7 @@ class _TelaAvisosState extends State<TelaAvisos> {
       context: context,
       builder: (contexto) => AlertDialog(
         title: const Text('Excluir aviso?'),
-        content: Text('O aviso em ${o.endereco} sai do mapa e da lista '
+        content: Text('O aviso em ${encurtarEndereco(o.endereco)} sai do mapa e da lista '
             'para todos.'),
         actions: [
           TextButton(
@@ -260,7 +260,7 @@ class _CartaoAviso extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      o.endereco,
+                      encurtarEndereco(o.endereco),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

@@ -267,6 +267,16 @@ inicio do lado do botão de ajuda?
 
 Resultado: botão lua/sol ao lado do "i" no Início; o app começa seguindo o aparelho e guarda a escolha num arquivo do aparelho (`path_provider`, que o projeto já usava). Validado com `flutter analyze`, `flutter test` e no emulador (o mapa escurece junto).
 
+### Prompt 20 — Revisão geral e refinamentos — Vinicius Reis
+
+Funcionou bem porque a IA primeiro comparou as 13 telas do protótipo com prints do app e listou os pontos, e o grupo escolheu o que fazer antes de qualquer mudança.
+
+```text
+vamos analisar o app como todo, ver se não faltou algo, ver o que pode fazer de refinamento sem sair do padrão dos protótipos
+```
+
+Resultado: ícone e nome do app, endereços curtos, atalhos do Início com os abrigos mais próximos, rota oficial na Rota de fuga, Ajuda completa, seta de voltar no Painel e diagrama de casos de uso com o que ficou fora do escopo. Validado com `flutter analyze`, `flutter test` e no emulador. Os nomes dos abrigos de exemplo do protótipo não existem de verdade, então a IA não inventou endereços: usou o centro real de cada bairro (OpenStreetMap).
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |

@@ -120,5 +120,9 @@ Cada integrante faz commits com a própria conta, em uma branch `feature/` com P
 - Mapa sem internet (salvar a região e cache do que foi visto) e faixa "Sem internet".
 - Endereço padrão, raio dos alertas, alertas por região e Notificações no Perfil.
 - Cadastros da Defesa Civil: áreas de risco e rotas de fuga desenhadas no mapa, e guia de segurança lendo do Firestore.
+- Refinamentos finais: ícone e nome do app, endereços curtos, atalhos do Início com os abrigos mais próximos, rota oficial na Rota de fuga e Ajuda completa.
 
-Todas as funcionalidades previstas no escopo estão implementadas; falta a revisão final antes de 24/11.
+**Pedro Brid do Carmo Fraife**
+- Botão de modo claro/escuro na tela Início.
+
+Todas as funcionalidades previstas no escopo estão implementadas e revisadas para a apresentação de 24/11.

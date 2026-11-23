@@ -13,9 +13,11 @@ import 'package:enchente_alerta/services/alertas_service.dart';
 import 'package:enchente_alerta/services/historico_service.dart';
 import 'package:enchente_alerta/services/localizacao_service.dart';
 import 'package:enchente_alerta/services/perigos_service.dart';
+import 'package:enchente_alerta/services/rotas_fuga_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
 import 'package:enchente_alerta/theme/app_theme.dart';
 import 'package:enchente_alerta/theme/modo_tema.dart';
+import 'package:enchente_alerta/utils/formatacao.dart';
 import 'package:enchente_alerta/widgets/mapa/mapa_enchente.dart';
 
 import 'fakes.dart';
@@ -28,6 +30,7 @@ void main() {
   setUp(() {
     abaAtual.value = 0;
     ModoTema.instance.modo.value = ThemeMode.system;
+    RotasFugaService.instance = RotasFugaService();
     LocalizacaoService.instance = LocalizacaoFalsa();
     rotas = RotasFalsas();
     RotasService.instance = rotas;
@@ -78,7 +81,44 @@ void main() {
     expect(find.text('Início'), findsWidgets);
     expect(find.text('Abrigo'), findsOneWidget);
     expect(find.text('Rota de fuga'), findsOneWidget);
-    expect(find.text('Hosp. Universitário'), findsOneWidget);
+  });
+
+  testWidgets('Atalhos do Início mostram os abrigos mais próximos e abrem a rota',
+      (tester) async {
+    // Rota oficial da Defesa Civil até o abrigo mais próximo.
+    RotasFugaService.instance = RotasFugaService()
+      ..rotas.value = [
+        RotasFugaService.montar(
+          id: 'r1',
+          abrigoId: 'ab1',
+          pontos: [usuarioProvisorio, abrigosDeExemplo.first.localizacao],
+          riscoNaVia: Gravidade.leve,
+          interditada: false,
+        ),
+      ];
+    await abrirApp(tester);
+    await esperar(tester);
+
+    // O mais próximo dos abrigos de exemplo (630 m).
+    final atalho = find.text('Esc. Gonçalo Rollemberg Leite');
+    expect(atalho, findsOneWidget);
+    await tester.tap(atalho);
+    await esperar(tester);
+
+    expect(find.text('Menor risco até Esc. Gonçalo Rollemberg Leite'),
+        findsOneWidget);
+    expect(find.textContaining('Rota oficial da Defesa Civil até o abrigo'),
+        findsOneWidget);
+  });
+
+  test('Endereço curto tira cidade, estado e país, como no protótipo', () {
+    expect(encurtarEndereco('Condomínio Arte Viva, Aracaju, SE, Brasil'),
+        'Condomínio Arte Viva');
+    expect(encurtarEndereco('Av. Ivo do Prado, Centro'),
+        'Av. Ivo do Prado, Centro');
+    expect(encurtarEndereco('Rua A, Farolândia, Aracaju, SE, Brasil'),
+        'Rua A, Farolândia');
+    expect(encurtarEndereco('Aracaju'), 'Aracaju');
   });
 
   testWidgets('Barra inferior troca de aba', (tester) async {

@@ -6,8 +6,10 @@ import '../../config.dart';
 import '../../models/destino.dart';
 import '../../models/perigo.dart';
 import '../../models/rota_calculada.dart';
+import '../../models/rota_fuga.dart';
 import '../../services/localizacao_service.dart';
 import '../../services/perigos_service.dart';
+import '../../services/rotas_fuga_service.dart';
 import '../../services/rotas_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/formatacao.dart';
@@ -86,6 +88,16 @@ class TelaRotaFuga extends StatefulWidget {
 }
 
 class _TelaRotaFugaState extends State<TelaRotaFuga> {
+  /// Rota oficial liberada da Defesa Civil até o abrigo de destino.
+  RotaFuga? get _rotaOficial {
+    final abrigoId = widget.destino.abrigoId;
+    if (abrigoId == null) return null;
+    for (final r in RotasFugaService.instance.rotas.value) {
+      if (r.abrigoId == abrigoId && !r.interditada) return r;
+    }
+    return null;
+  }
+
   final _controle = MapController();
   final _perigos = PerigosService.instance.perigos;
   bool _mapaPronto = false;
@@ -269,6 +281,7 @@ class _TelaRotaFugaState extends State<TelaRotaFuga> {
               rota: rota,
               origem: _origem,
               partidaEscolhida: widget.partida != null,
+              rotaOficial: _rotaOficial,
               passoAPasso: _passoAPasso,
               carregando: _carregando,
               erro: _erro,
@@ -304,6 +317,7 @@ class _PainelRota extends StatelessWidget {
     required this.rota,
     required this.origem,
     required this.partidaEscolhida,
+    required this.rotaOficial,
     required this.passoAPasso,
     required this.carregando,
     required this.erro,
@@ -319,6 +333,9 @@ class _PainelRota extends StatelessWidget {
 
   /// A rota sai de um ponto escolhido, não da posição da pessoa.
   final bool partidaEscolhida;
+
+  /// Rota de fuga oficial da Defesa Civil até este abrigo, se houver.
+  final RotaFuga? rotaOficial;
 
   /// A navegação vai ser passo a passo (sem acompanhar o GPS).
   final bool passoAPasso;
@@ -459,7 +476,16 @@ class _PainelRota extends StatelessWidget {
     final naoConfirmados = rota.avisosNoCaminho.length;
     final origem = this.origem;
 
+    final oficial = rotaOficial;
     return [
+      if (oficial != null)
+        _LinhaAviso(
+          icone: Icons.alt_route,
+          cor: AppColors.seguro,
+          texto: 'Rota oficial da Defesa Civil até o abrigo: '
+              '${formatarDistancia(oficial.distanciaMetros)} · '
+              '${oficial.tempoAPeMin} min a pé (linha verde no mapa).',
+        ),
       _LinhaAviso(
         icone: Icons.verified_user,
         cor: AppColors.seguro,

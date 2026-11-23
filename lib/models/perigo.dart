@@ -1,6 +1,7 @@
 import 'package:latlong2/latlong.dart';
 
 import '../config.dart';
+import '../utils/formatacao.dart';
 import '../utils/geo.dart';
 import 'models.dart';
 
@@ -43,7 +44,7 @@ class Perigo {
       id: 'oc:${o.id}',
       origem: OrigemPerigo.comunidade,
       titulo: o.tipo.rotulo,
-      detalhe: o.endereco,
+      detalhe: encurtarEndereco(o.endereco),
       gravidade: o.gravidade,
       centro: o.localizacao,
       raioMetros: raio,

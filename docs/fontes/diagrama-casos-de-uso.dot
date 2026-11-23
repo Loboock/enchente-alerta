@@ -1,6 +1,8 @@
 // Diagrama de casos de uso - EnchenteAlerta (Unidade II)
 // Posições fixas (em polegadas). Para gerar a imagem, dentro de docs/fontes:
 //   neato -Tpng -Gdpi=150 diagrama-casos-de-uso.dot -o ../diagrama-casos-de-uso.png
+// Itens em vermelho e tracejados ficaram fora do escopo desta entrega
+// (docs/planejamento.md): integração meteorológica e foto da ocorrência.
 
 graph CasosDeUso {
   layout=neato;
@@ -22,7 +24,7 @@ graph CasosDeUso {
   Visitante [label="Visitante\n(sem conta)",       pos="-0.6,21.9!"];
   Usuario   [label="Usuário\ncadastrado",          pos="-0.6,12.2!"];
   Defesa    [label="Defesa Civil",                 pos="-0.6,8.4!"];
-  Meteo     [label="Serviço\nmeteorológico",       pos="12.9,16.8!"];
+  Meteo     [label="Serviço\nmeteorológico\n(fora do escopo)", fontcolor="#C0392B", pos="12.9,16.8!"];
 
   // ---------- Casos de uso ----------
   node [shape=ellipse, image="", fixedsize=true, width=2.9, height=0.62, style=filled, fillcolor="white", labelloc=c];
@@ -55,15 +57,15 @@ graph CasosDeUso {
   node [width=2.5];
   UC11 [label="Recuperar senha",                               pos="9.25,26.0!"];
   UC23 [label="Gerar e atualizar\nalertas",                    pos="9.25,17.8!"];
-  UC24 [label="Integrar dados\nmeteorológicos",                pos="9.25,16.8!"];
+  UC24 [label="Integrar dados\nmeteorológicos\n(fora do escopo)", style=dashed, fontcolor="#C0392B", pos="9.25,16.8!"];
   UC13 [label="Informar localização",                          pos="9.25,14.9!"];
   UC14 [label="Adicionar descrição",                           pos="9.25,14.0!"];
-  UC15 [label="Adicionar foto",                                pos="9.25,13.1!"];
+  UC15 [label="Adicionar foto\n(fora do escopo)", style=dashed, fontcolor="#C0392B", pos="9.25,13.1!"];
 
   // ---------- Notas ----------
   node [shape=note, style=filled, fillcolor="#FFF8D6", color="#B08A00", fontsize=10, fixedsize=false, width=0, height=0, margin="0.1,0.06"];
   N1 [label="Funciona sem internet quando\na região foi baixada antes\n(cache).", pos="9.25,21.4!"];
-  N4 [label="Alertas são gerados a partir\nde dados meteorológicos ou\nde registros da comunidade.", pos="9.25,19.4!"];
+  N4 [label="Nesta versão, os alertas são\nemitidos pela Defesa Civil\nno app.", pos="9.25,19.4!"];
   N2 [label="Exige login. O autor fica salvo\nsó para poder excluir o registro\ne nunca aparece para outros\nusuários (RNF07).", pos="9.25,11.6!"];
   N3 [label="Acesso restrito ao\nperfil Defesa Civil.", pos="9.25,8.4!"];
 

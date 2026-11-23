@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../navegacao.dart';
+import '../../services/auth_service.dart';
 import '../../utils/exigir_login.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/scaffold_com_abas.dart';
 import '../abrigos/tela_abrigos_proximos.dart';
 import '../avisos/tela_criar_aviso.dart';
+import '../conta/tela_enderecos.dart';
+import '../conta/tela_notificacoes.dart';
 import '../conta/tela_registro.dart';
 import '../conta/tela_reset_senha.dart';
+import '../offline/tela_mapa_offline.dart';
 import '../rota/tela_escolher_destino.dart';
 
 /// Abre a tela de ajuda por cima da tela atual.
@@ -40,6 +44,9 @@ class TelaAjuda extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Abas: 0 Início, 1 Avisos, 2 Histórico, 3 Perfil, 4 Guia.
+    final auth = AuthService.instance;
+    final logado = auth.user != null;
+    final defesaCivil = auth.usuario?.ehDefesaCivil ?? false;
     final itens = <(String, VoidCallback)>[
       ('Início', () => irParaAba(context, 0)),
       (
@@ -56,13 +63,32 @@ class TelaAjuda extends StatelessWidget {
       // Para reportar, a pessoa escolhe o aviso na lista (botão Reportar).
       ('Reportar avisos', () => irParaAba(context, 1)),
       ('Guia de segurança', () => irParaAba(context, 4)),
-      // Sem conta, a aba Perfil mostra o login.
-      ('Login', () => irParaAba(context, 3)),
-      ('Cadastro', () => _empurrar(context, const RegisterScreen())),
       (
-        'Esqueceu a senha',
-        () => _empurrar(context, const ResetPasswordScreen()),
+        'Mapa sem internet',
+        () => _empurrar(context, const TelaMapaOffline()),
       ),
+      if (!logado) ...[
+        // Sem conta, a aba Perfil mostra o login.
+        ('Login', () => irParaAba(context, 3)),
+        ('Cadastro', () => _empurrar(context, const RegisterScreen())),
+        (
+          'Esqueceu a senha',
+          () => _empurrar(context, const ResetPasswordScreen()),
+        ),
+      ] else ...[
+        if (defesaCivil)
+          ('Painel da Defesa Civil', () => irParaAba(context, 3))
+        else
+          ('Perfil', () => irParaAba(context, 3)),
+        (
+          'Notificações',
+          () => _empurrar(context, const TelaNotificacoes()),
+        ),
+        (
+          'Endereço padrão',
+          () => _empurrar(context, const TelaEnderecos()),
+        ),
+      ],
     ];
 
     return ScaffoldComAbas(

@@ -252,7 +252,16 @@
 ### Adicionado
 - Botão de modo claro/escuro na tela Início, ao lado do botão de ajuda (lib/theme/modo_tema.dart): mostra a lua no modo claro e o sol no modo escuro. O app começa seguindo o aparelho; a escolha feita no botão vale para todas as telas (o mapa escurece junto) e fica guardada no aparelho para quando o app for reaberto.
 - Teste de widget do botão de tema (test/widget_test.dart).
+- Ícone do app com a logo do protótipo (casa, alerta e ondas), inclusive ícone adaptativo do Android 8+ (android/app/src/main/res), e nome "Enchente Alerta" embaixo do ícone.
+- Rota de fuga mostra a rota oficial da Defesa Civil até o abrigo, quando houver uma liberada (distância e tempo a pé).
+- Ajuda lista também Mapa sem internet, Perfil (ou Painel da Defesa Civil), Notificações e Endereço padrão.
+- Seta de voltar nas telas abertas pelo Painel da Defesa Civil (`voltar` em AppBarTela); as telas do protótipo continuam sem a seta.
+- 3 testes novos: atalhos do Início, rota oficial e endereço curto.
 
 ### Alterado
 - lib/main.dart: o tema do app vem de `ModoTema` em vez de ficar fixo em `ThemeMode.system`.
 - AppBarTela aceita botões extras à esquerda do "i" (`acoesExtras`).
+- Atalhos do Início (antes texto fixo "Hosp. Universitário", "Escola Exemplo", "Farolândia") mostram os 3 abrigos mais próximos; tocar abre a rota até o abrigo.
+- Endereços curtos como no protótipo ("Av. Ivo do Prado, Centro"): Avisos, Histórico, Denúncias, Reportar e mapa tiram ", Aracaju, SE, Brasil" do fim (`encurtarEndereco` em lib/utils/formatacao.dart).
+- Diagrama de casos de uso: "Integrar dados meteorológicos", o ator "Serviço meteorológico" e "Adicionar foto" marcados como fora do escopo; a nota dos alertas diz que nesta versão eles são emitidos pela Defesa Civil.
+- Dados no Firebase: os abrigos de exemplo foram para o centro do bairro de cada um (antes um deles ficava no mar) e os dados de teste foram apagados.

@@ -39,10 +39,12 @@ class _TelaFormularioAbrigoState extends State<TelaFormularioAbrigo> {
   final _form = GlobalKey<FormState>();
   late final _nome = TextEditingController(text: widget.abrigo?.nome);
   late final _bairro = TextEditingController(text: widget.abrigo?.bairro);
-  late final _capacidade =
-      TextEditingController(text: widget.abrigo?.capacidade.toString());
-  late final _vagas =
-      TextEditingController(text: widget.abrigo?.vagasDisponiveis.toString());
+  late final _capacidade = TextEditingController(
+    text: widget.abrigo?.capacidade.toString(),
+  );
+  late final _vagas = TextEditingController(
+    text: widget.abrigo?.vagasDisponiveis.toString(),
+  );
   final _endereco = TextEditingController();
   late bool _ativo = widget.abrigo?.ativo ?? true;
 
@@ -154,15 +156,17 @@ class _TelaFormularioAbrigoState extends State<TelaFormularioAbrigo> {
 
     setState(() => _salvando = true);
     try {
-      await AbrigosService.instance.salvar(Abrigo(
-        id: widget.abrigo?.id ?? '',
-        nome: _nome.text.trim(),
-        bairro: _bairro.text.trim(),
-        localizacao: local,
-        capacidade: int.parse(_capacidade.text),
-        vagasDisponiveis: int.parse(_vagas.text),
-        ativo: _ativo,
-      ));
+      await AbrigosService.instance.salvar(
+        Abrigo(
+          id: widget.abrigo?.id ?? '',
+          nome: _nome.text.trim(),
+          bairro: _bairro.text.trim(),
+          localizacao: local,
+          capacidade: int.parse(_capacidade.text),
+          vagasDisponiveis: int.parse(_vagas.text),
+          ativo: _ativo,
+        ),
+      );
       if (mounted) Navigator.of(context).pop(true);
     } on ServicoException catch (e) {
       if (mounted) {
@@ -187,6 +191,7 @@ class _TelaFormularioAbrigoState extends State<TelaFormularioAbrigo> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: AppBarTela(
+        voltar: true,
         titulo: _editando ? 'Editar abrigo' : 'Novo abrigo',
         ajuda: TextosAjuda.formularioAbrigo,
       ),
@@ -204,8 +209,9 @@ class _TelaFormularioAbrigoState extends State<TelaFormularioAbrigo> {
                 controller: _nome,
                 maxLength: 120,
                 textCapitalization: TextCapitalization.words,
-                decoration:
-                    const InputDecoration(hintText: 'Ex.: Escola Estadual X'),
+                decoration: const InputDecoration(
+                  hintText: 'Ex.: Escola Estadual X',
+                ),
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Informe o nome do abrigo.'
                     : null,
@@ -271,12 +277,14 @@ class _TelaFormularioAbrigoState extends State<TelaFormularioAbrigo> {
                           controller: _capacidade,
                           keyboardType: TextInputType.number,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
+                            FilteringTextInputFormatter.digitsOnly,
                           ],
                           decoration: const InputDecoration(hintText: '120'),
                           validator: (v) {
-                            final erro =
-                                _validarNumero(v, campo: 'a capacidade');
+                            final erro = _validarNumero(
+                              v,
+                              campo: 'a capacidade',
+                            );
                             if (erro != null) return erro;
                             if (int.parse(v!) < 1) return 'Mínimo 1.';
                             return null;
@@ -297,7 +305,7 @@ class _TelaFormularioAbrigoState extends State<TelaFormularioAbrigo> {
                           controller: _vagas,
                           keyboardType: TextInputType.number,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
+                            FilteringTextInputFormatter.digitsOnly,
                           ],
                           decoration: const InputDecoration(hintText: '40'),
                           validator: (v) {
