@@ -277,6 +277,8 @@ vamos analisar o app como todo, ver se não faltou algo, ver o que pode fazer de
 
 Resultado: ícone e nome do app, endereços curtos, atalhos do Início com os abrigos mais próximos, rota oficial na Rota de fuga, Ajuda completa, seta de voltar no Painel e diagrama de casos de uso com o que ficou fora do escopo. Validado com `flutter analyze`, `flutter test` e no emulador. Os nomes dos abrigos de exemplo do protótipo não existem de verdade, então a IA não inventou endereços: usou o centro real de cada bairro (OpenStreetMap).
 
+Depois, testando o app, o grupo achou confuso que a partida escolhida aparecia como uma bolinha azul parecida com o ponto da posição atual. A IA explicou que o ponto azul mostra onde o celular está (e que, no emulador, a opção LOCALIZACAO_TESTE fixa esse ponto), e trocou a marca da partida por um pino com a etiqueta "Partida".
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |
