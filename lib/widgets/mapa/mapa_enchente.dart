@@ -8,6 +8,7 @@ import '../../config.dart';
 import '../../models/models.dart';
 import '../../models/perigo.dart';
 import '../../services/localizacao_service.dart';
+import '../../services/mapa_offline_service.dart';
 import '../../services/perigos_service.dart';
 import '../../theme/app_theme.dart';
 import 'folha_perigo.dart';
@@ -101,22 +102,17 @@ class MapaEnchente extends StatelessWidget {
   }
 
   Widget _camadaFundo(bool escuro) {
-    if (Config.temChaveCarto) {
-      // CARTO Voyager / Dark Matter: visual limpo, parecido com o Waze.
-      final estilo = escuro ? 'dark_all' : 'voyager';
-      return TileLayer(
-        urlTemplate: 'https://basemaps.cartocdn.com/rastertiles/$estilo/'
-            '{z}/{x}/{y}.png?key=${Config.cartoApiKey}',
-        userAgentPackageName: 'br.unit.enchentealerta.enchente_alerta',
-        // Sem internet o mapa só fica sem imagem, sem quebrar a tela.
-        errorTileCallback: (tile, error, stackTrace) {},
-      );
-    }
+    // CARTO Voyager / Dark Matter (visual limpo, parecido com o Waze) com
+    // CARTO_API_KEY; senão, OpenStreetMap. Os pedaços exibidos ficam
+    // guardados no aparelho para uso sem internet (MapaOfflineService).
+    final fonte = FonteMapa.atual(escuro);
     return TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      urlTemplate: fonte.modelo,
+      tileProvider: TileProviderComCache(fonte),
       userAgentPackageName: 'br.unit.enchentealerta.enchente_alerta',
       // No modo noturno, escurece o mapa do OpenStreetMap.
-      tileBuilder: escuro ? darkModeTileBuilder : null,
+      tileBuilder: escuro && !Config.temChaveCarto ? darkModeTileBuilder : null,
+      // Sem internet e sem o pedaço guardado, o mapa só fica sem imagem.
       errorTileCallback: (tile, error, stackTrace) {},
     );
   }

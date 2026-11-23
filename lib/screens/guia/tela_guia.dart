@@ -5,6 +5,7 @@ import '../../models/models.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
+import '../offline/tela_mapa_offline.dart';
 
 /// Tela "08 Guia de segurança" do protótipo: orientações para antes, durante
 /// e se precisar evacuar, mais os telefones de emergência.
@@ -46,6 +47,20 @@ class TelaGuia extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: cores.primary,
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Preparação também é deixar o mapa salvo para usar sem internet.
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              leading: Icon(Icons.download_for_offline_outlined,
+                  color: cores.primary, size: 32),
+              title: const Text('Salve o mapa da região'),
+              subtitle: const Text('Para usar o mapa mesmo sem internet'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => const TelaMapaOffline(abaAtiva: 4))),
             ),
           ),
           for (final (fase, titulo) in _secoes) ...[

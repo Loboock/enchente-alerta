@@ -37,7 +37,7 @@ App mobile de prevenção de enchentes para moradores de áreas de risco: mapa d
 
 - **Perfis de acesso:** Visitante (sem conta) só consulta; Usuário cadastrado também registra ocorrências, exclui as próprias, reporta avisos e configura alertas; Defesa Civil também gerencia abrigos, alertas e rotas, revisa denúncias e resolve avisos; para ela a aba Perfil vira "Painel". O perfil `DEFESA_CIVIL` é definido manualmente no console; toda conta nova é `MORADOR`.
 - **Anonimato (RNF07):** o autor da ocorrência fica na coleção separada `autoresOcorrencias/{ocorrenciaId}`, nunca no documento público da ocorrência.
-- **Offline:** mapa com `flutter_map` (OpenStreetMap) e cache da região com `flutter_map_tile_caching`; o Firestore também mantém cache local. Google Maps não permite mapa offline para apps de terceiros.
+- **Offline:** mapa com `flutter_map` (OpenStreetMap) e cache próprio da região em arquivos (`lib/services/mapa_offline_service.dart`, sem o `flutter_map_tile_caching`, que é GPL); o Firestore também mantém cache local. Google Maps não permite mapa offline para apps de terceiros.
 - **Sem custos:** projeto no plano Spark. Sem Firebase Storage e sem Cloud Functions. A expiração de ocorrências é tratada pelo app (`expiraEm` no passado).
 - **Foto da ocorrência:** opcional, tratada como possível melhoria futura (bônus), ainda em debate. Não está no protótipo e não é exigida pela professora.
 - **Campo descrição:** mantido como opcional, embora a tela "Criar aviso" do protótipo não o tenha.

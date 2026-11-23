@@ -412,8 +412,9 @@ void main() {
     await tester.pump();
 
     expect(find.text('Antes, durante e depois'), findsOneWidget);
+    expect(find.text('Salve o mapa da região'), findsOneWidget);
     expect(find.text('Acompanhe os alertas da Defesa Civil'), findsOneWidget);
-    expect(find.text('Se precisar evacuar'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Se precisar evacuar'), 200);
 
     // A seção de emergência fica abaixo da dobra na tela pequena do teste.
     await tester.scrollUntilVisible(find.text('Defesa civil 199'), 200);

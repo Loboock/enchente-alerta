@@ -177,6 +177,14 @@ abstract final class TextosAjuda {
       'Para o local, busque o endereço e escolha uma sugestão, ou use a sua '
       'posição atual se estiver no abrigo.';
 
+  static const mapaOffline =
+      '"Salvar mapa da região" guarda no aparelho o mapa de cerca de 3 km '
+      'em volta de onde você está. Faça isso em casa, com Wi-Fi, antes da '
+      'chuva.\n\n'
+      'Sem internet, o app mostra a faixa "Sem internet" e usa o mapa, os '
+      'avisos, os abrigos e o histórico salvos. Criar aviso e calcular rota '
+      'nova precisam de conexão.';
+
   static const guia =
       'O que fazer antes, durante e depois de uma enchente, e o que levar se '
       'precisar sair de casa.\n\n'

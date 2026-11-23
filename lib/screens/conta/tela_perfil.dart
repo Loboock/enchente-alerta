@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
 import '../defesa_civil/tela_painel_defesa_civil.dart';
+import '../offline/tela_mapa_offline.dart';
 import 'tela_login.dart';
 import 'tela_meus_dados.dart';
 
@@ -173,6 +174,14 @@ class PerfilMorador extends StatelessWidget {
             subtitle: const Text('Sua casa, para alertas da região'),
             trailing: const Icon(Icons.chevron_right),
             onTap: aoEnderecoPadrao,
+          ),
+          ListTile(
+            leading: const Icon(Icons.download_for_offline_outlined),
+            title: const Text('Mapa sem internet'),
+            subtitle: const Text('Salvar o mapa da região no aparelho'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => const TelaMapaOffline(abaAtiva: 3))),
           ),
           const Divider(indent: 16, endIndent: 16),
           ListTile(
