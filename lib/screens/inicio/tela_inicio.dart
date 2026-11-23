@@ -5,6 +5,7 @@ import '../../config.dart';
 import '../../services/localizacao_service.dart';
 import '../../services/perigos_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/modo_tema.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/faixa_alertas.dart';
 import '../../widgets/mapa/botao_mapa.dart';
@@ -25,7 +26,10 @@ class TelaInicio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppBarTela(titulo: 'Início'),
+      appBar: const AppBarTela(
+        titulo: 'Início',
+        acoesExtras: [BotaoModoTema()],
+      ),
       body: Column(
         children: [
           const Expanded(child: _MapaInicio()),

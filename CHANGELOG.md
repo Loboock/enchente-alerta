@@ -246,3 +246,13 @@
 - Abrigos próximos lê os abrigos do Firestore; enquanto a Defesa Civil não cadastrar nenhum, mostra os de exemplo (`abrigosDeExemplo` em lib/data/dados_provisorios.dart).
 - Botão de gravidade de Criar aviso virou widget compartilhado (lib/widgets/botao_gravidade.dart), usado também no formulário de alerta.
 - docs/modelagem-firestore.md, docs/fluxo-navegacao.md, docs/planejamento.md, README.md e docs/uso-de-ia.md atualizados.
+
+# [23/11/2026]
+
+### Adicionado
+- Botão de modo claro/escuro na tela Início, ao lado do botão de ajuda (lib/theme/modo_tema.dart): mostra a lua no modo claro e o sol no modo escuro. O app começa seguindo o aparelho; a escolha feita no botão vale para todas as telas (o mapa escurece junto) e fica guardada no aparelho para quando o app for reaberto.
+- Teste de widget do botão de tema (test/widget_test.dart).
+
+### Alterado
+- lib/main.dart: o tema do app vem de `ModoTema` em vez de ficar fixo em `ThemeMode.system`.
+- AppBarTela aceita botões extras à esquerda do "i" (`acoesExtras`).

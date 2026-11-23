@@ -15,6 +15,7 @@ import 'package:enchente_alerta/services/localizacao_service.dart';
 import 'package:enchente_alerta/services/perigos_service.dart';
 import 'package:enchente_alerta/services/rotas_service.dart';
 import 'package:enchente_alerta/theme/app_theme.dart';
+import 'package:enchente_alerta/theme/modo_tema.dart';
 import 'package:enchente_alerta/widgets/mapa/mapa_enchente.dart';
 
 import 'fakes.dart';
@@ -26,6 +27,7 @@ void main() {
   late RotasFalsas rotas;
   setUp(() {
     abaAtual.value = 0;
+    ModoTema.instance.modo.value = ThemeMode.system;
     LocalizacaoService.instance = LocalizacaoFalsa();
     rotas = RotasFalsas();
     RotasService.instance = rotas;
@@ -44,6 +46,31 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
   }
+
+  testWidgets('Botão do Início troca entre modo claro e escuro',
+      (tester) async {
+    await abrirApp(tester);
+    Brightness tema() =>
+        Theme.of(tester.element(find.byType(BotaoModoTema))).brightness;
+    ThemeMode modoDoApp() =>
+        tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode!;
+
+    // O aparelho do teste está no claro: o botão oferece o escuro.
+    expect(tema(), Brightness.light);
+    await tester.tap(find.byTooltip('Ativar modo escuro'));
+    await esperar(tester);
+    expect(tema(), Brightness.dark);
+    expect(modoDoApp(), ThemeMode.dark);
+
+    await tester.tap(find.byTooltip('Ativar modo claro'));
+    await esperar(tester);
+    expect(tema(), Brightness.light);
+
+    // O botão de tema só fica no Início.
+    await tester.tap(find.text('Guia'));
+    await tester.pump();
+    expect(find.byTooltip('Ativar modo escuro').hitTestable(), findsNothing);
+  });
 
   testWidgets('App abre na tela Início com mapa e botões', (tester) async {
     await abrirApp(tester);

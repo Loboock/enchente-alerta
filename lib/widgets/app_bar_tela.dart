@@ -17,12 +17,16 @@ class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
     this.subtitulo,
     this.ajuda,
     this.ajudaAtiva = false,
+    this.acoesExtras = const [],
   });
 
   final String titulo;
   final String? subtitulo;
   final String? ajuda;
   final bool ajudaAtiva;
+
+  /// Botões que ficam à esquerda do "i" (ex.: modo escuro no Início).
+  final List<Widget> acoesExtras;
 
   @override
   Size get preferredSize => const Size.fromHeight(72);
@@ -59,6 +63,7 @@ class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        ...acoesExtras,
         BotaoAjuda(texto: ajuda, ativa: ajudaAtiva),
         const SizedBox(width: 12),
       ],
