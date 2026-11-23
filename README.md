@@ -117,5 +117,8 @@ Cada integrante faz commits com a própria conta, em uma branch `feature/` com P
 - Perfil do morador no padrão dos apps comuns e tela Meus dados (nome, e-mail, tipo de conta e alterar senha).
 - Regras do Firestore para o painel (lista de denúncias e validação de alertas e abrigos), com testes no emulador.
 - Histórico lendo do Firestore em tempo real, com a situação de cada aviso (ativo, resolvido ou expirado).
+- Mapa sem internet (salvar a região e cache do que foi visto) e faixa "Sem internet".
+- Endereço padrão, raio dos alertas, alertas por região e Notificações no Perfil.
+- Cadastros da Defesa Civil: áreas de risco e rotas de fuga desenhadas no mapa, e guia de segurança lendo do Firestore.
 
-A definir com o grupo: uso offline e Endereço padrão no Perfil.
+Todas as funcionalidades previstas no escopo estão implementadas; falta a revisão final antes de 24/11.

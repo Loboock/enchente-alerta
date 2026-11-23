@@ -43,6 +43,10 @@ dependencies:
   geolocator: ^14.0.0
   # Chamadas ao OpenRouteService (rotas e busca de endereços).
   http: ^1.2.0
+  # Pasta do aparelho onde o mapa fica guardado para uso sem internet.
+  path_provider: ^2.1.6
+  # Detecta a falta de internet para avisar na tela.
+  connectivity_plus: ^7.3.1
 
 dev_dependencies:
   flutter_test:

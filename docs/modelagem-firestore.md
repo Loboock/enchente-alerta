@@ -75,7 +75,7 @@ guias/{guiaId}
 
 Subcoleção `enderecos/{enderecoId}` — classe `Endereco`: `logradouro`, `bairro`, `cidade` (string), `localizacao` (geopoint), `padrao` (bool).
 
-Subcoleção `notificacoes/{notificacaoId}` — classe `Notificacao`: `mensagem` (string), `alertaId` (string), `enviadaEm` (timestamp), `lida` (bool).
+Subcoleção `notificacoes/{notificacaoId}` — classe `Notificacao`: `mensagem` (string), `alertaId` (string), `enviadaEm` (timestamp), `lida` (bool). O id do documento é o id do alerta, para não repetir. Sem Cloud Functions, quem grava é o app de quem recebe, quando o alerta vale para a região da pessoa (lib/services/notificacoes_service.dart).
 
 ### `ocorrencias/{ocorrenciaId}` — classe `Ocorrencia`
 
@@ -112,7 +112,7 @@ Subcoleção `denuncias/{denunciaId}` — classe `Denuncia`: `autorId` (string),
 | `descricao` | string | `String descricao` |
 | `nivel` | string (`LEVE` \| `MODERADO` \| `GRAVE`) | `Gravidade nivel` |
 | `origem` | string (`METEOROLOGICA` \| `COMUNIDADE`) | `OrigemAlerta origem` |
-| `areasRiscoIds` | array de string | relação `afeta` |
+| `areasRiscoIds` | array de string | relação `afeta`. Vazio = cidade toda; com áreas, o alerta só aparece para quem está no raio escolhido (endereço padrão ou posição) |
 | `ocorrenciasIds` | array de string | relação `pode originar` |
 | `guiasIds` | array de string | relação `recomenda` |
 | `emitidoEm` | timestamp | `DateTime emitidoEm` |

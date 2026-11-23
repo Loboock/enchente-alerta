@@ -77,10 +77,24 @@ abstract final class TextosAjuda {
 
   static const perfil =
       'Em "Meus dados" você vê o e-mail da conta, muda o nome e pede uma '
-      'senha nova. "Alertas de alagamento" liga ou desliga os alertas da '
-      'Defesa Civil no Início.\n\n'
+      'senha nova. "Notificações" guarda os alertas que chegaram para você.\n\n'
+      '"Alertas de alagamento" liga ou desliga os alertas no Início, e '
+      '"Raio dos alertas" e "Endereço padrão" definem a sua região.\n\n'
       'Seus avisos são anônimos: os outros moradores não veem quem enviou.\n\n'
       'Use "Sair" para desconectar deste aparelho.';
+
+  static const enderecos =
+      'Cadastre a sua casa (e outros lugares, se quiser) buscando a rua ou '
+      'usando a posição atual.\n\n'
+      'O endereço padrão é o ponto de partida do raio dos alertas: alertas '
+      'ligados a áreas de risco só aparecem se a área estiver perto dele. '
+      'Use o menu de cada endereço para trocar o padrão, editar ou excluir.';
+
+  static const notificacoes =
+      'Cada alerta da Defesa Civil que chegou para a sua região fica aqui. '
+      'Toque para ver o alerta e marcar como lido.\n\n'
+      'Notificação excluída não volta enquanto o alerta continuar ativo. '
+      'Para não receber mais, desligue "Alertas de alagamento" no Perfil.';
 
   static const meusDados =
       'Altere o seu nome e toque em "Salvar alterações".\n\n'
@@ -144,7 +158,9 @@ abstract final class TextosAjuda {
       '"Denúncias" mostra os avisos que os moradores marcaram como errados: '
       'resolva o aviso, mantenha-o ou exclua se for falso.\n\n'
       '"Alertas" emite os alertas que aparecem para todos no Início e na aba '
-      'Avisos. "Abrigos" cadastra os abrigos e atualiza as vagas.';
+      'Avisos. "Abrigos" cadastra os abrigos e atualiza as vagas.\n\n'
+      '"Áreas de risco", "Rotas de fuga" e "Guia de segurança" cadastram o '
+      'que os moradores veem no mapa e no Guia.';
 
   static const denuncias =
       'Cada cartão é um aviso denunciado, com os motivos dos moradores.\n\n'
@@ -176,6 +192,32 @@ abstract final class TextosAjuda {
       'capacidade).\n\n'
       'Para o local, busque o endereço e escolha uma sugestão, ou use a sua '
       'posição atual se estiver no abrigo.';
+
+  static const mapaOffline =
+      '"Salvar mapa da região" guarda no aparelho o mapa de cerca de 3 km '
+      'em volta de onde você está. Faça isso em casa, com Wi-Fi, antes da '
+      'chuva.\n\n'
+      'Sem internet, o app mostra a faixa "Sem internet" e usa o mapa, os '
+      'avisos, os abrigos e o histórico salvos. Criar aviso e calcular rota '
+      'nova precisam de conexão.';
+
+  static const areasRisco =
+      'Desenhe a área tocando no mapa em volta dela (pelo menos 3 pontos). '
+      'Use "Desfazer" para tirar o último ponto.\n\n'
+      'A área aparece no mapa de todos, as rotas calculadas desviam dela e '
+      'os alertas podem ser ligados a ela para avisar só quem mora perto.';
+
+  static const rotasFugaDefesaCivil =
+      'Rotas oficiais até os abrigos, traçadas pela Defesa Civil. Aparecem '
+      'em verde no mapa de todos (em cinza quando interditadas) e continuam '
+      'visíveis sem internet.\n\n'
+      'Escolha o abrigo e toque no mapa do ponto de partida até ele. '
+      'Distância e tempos são calculados sozinhos.';
+
+  static const guiaDefesaCivil =
+      'Orientações que os moradores veem na aba Guia, separadas por seção.\n\n'
+      'Enquanto nada for publicado, o app mostra o guia de exemplo. '
+      '"Publicar o guia de exemplo" copia esse guia para você ajustar.';
 
   static const guia =
       'O que fazer antes, durante e depois de uma enchente, e o que levar se '

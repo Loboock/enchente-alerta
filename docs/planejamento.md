@@ -23,17 +23,17 @@ Entregar um app Android em Flutter, com Firebase Authentication e Cloud Firestor
 | Mapa com os pontos de alagamento em tempo real | RF02, RF09 | Pronto |
 | Criar aviso de alagamento de forma anônima, confirmar ("Ainda está aí"), denunciar e excluir o próprio aviso | RF03, RNF07 | Pronto |
 | Rotas de fuga reais que desviam dos alagamentos confirmados, com navegação curva a curva | RF04 | Pronto |
-| Abrigos próximos, ordenados pela distância | RF05 | Pronto (dados de exemplo) |
-| Guia de segurança (antes, durante, evacuação e emergência) | RF06 | Pronto (dados de exemplo) |
+| Abrigos próximos, ordenados pela distância | RF05 | Pronto (lê do Firestore; exemplos enquanto não houver cadastro) |
+| Guia de segurança (antes, durante, evacuação e emergência) | RF06 | Pronto (lê do Firestore; guia de exemplo enquanto nada for publicado) |
 | Histórico de alagamentos | Funcionalidade 7 | Pronto (lê do Firestore) |
 | Entrar, cadastrar, recuperar senha e perfil | RNF06 | Pronto |
 | Regras de segurança do Firestore: perfis, anonimato e validação dos dados | RNF06, RNF07 | Pronto |
 | Modo noturno, alto contraste e textos maiores | RNF02, RNF03, RNF10 | Pronto |
-| Telas da Defesa Civil: alertas, abrigos e revisão de denúncias | RF01, CRUD de Alerta e Abrigo | Pronto em 22/11 (rotas cadastradas pela Defesa Civil: Sprint 3) |
-| Alertas dentro do app, por localização, com opção de desativar | RF01, RF08 | Faixa de alertas e opção de desativar prontas em 22/11; filtro por localização: Sprint 3 |
-| Histórico, abrigos e guia lendo do Firestore | RF09 | Sprints 2 e 3 |
-| Mapa da região guardado para uso sem internet e aviso de falta de conexão | RF07, RNF05 | Sprint 2 |
-| Perfil: Meus dados, Notificações e Endereço padrão | CRUD de Preferências | Sprint 2 |
+| Telas da Defesa Civil: alertas, abrigos e revisão de denúncias | RF01, CRUD de Alerta e Abrigo | Pronto em 22/11, incluindo áreas de risco, rotas de fuga e guia desenhados/cadastrados pela Defesa Civil |
+| Alertas dentro do app, por localização, com opção de desativar | RF01, RF08 | Pronto em 22/11: faixa de alertas, opção de desativar, raio e filtro pela região (áreas de risco do alerta) e Notificações |
+| Histórico, abrigos e guia lendo do Firestore | RF09 | Pronto em 22/11 |
+| Mapa da região guardado para uso sem internet e aviso de falta de conexão | RF07, RNF05 | Pronto em 22/11 |
+| Perfil: Meus dados, Notificações e Endereço padrão | CRUD de Preferências | Pronto em 22/11 |
 
 ### Fora do escopo (nesta entrega)
 
@@ -138,8 +138,8 @@ Resultado: as 13 telas do protótipo no app, com Firebase Auth e Firestore.
 | Perfil da Defesa Civil: emitir alertas, gerenciar abrigos, revisar denúncias e resolver avisos — feito em 22/11 | Vinicius |
 | Alertas no app por localização, com opção de desativar (RF01, RF08) | Vinicius |
 | Histórico lendo do Firestore (avisos resolvidos ou expirados) — feito em 22/11 | Vinicius |
-| Mapa da região em cache e aviso de falta de conexão (RF07, RNF05) | Pedro |
-| Perfil: Meus dados, Notificações e Endereço padrão | Christian |
+| Mapa da região em cache e aviso de falta de conexão (RF07, RNF05) — feito em 22/11 | Vinicius |
+| Perfil: Meus dados, Notificações e Endereço padrão — feito em 22/11 | Vinicius |
 | Revisão da documentação (fluxo de navegação feito em 17/11: [`fluxo-navegacao.md`](fluxo-navegacao.md)) | Todos |
 
 Meta: app completo e estável na `main` antes da apresentação de 24/11.
@@ -149,7 +149,7 @@ Meta: app completo e estável na `main` antes da apresentação de 24/11.
 | Tarefa | Responsável |
 |---|---|
 | Ajustes pedidos na apresentação de 24/11 | Todos |
-| Abrigos e guia lendo do Firestore (cadastrados pela Defesa Civil) | A definir |
+| ~~Abrigos e guia lendo do Firestore~~ (feito em 22/11) | Vinicius |
 | Testes finais no emulador e ensaio da arguição | Todos |
 
 Meta: versão final na `main` para a apresentação de 01/12.

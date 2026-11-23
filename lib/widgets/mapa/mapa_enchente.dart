@@ -8,7 +8,9 @@ import '../../config.dart';
 import '../../models/models.dart';
 import '../../models/perigo.dart';
 import '../../services/localizacao_service.dart';
+import '../../services/mapa_offline_service.dart';
 import '../../services/perigos_service.dart';
+import '../../services/rotas_fuga_service.dart';
 import '../../theme/app_theme.dart';
 import 'folha_perigo.dart';
 
@@ -31,6 +33,8 @@ class MapaEnchente extends StatelessWidget {
     this.aoFicarPronto,
     this.aoMexerNoMapa,
     this.mostrarPerigos = true,
+    this.mostrarRotasFuga = true,
+    this.aoTocar,
   });
 
   final MapController? controller;
@@ -43,6 +47,12 @@ class MapaEnchente extends StatelessWidget {
   /// Chamado quando a PESSOA arrasta/gira/dá zoom (não quando o app move).
   final VoidCallback? aoMexerNoMapa;
   final bool mostrarPerigos;
+
+  /// Rotas de fuga oficiais da Defesa Civil (linhas verdes).
+  final bool mostrarRotasFuga;
+
+  /// Toque num ponto do mapa (usado para desenhar áreas e rotas).
+  final void Function(LatLng ponto)? aoTocar;
 
   static const _gestosDoUsuario = {
     MapEventSource.dragStart,
@@ -76,6 +86,7 @@ class MapaEnchente extends StatelessWidget {
             : () => WidgetsBinding.instance.addPostFrameCallback(
                   (_) => aoFicarPronto!(),
                 ),
+        onTap: aoTocar == null ? null : (_, ponto) => aoTocar!(ponto),
         onMapEvent: aoMexerNoMapa == null
             ? null
             : (evento) {
@@ -86,6 +97,7 @@ class MapaEnchente extends StatelessWidget {
       ),
       children: [
         _camadaFundo(escuro),
+        if (mostrarRotasFuga) const _CamadaRotasFuga(),
         if (mostrarPerigos) ..._camadasPerigo(context),
         ...camadasExtras,
         const _CamadaUsuario(),
@@ -101,22 +113,17 @@ class MapaEnchente extends StatelessWidget {
   }
 
   Widget _camadaFundo(bool escuro) {
-    if (Config.temChaveCarto) {
-      // CARTO Voyager / Dark Matter: visual limpo, parecido com o Waze.
-      final estilo = escuro ? 'dark_all' : 'voyager';
-      return TileLayer(
-        urlTemplate: 'https://basemaps.cartocdn.com/rastertiles/$estilo/'
-            '{z}/{x}/{y}.png?key=${Config.cartoApiKey}',
-        userAgentPackageName: 'br.unit.enchentealerta.enchente_alerta',
-        // Sem internet o mapa só fica sem imagem, sem quebrar a tela.
-        errorTileCallback: (tile, error, stackTrace) {},
-      );
-    }
+    // CARTO Voyager / Dark Matter (visual limpo, parecido com o Waze) com
+    // CARTO_API_KEY; senão, OpenStreetMap. Os pedaços exibidos ficam
+    // guardados no aparelho para uso sem internet (MapaOfflineService).
+    final fonte = FonteMapa.atual(escuro);
     return TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      urlTemplate: fonte.modelo,
+      tileProvider: TileProviderComCache(fonte),
       userAgentPackageName: 'br.unit.enchentealerta.enchente_alerta',
       // No modo noturno, escurece o mapa do OpenStreetMap.
-      tileBuilder: escuro ? darkModeTileBuilder : null,
+      tileBuilder: escuro && !Config.temChaveCarto ? darkModeTileBuilder : null,
+      // Sem internet e sem o pedaço guardado, o mapa só fica sem imagem.
       errorTileCallback: (tile, error, stackTrace) {},
     );
   }
@@ -175,6 +182,36 @@ class MapaEnchente extends StatelessWidget {
         ),
       ),
     ];
+  }
+}
+
+/// Rotas de fuga traçadas pela Defesa Civil: verdes quando liberadas,
+/// cinza tracejado quando interditadas.
+class _CamadaRotasFuga extends StatelessWidget {
+  const _CamadaRotasFuga();
+
+  @override
+  Widget build(BuildContext context) {
+    final servico = RotasFugaService.instance..iniciar();
+    return ValueListenableBuilder<List<RotaFuga>>(
+      valueListenable: servico.rotas,
+      builder: (context, rotas, _) => PolylineLayer(
+        polylines: [
+          for (final r in rotas)
+            if (r.pontos.length >= 2)
+              Polyline(
+                points: r.pontos,
+                strokeWidth: 5,
+                color: r.interditada ? Colors.grey : AppColors.seguro,
+                borderStrokeWidth: 1.5,
+                borderColor: Colors.white,
+                pattern: r.interditada
+                    ? StrokePattern.dashed(segments: const [10, 8])
+                    : const StrokePattern.solid(),
+              ),
+        ],
+      ),
+    );
   }
 }
 

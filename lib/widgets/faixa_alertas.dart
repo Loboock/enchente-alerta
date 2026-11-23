@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
+import '../services/alertas_regiao.dart';
 import '../services/alertas_service.dart';
 import '../services/auth_service.dart';
+import '../services/enderecos_service.dart';
+import '../services/localizacao_service.dart';
+import '../services/notificacoes_service.dart';
+import '../services/perigos_service.dart';
 import '../utils/cores_gravidade.dart';
 import '../utils/formatacao.dart';
 
 /// Faixa com o alerta ativo mais grave da Defesa Civil (RF01). Tocar
 /// mostra todos os alertas ativos. Sem alerta ativo, não ocupa espaço.
 ///
-/// Com [respeitarPreferencia] (tela Início), some para quem desligou os
-/// alertas em Perfil > Notificações (RF08). Na aba Avisos aparece sempre.
+/// Só mostra os alertas da região de quem usa o app (endereço padrão ou
+/// posição, dentro do raio escolhido; ver alertas_regiao.dart). Com
+/// [respeitarPreferencia] (tela Início), some para quem desligou os
+/// alertas no Perfil (RF08). Na aba Avisos aparece sempre.
 class FaixaAlertas extends StatefulWidget {
   const FaixaAlertas({
     super.key,
@@ -32,20 +39,29 @@ class _FaixaAlertasState extends State<FaixaAlertas> {
   void initState() {
     super.initState();
     AlertasService.instance.iniciar();
+    EnderecosService.instance.iniciar();
+    // Grava em "Notificações" os alertas que chegam para a pessoa.
+    NotificacoesService.instance.iniciar();
   }
 
   @override
   Widget build(BuildContext context) {
     final servico = AlertasService.instance;
     return ListenableBuilder(
-      listenable: Listenable.merge([servico.alertas, AuthService.instance]),
+      listenable: Listenable.merge([
+        servico.alertas,
+        AuthService.instance,
+        EnderecosService.instance.enderecos,
+        LocalizacaoService.instance.posicao,
+        PerigosService.instance.perigos,
+      ]),
       builder: (context, _) {
         if (widget.respeitarPreferencia &&
             AuthService.instance.user != null &&
             !AuthService.instance.notificacoesAtivas) {
           return const SizedBox.shrink();
         }
-        final ativos = servico.ativos();
+        final ativos = alertasParaMim();
         if (ativos.isEmpty) return const SizedBox.shrink();
         return Padding(
           padding: widget.margem,

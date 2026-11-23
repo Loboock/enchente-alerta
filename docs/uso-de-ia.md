@@ -244,6 +244,20 @@ A tela de histórico não está vinculada com o banco. Eu preciso que o históri
 
 Resultado: `HistoricoService` com a consulta `ocorrencias` ordenada por `criadaEm` (índice automático, sem índice composto) e selo de situação em cada aviso. Validado com `flutter analyze`, `flutter test` (2 testes novos) e no emulador com os avisos reais do banco.
 
+### Prompt 18 — Pendências finais: offline, preferências e cadastros da Defesa Civil — Vinicius Reis
+
+Funcionou bem porque antes a IA comparou a documentação com o código e listou o que faltava; o grupo aprovou a lista inteira de uma vez.
+
+```text
+Vamos fazer todas as coisas pendentes [...] Como você faria tudo isso?
+```
+
+Resultado (mapa offline): cache próprio dos pedaços do mapa em arquivos, em vez do pacote flutter_map_tile_caching (licença GPL e banco nativo), e faixa "Sem internet". Validado com testes e no emulador com Wi-Fi e dados desligados, inclusive fechando e abrindo o app.
+
+Resultado (preferências): endereços, raio dos alertas, alertas ligados a áreas de risco e notificações, usando as subcoleções e regras que já estavam na modelagem. Validado com testes (filtro por região, formulário, lista e notificações) e no emulador cadastrando um endereço e mudando o raio.
+
+Resultado (cadastros da Defesa Civil): áreas de risco e rotas de fuga desenhadas tocando no mapa e guia lendo do Firestore. Validado com testes de widget (desenho, validação e salvar). O teste no emulador depende da conta com perfil DEFESA_CIVIL e da publicação das regras.
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |
@@ -284,7 +298,7 @@ A stack Dart + Flutter + Firebase (Autenticação e Banco de Dados) é obrigató
 | `firebase_auth` | Criar conta, login, logout e recuperar senha. | Exigência da disciplina; já trata envio de e-mail de recuperação de senha. |
 | `cloud_firestore` | Ocorrências, alertas, abrigos, rotas, usuários e denúncias. | Exigência da disciplina; atualiza o mapa em tempo real (RF09) e mantém cache local quando a conexão cai. |
 | `flutter_map` + `latlong2` | Exibir o mapa, pontos de alagamento, abrigos e rotas. | Usa mapas do OpenStreetMap, sem chave de API paga, e permite guardar a região em cache. O Google Maps não permite que apps de terceiros baixem o mapa para uso offline. |
-| `flutter_map_tile_caching` | Baixar a região do mapa para uso sem internet (RF07, RNF05). | Integra com o `flutter_map` e faz o download da região escolhida. |
+| `path_provider` | Pasta do aparelho onde o mapa fica guardado para uso sem internet (RF07, RNF05). | Pacote oficial do Flutter. O cache do mapa é feito pelo próprio app, em arquivos: o `flutter_map_tile_caching`, previsto no início, tem licença GPL e usa um banco nativo (ObjectBox). |
 | `geolocator` | Obter a localização do usuário (abrigos próximos, informar localização). | Pacote mais usado para GPS no Flutter, com tratamento de permissão. |
 | `http` | Chamar o OpenRouteService (rotas e busca de endereços). | Pacote oficial do Dart para requisições HTTP; tem `MockClient` para testar sem internet. |
 | OpenRouteService (serviço) | Calcular rotas que desviam das áreas alagadas (`avoid_polygons`). | Gratuito (2.000 rotas/dia) e aceita áreas a evitar. O Google Maps só evita pedágio/rodovia e é pago após a cota. |

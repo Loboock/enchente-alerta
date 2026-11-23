@@ -34,6 +34,10 @@ class PerigosService {
 
   var _ocorrencias = <Ocorrencia>[];
   var _areas = <AreaRisco>[];
+
+  /// Áreas de risco cadastradas pela Defesa Civil (para o filtro dos
+  /// alertas por região e para a tela de áreas).
+  List<AreaRisco> get areas => List.unmodifiable(_areas);
   final _assinaturas = <StreamSubscription<Object?>>[];
   Timer? _relogio;
   bool _iniciado = false;
