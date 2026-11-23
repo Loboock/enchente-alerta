@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/models.dart';
 import '../../models/perigo.dart';
 import '../../services/perigos_service.dart';
 import '../../theme/app_theme.dart';
@@ -7,7 +8,8 @@ import '../../utils/exigir_login.dart';
 import 'mapa_enchente.dart';
 
 /// Detalhes de um alagamento tocado no mapa. Nos avisos da comunidade tem
-/// os botões do Waze: "Ainda está aí" e "Não está mais".
+/// os botões para a situação do local: "Ainda alagado" / "Água baixou" (ou
+/// "Ainda bloqueada" / "Via liberada", se for via obstruída).
 Future<void> mostrarDetalhesPerigo(BuildContext context, Perigo perigo) {
   return showModalBottomSheet<void>(
     context: context,
@@ -73,13 +75,19 @@ class _FolhaPerigoState extends State<_FolhaPerigo> {
     if (!p.daComunidade) {
       situacao = 'Área oficial: as rotas sempre desviam dela.';
     } else if (p.bloqueia) {
-      situacao = 'Confirmado por ${ocorrencia!.confirmacoes} pessoas: '
-          'as rotas desviam deste ponto.';
+      final n = ocorrencia!.confirmacoes;
+      situacao = n <= 1
+          ? 'Avisado por um morador: as rotas desviam deste ponto.'
+          : 'Confirmado por $n pessoas: as rotas desviam deste ponto.';
     } else {
       final faltam = p.faltamConfirmacoes;
       situacao = 'Aguardando confirmação: falta${faltam == 1 ? '' : 'm'} '
           '$faltam para as rotas desviarem.';
     }
+
+    final alagamento = ocorrencia?.tipo != TipoOcorrencia.viaObstruida;
+    final textoNega = alagamento ? 'Água baixou' : 'Via liberada';
+    final textoConfirma = alagamento ? 'Ainda alagado' : 'Ainda bloqueada';
 
     return SafeArea(
       child: Padding(
@@ -144,14 +152,14 @@ class _FolhaPerigoState extends State<_FolhaPerigo> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => _responder(aindaEsta: false),
-                        child: const Text('Não está mais'),
+                        child: Text(textoNega),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () => _responder(aindaEsta: true),
-                        child: const Text('Ainda está aí'),
+                        child: Text(textoConfirma),
                       ),
                     ),
                   ],

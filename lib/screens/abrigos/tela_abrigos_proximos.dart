@@ -3,9 +3,12 @@ import 'package:latlong2/latlong.dart';
 
 import '../../data/dados_provisorios.dart';
 import '../../models/destino.dart';
+import '../../models/models.dart';
+import '../../services/abrigos_service.dart';
 import '../../services/localizacao_service.dart';
 import '../../utils/formatacao.dart';
 import '../../utils/situacao_abrigo.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/cartao_local.dart';
 import '../../widgets/scaffold_com_abas.dart';
@@ -19,23 +22,29 @@ class TelaAbrigosProximos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizacao = LocalizacaoService.instance..iniciar();
+    final abrigos = AbrigosService.instance..iniciar();
 
     return ScaffoldComAbas(
       appBar: const AppBarTela(
         titulo: 'Abrigos próximos',
         subtitulo: 'Ordenado por distância',
+        ajuda: TextosAjuda.abrigos,
       ),
-      // Reordena quando o GPS atualiza.
-      body: ValueListenableBuilder<PosicaoUsuario?>(
-        valueListenable: localizacao.posicao,
-        builder: (context, posicao, _) =>
-            _lista(context, posicao?.ponto ?? usuarioProvisorio),
+      // Reordena quando o GPS atualiza; atualiza quando a Defesa Civil
+      // muda um abrigo ou as vagas.
+      body: ValueListenableBuilder<List<Abrigo>>(
+        valueListenable: abrigos.cadastrados,
+        builder: (context, _, _) => ValueListenableBuilder<PosicaoUsuario?>(
+          valueListenable: localizacao.posicao,
+          builder: (context, posicao, _) =>
+              _lista(context, posicao?.ponto ?? usuarioProvisorio),
+        ),
       ),
     );
   }
 
   Widget _lista(BuildContext context, LatLng origem) {
-    final lista = abrigosPorDistancia(de: origem);
+    final lista = AbrigosService.instance.porDistancia(origem);
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       itemCount: lista.length,

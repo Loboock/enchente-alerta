@@ -6,6 +6,7 @@ import '../../services/localizacao_service.dart';
 import '../../services/perigos_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_bar_tela.dart';
+import '../../widgets/faixa_alertas.dart';
 import '../../widgets/mapa/botao_mapa.dart';
 import '../../widgets/mapa/folha_reportar.dart';
 import '../../widgets/mapa/mapa_enchente.dart';
@@ -103,6 +104,10 @@ class _MapaInicioState extends State<_MapaInicio> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const FaixaAlertas(
+                respeitarPreferencia: true,
+                margem: EdgeInsets.only(bottom: 10),
+              ),
               const _AtalhosLocais(),
               ValueListenableBuilder<PosicaoUsuario?>(
                 valueListenable: _localizacao.posicao,

@@ -21,7 +21,7 @@ class PerigoException implements Exception {
 /// Alagamentos em tempo real: avisos da comunidade (`ocorrencias`) e áreas
 /// da Defesa Civil (`areasRisco`), juntos em [perigos].
 ///
-/// Também é por aqui que o usuário reporta, confirma ("ainda está aí") ou
+/// Também é por aqui que o usuário reporta, confirma ("ainda alagado") ou
 /// nega ("não está mais aqui") um aviso, como no Waze.
 class PerigosService {
   PerigosService();
@@ -34,6 +34,10 @@ class PerigosService {
 
   var _ocorrencias = <Ocorrencia>[];
   var _areas = <AreaRisco>[];
+
+  /// Áreas de risco cadastradas pela Defesa Civil (para o filtro dos
+  /// alertas por região e para a tela de áreas).
+  List<AreaRisco> get areas => List.unmodifiable(_areas);
   final _assinaturas = <StreamSubscription<Object?>>[];
   Timer? _relogio;
   bool _iniciado = false;
@@ -123,7 +127,7 @@ class PerigosService {
   }
 
   /// Cria um aviso no local [local]. Quem reporta já conta como a primeira
-  /// confirmação; a rota só desvia depois que mais alguém confirmar.
+  /// confirmação (com Config.confirmacoesParaBloquear = 1 a rota já desvia).
   Future<void> reportar({
     required TipoOcorrencia tipo,
     required Gravidade gravidade,
@@ -162,7 +166,7 @@ class PerigosService {
     await _executar(lote.commit);
   }
 
-  /// "Ainda está aí": soma uma confirmação (uma por pessoa) e renova o
+  /// "Ainda alagado" / "Ainda bloqueada": soma uma confirmação (uma por pessoa) e renova o
   /// prazo do aviso.
   Future<void> confirmar(Ocorrencia ocorrencia) async {
     final uid = _uidObrigatorio();
@@ -196,7 +200,7 @@ class PerigosService {
     );
   }
 
-  /// "Não está mais aqui": vira uma denúncia para a Defesa Civil revisar.
+  /// "Água baixou" / "Via liberada": vira uma denúncia para a Defesa Civil revisar.
   Future<void> negar(Ocorrencia ocorrencia) =>
       denunciar(ocorrencia, motivo: MotivoDenuncia.aguaBaixou);
 

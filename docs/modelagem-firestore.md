@@ -75,7 +75,7 @@ guias/{guiaId}
 
 Subcoleção `enderecos/{enderecoId}` — classe `Endereco`: `logradouro`, `bairro`, `cidade` (string), `localizacao` (geopoint), `padrao` (bool).
 
-Subcoleção `notificacoes/{notificacaoId}` — classe `Notificacao`: `mensagem` (string), `alertaId` (string), `enviadaEm` (timestamp), `lida` (bool).
+Subcoleção `notificacoes/{notificacaoId}` — classe `Notificacao`: `mensagem` (string), `alertaId` (string), `enviadaEm` (timestamp), `lida` (bool). O id do documento é o id do alerta, para não repetir. Sem Cloud Functions, quem grava é o app de quem recebe, quando o alerta vale para a região da pessoa (lib/services/notificacoes_service.dart).
 
 ### `ocorrencias/{ocorrenciaId}` — classe `Ocorrencia`
 
@@ -94,7 +94,7 @@ Subcoleção `notificacoes/{notificacaoId}` — classe `Notificacao`: `mensagem`
 | `expiraEm` | timestamp | `DateTime expiraEm` |
 | `confirmacoes` | number (começa em 1, o autor) | `int confirmacoes` |
 
-Subcoleção `confirmacoes/{uid}` — marca quem já confirmou o aviso ("Ainda está aí"), para cada pessoa contar uma vez: `criadaEm` (timestamp). As rotas de fuga só desviam de um aviso com 2 ou mais confirmações (`Config.confirmacoesParaBloquear`). Documentos antigos sem o campo contam como 1.
+Subcoleção `confirmacoes/{uid}` — marca quem já confirmou o aviso ("Ainda alagado" / "Ainda bloqueada"), para cada pessoa contar uma vez: `criadaEm` (timestamp). As rotas de fuga desviam de um aviso a partir de 1 confirmação, a do autor (`Config.confirmacoesParaBloquear`). Documentos antigos sem o campo contam como 1.
 
 Subcoleção `denuncias/{denunciaId}` — classe `Denuncia`: `autorId` (string), `motivo` (string: `INFORMACAO_INCORRETA` \| `AGUA_BAIXOU` \| `LOCALIZACAO_ERRADA` \| `SPAM_OU_ABUSO`), `detalhes` (string), `criadaEm` (timestamp).
 
@@ -112,7 +112,7 @@ Subcoleção `denuncias/{denunciaId}` — classe `Denuncia`: `autorId` (string),
 | `descricao` | string | `String descricao` |
 | `nivel` | string (`LEVE` \| `MODERADO` \| `GRAVE`) | `Gravidade nivel` |
 | `origem` | string (`METEOROLOGICA` \| `COMUNIDADE`) | `OrigemAlerta origem` |
-| `areasRiscoIds` | array de string | relação `afeta` |
+| `areasRiscoIds` | array de string | relação `afeta`. Vazio = cidade toda; com áreas, o alerta só aparece para quem está no raio escolhido (endereço padrão ou posição) |
 | `ocorrenciasIds` | array de string | relação `pode originar` |
 | `guiasIds` | array de string | relação `recomenda` |
 | `emitidoEm` | timestamp | `DateTime emitidoEm` |
@@ -279,7 +279,7 @@ As regras estão em [`firestore.rules`](../firestore.rules), na raiz do reposit�
 | `usuarios/{uid}/notificacoes` | o dono | o dono | o dono, só o campo `lida` | o dono |
 | `ocorrencias` | qualquer pessoa, inclusive Visitante | usuário logado, junto com o autor (ver abaixo) | Defesa Civil; usuário logado só para somar 1 confirmação | autor e Defesa Civil |
 | `ocorrencias/{id}/confirmacoes/{uid}` | o próprio usuário | o próprio usuário, junto com o aviso novo ou com a soma de 1 | ninguém | Defesa Civil |
-| `ocorrencias/{id}/denuncias/{uid}` | Defesa Civil | usuário logado, com o próprio uid como id do documento (uma denúncia por pessoa) | Defesa Civil | Defesa Civil |
+| `ocorrencias/{id}/denuncias/{uid}` | Defesa Civil (também todas de uma vez, por `collectionGroup`) | usuário logado, com o próprio uid como id do documento (uma denúncia por pessoa) | Defesa Civil | Defesa Civil |
 | `autoresOcorrencias` | o próprio autor e Defesa Civil | usuário logado, com o próprio uid, na mesma gravação da ocorrência | ninguém | autor e Defesa Civil |
 | `abrigos`, `rotasFuga`, `alertas`, `areasRisco`, `guias` | qualquer pessoa | Defesa Civil | Defesa Civil | Defesa Civil |
 | qualquer outra coleção | ninguém | ninguém | ninguém | ninguém |
@@ -289,7 +289,9 @@ As regras estão em [`firestore.rules`](../firestore.rules), na raiz do reposit�
 - **Perfil:** a regra lê o campo `perfil` do documento `usuarios/{uid}` de quem está logado. Ninguém consegue virar `DEFESA_CIVIL` pelo app: a conta nova precisa ser `MORADOR` e o `perfil` não pode ser alterado. A Defesa Civil é definida manualmente no console do Firebase.
 - **Ocorrência com autor anônimo (RNF07):** o app grava `ocorrencias/{id}` e `autoresOcorrencias/{id}` na mesma gravação (`WriteBatch`). Com `getAfter`, a regra só aceita a ocorrência se, no fim da gravação, o autor dela for quem está logado. Assim toda ocorrência tem dono, ninguém se registra como autor de uma ocorrência que já existe e o autor nunca aparece no documento público.
 - **Validação dos dados:** cada documento só aceita os campos da modelagem (`keys().hasOnly`) e confere tipos e valores: enumerações só com os códigos válidos, textos com tamanho máximo, `nivelAguaCm` inteiro de 0 a 500, `expiraEm` depois de `criadaEm`, vagas do abrigo entre 0 e a capacidade e, na ocorrência nova, `status` igual a `ATIVA` e `confirmacoes` igual a 1.
-- **Confirmações ("Ainda está aí"):** qualquer conta pode alterar um aviso ativo, mas só os campos `confirmacoes` e `expiraEm`: soma exatamente 1 e renova o prazo para no máximo 5 horas a partir de agora. Na mesma gravação, o app cria `confirmacoes/{uid}`; a regra só aceita a soma se essa marca ainda não existia (`!exists`) e passa a existir (`existsAfter`). Assim cada pessoa confirma uma vez só, e o autor já conta como a primeira confirmação.
+- **Painel da Defesa Civil:** a lista de denúncias de todos os avisos usa `collectionGroup('denuncias')`. Para isso há a regra `match /{caminho=**}/denuncias/{denunciaId}`, que libera essa leitura só para a Defesa Civil. Resolver um aviso é uma gravação só (`WriteBatch`): `status` vira `RESOLVIDA` e as denúncias dele são apagadas; excluir um aviso falso apaga a ocorrência, o autor e as denúncias juntos.
+- **Alertas e abrigos:** o alerta só aceita os campos da modelagem (descrição opcional de até 1000 caracteres e listas de ids); o abrigo só aceita `atualizadoPor` igual ao uid de quem grava.
+- **Confirmações ("Ainda alagado" / "Ainda bloqueada"):** qualquer conta pode alterar um aviso ativo, mas só os campos `confirmacoes` e `expiraEm`: soma exatamente 1 e renova o prazo para no máximo 5 horas a partir de agora. Na mesma gravação, o app cria `confirmacoes/{uid}`; a regra só aceita a soma se essa marca ainda não existia (`!exists`) e passa a existir (`existsAfter`). Assim cada pessoa confirma uma vez só, e o autor já conta como a primeira confirmação.
 
 **Exemplo de gravação de ocorrência no app:**
 

@@ -7,9 +7,10 @@ Como funciona e o que configurar para rodar a parte de mapa estilo Waze.
 1. O app junta duas fontes de perigo em tempo real (`PerigosService`):
    - **Áreas da Defesa Civil** (`areasRisco`, polígonos): sempre bloqueiam.
    - **Avisos de moradores** (`ocorrencias`, ponto + raio de 40/60/90 m
-     conforme a gravidade): só bloqueiam depois de **2 confirmações**
-     (quem reportou + mais uma pessoa). Antes disso aparecem em laranja no
-     mapa e a tela de rota avisa "sem confirmação no caminho".
+     conforme a gravidade): bloqueiam já com **1 confirmação** (a de
+     quem reportou), definido em `Config.confirmacoesParaBloquear`. Se esse
+     número subir, o aviso aparece em laranja até ser confirmado e a tela de
+     rota avisa "sem confirmação no caminho".
 2. Ao calcular a rota (`RotasService`), os perigos que bloqueiam vão para o
    OpenRouteService em `options.avoid_polygons`, e o próprio serviço acha um
    caminho por fora deles.
@@ -82,7 +83,7 @@ play numa rota.
 |---|---|
 | `ocorrencias/{id}.confirmacoes` | número; começa em 1 (o autor) |
 | `ocorrencias/{id}/confirmacoes/{uid}` | marca quem confirmou (1 por pessoa) |
-| `ocorrencias/{id}/denuncias/{id}` | "Não está mais aqui" (motivo `AGUA_BAIXOU`) |
+| `ocorrencias/{id}/denuncias/{id}` | "Água baixou" / "Via liberada" (motivo `AGUA_BAIXOU`) |
 | `autoresOcorrencias/{id}` | `{ autorId }`, separado para manter o anonimato |
 
 Documentos antigos sem `confirmacoes` contam como 1.

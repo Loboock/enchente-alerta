@@ -12,6 +12,7 @@ import {
   GeoPoint,
   Timestamp,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
@@ -351,6 +352,66 @@ describe('Dados da Defesa Civil', () => {
     const guia = { titulo: 'Kit de emergência', conteudo: '...', fase: 'ANTES', ordem: 1 };
     await assertFails(setDoc(doc(ana(), 'guias/g1'), guia));
     await assertSucceeds(setDoc(doc(defesa(), 'guias/g1'), guia));
+  });
+
+  test('alerta só com os campos da modelagem e título de até 120 letras', async () => {
+    const alerta = {
+      titulo: 'Chuva forte', nivel: 'GRAVE', origem: 'METEOROLOGICA',
+      emitidoEm: agora, expiraEm: daqui6h,
+    };
+    // Descrição e listas são opcionais.
+    await assertSucceeds(setDoc(doc(defesa(), 'alertas/al1'), alerta));
+    await assertFails(setDoc(doc(defesa(), 'alertas/al2'), { ...alerta, extra: 1 }));
+    await assertFails(setDoc(doc(defesa(), 'alertas/al2'), { ...alerta, titulo: 'x'.repeat(121) }));
+    await assertFails(setDoc(doc(defesa(), 'alertas/al2'), { ...alerta, descricao: 'x'.repeat(1001) }));
+    await assertFails(setDoc(doc(defesa(), 'alertas/al2'), { ...alerta, guiasIds: 'g1' }));
+    await assertFails(setDoc(doc(defesa(), 'alertas/al2'), { ...alerta, expiraEm: agora }));
+    // Encerrar antes do prazo: muda só o expiraEm.
+    await assertSucceeds(updateDoc(doc(defesa(), 'alertas/al1'),
+      { expiraEm: Timestamp.fromMillis(agora.toMillis() + 1000) }));
+  });
+
+  test('abrigo registra quem alterou, e só com o próprio uid', async () => {
+    await assertSucceeds(setDoc(doc(defesa(), 'abrigos/a1'),
+      { ...abrigo(), atualizadoPor: 'dc', atualizadoEm: agora }));
+    await assertFails(setDoc(doc(defesa(), 'abrigos/a1'),
+      { ...abrigo(), atualizadoPor: 'ana', atualizadoEm: agora }));
+  });
+
+  test('só a Defesa Civil lista as denúncias de todos os avisos', async () => {
+    await anaRegistra();
+    await setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia'),
+      { autorId: 'bia', motivo: 'AGUA_BAIXOU', criadaEm: agora });
+    const lista = await assertSucceeds(getDocs(collectionGroup(defesa(), 'denuncias')));
+    assert.equal(lista.size, 1);
+    await assertFails(getDocs(collectionGroup(bia(), 'denuncias')));
+    await assertFails(getDocs(collectionGroup(visitante(), 'denuncias')));
+  });
+
+  test('Defesa Civil resolve o aviso e arquiva as denúncias na mesma gravação', async () => {
+    await anaRegistra();
+    await setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia'),
+      { autorId: 'bia', motivo: 'AGUA_BAIXOU', criadaEm: agora });
+    const db = defesa();
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'ocorrencias/oc1'), { status: 'RESOLVIDA' });
+    batch.delete(doc(db, 'ocorrencias/oc1/denuncias/bia'));
+    await assertSucceeds(batch.commit());
+    // Morador não arquiva denúncia nem resolve aviso.
+    await anaRegistra('oc2');
+    await assertFails(updateDoc(doc(bia(), 'ocorrencias/oc2'), { status: 'RESOLVIDA' }));
+  });
+
+  test('Defesa Civil exclui aviso falso com o autor e as denúncias', async () => {
+    await anaRegistra();
+    await setDoc(doc(bia(), 'ocorrencias/oc1/denuncias/bia'),
+      { autorId: 'bia', motivo: 'SPAM_OU_ABUSO', criadaEm: agora });
+    const db = defesa();
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'ocorrencias/oc1'));
+    batch.delete(doc(db, 'autoresOcorrencias/oc1'));
+    batch.delete(doc(db, 'ocorrencias/oc1/denuncias/bia'));
+    await assertSucceeds(batch.commit());
   });
 
   test('coleção que não está nas regras fica bloqueada', async () => {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../navegacao.dart';
+import '../services/auth_service.dart';
 import '../widgets/barra_navegacao_inferior.dart';
 import 'avisos/tela_avisos.dart';
 import 'conta/tela_perfil.dart';
@@ -25,14 +26,15 @@ class TelaPrincipal extends StatelessWidget {
   Widget build(BuildContext context) {
     // A aba escolhida fica em `abaAtual` para que as telas abertas por cima
     // (abrigos, rota) também consigam trocar de aba.
-    return ValueListenableBuilder<int>(
-      valueListenable: abaAtual,
-      builder: (context, indice, _) => Scaffold(
+    // Também redesenha quando a conta muda (a Defesa Civil vê "Painel").
+    return ListenableBuilder(
+      listenable: Listenable.merge([abaAtual, AuthService.instance]),
+      builder: (context, _) => Scaffold(
         // IndexedStack mantém o mapa vivo ao trocar de aba (não recarrega).
-        body: IndexedStack(index: indice, children: _telas),
+        body: IndexedStack(index: abaAtual.value, children: _telas),
         bottomNavigationBar: BarraNavegacaoInferior(
           itens: itensNavegacao,
-          indiceAtual: indice,
+          indiceAtual: abaAtual.value,
           aoSelecionar: (i) => abaAtual.value = i,
         ),
       ),

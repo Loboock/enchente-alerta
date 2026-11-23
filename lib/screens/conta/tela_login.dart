@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/ajuda.dart';
 import '../../widgets/widgets_conta.dart';
 import 'tela_registro.dart';
 import 'tela_reset_senha.dart';
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: barraConta(context, 'Entrar'),
+      appBar: barraConta(context, 'Entrar', ajuda: TextosAjuda.login),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(

@@ -4,8 +4,9 @@ import '../models/models.dart';
 
 export '../utils/geo.dart' show metrosEntre;
 
-// DADOS PROVISÓRIOS: abrigos de exemplo. Depois serão
-// trocados pela coleção `abrigos` do Firestore. A posição do usuário e as
+// DADOS PROVISÓRIOS: abrigos de exemplo, mostrados enquanto a Defesa Civil
+// não cadastrar abrigos na coleção `abrigos` (AbrigosService). A posição
+// do usuário e as
 // rotas já são reais (LocalizacaoService e RotasService).
 
 /// Posição de teste (Farolândia, Aracaju): usada quando não há GPS.
@@ -17,7 +18,7 @@ final _calculo = Distance();
 LatLng _aPartirDoUsuario(double metros, double rumo) =>
     _calculo.offset(usuarioProvisorio, metros, rumo);
 
-final abrigos = <Abrigo>[
+final abrigosDeExemplo = <Abrigo>[
   Abrigo(
     id: 'ab1',
     nome: 'Esc. Gonçalo Rollemberg Leite',
@@ -59,50 +60,6 @@ final abrigos = <Abrigo>[
     vagasDisponiveis: 60,
   ),
 ];
-
-/// Abrigos ativos, do mais perto para o mais longe de [de] (por padrão,
-/// a posição de teste).
-List<Abrigo> abrigosPorDistancia({LatLng de = usuarioProvisorio}) {
-  final lista = abrigos.where((abrigo) => abrigo.ativo).toList();
-  lista.sort((a, b) => a.distanciaAte(de).compareTo(b.distanciaAte(de)));
-  return lista;
-}
-
-/// Alagamentos já encerrados, como no protótipo (tela "06 Histórico").
-/// Depois virá da consulta das ocorrências resolvidas ou expiradas.
-final historicoProvisorio = <Ocorrencia>[
-  _ocorrenciaEncerrada('h1', 'Av. Ivo do Prado, Centro', Gravidade.grave, 80,
-      DateTime(2026, 9, 18)),
-  _ocorrenciaEncerrada('h2', 'Rua Laranjeiras, Siqueira Campos',
-      Gravidade.moderado, 35, DateTime(2026, 7, 11)),
-  _ocorrenciaEncerrada('h3', 'Av. Beira Mar, Atalaia', Gravidade.grave, 65,
-      DateTime(2026, 4, 10)),
-  _ocorrenciaEncerrada('h4', 'Rua José do Prado Franco, Salgado Filho',
-      Gravidade.moderado, 28, DateTime(2026, 1, 21)),
-  _ocorrenciaEncerrada('h5', 'Av. Tancredo Neves, Ponto Novo', Gravidade.leve,
-      12, DateTime(2025, 3, 30)),
-  _ocorrenciaEncerrada('h6', 'Rua Dep. Silvério Leite Fontes, Coroa do Meio',
-      Gravidade.grave, 90, DateTime(2024, 7, 31)),
-];
-
-Ocorrencia _ocorrenciaEncerrada(
-  String id,
-  String endereco,
-  Gravidade gravidade,
-  int nivelAguaCm,
-  DateTime data,
-) =>
-    Ocorrencia(
-      id: id,
-      tipo: TipoOcorrencia.alagamento,
-      gravidade: gravidade,
-      status: StatusOcorrencia.resolvida,
-      endereco: endereco,
-      localizacao: usuarioProvisorio,
-      nivelAguaCm: nivelAguaCm,
-      criadaEm: data,
-      expiraEm: data.add(const Duration(hours: 6)),
-    );
 
 /// Orientações do Guia de segurança, como no protótipo (tela "08").
 /// Depois virão da coleção `guias` do Firestore.

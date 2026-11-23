@@ -191,7 +191,8 @@ class AuthService extends ChangeNotifier {
 
   /// Altera o nome (na conta e no Firestore) e a preferência de notificação
   /// (só no Firestore).
-  Future<void> updateProfile({String? nome, bool? notificacoes}) async {
+  Future<void> updateProfile(
+      {String? nome, bool? notificacoes, double? raioKm}) async {
     final auth = _exigirAuth();
     final u = auth.currentUser;
     if (u == null) return;
@@ -202,11 +203,12 @@ class AuthService extends ChangeNotifier {
         _user = auth.currentUser;
         notifyListeners();
       }
-      final preferencia = notificacoes == null
+      final atualPref = _usuario?.preferenciaNotificacao;
+      final preferencia = notificacoes == null && raioKm == null
           ? null
           : PreferenciaNotificacao(
-              ativa: notificacoes,
-              raioKm: _usuario?.preferenciaNotificacao?.raioKm ?? 2,
+              ativa: notificacoes ?? atualPref?.ativa ?? true,
+              raioKm: raioKm ?? atualPref?.raioKm ?? 2,
             );
       final dados = <String, dynamic>{
         'nome': ?nome,

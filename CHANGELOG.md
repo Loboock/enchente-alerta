@@ -199,3 +199,50 @@
 ### Corrigido
 - Mapa: o ponto azul do usuário ficava por cima do aviso reportado no mesmo lugar e bloqueava o toque, então não dava para abrir o aviso ("Ainda está aí" / "Não está mais"). Agora o ponto deixa o toque passar (IgnorePointer em lib/widgets/mapa/mapa_enchente.dart). Encontrado no teste no emulador.
 - Cadastro: o documento usuarios/{uid} era gravado duas vezes ao mesmo tempo (pelo cadastro e pelo login automático); a segunda gravação era recusada pelas regras (PERMISSION_DENIED no log). Agora é criado numa transação, só se ainda não existir (lib/services/auth_service.dart). Testado no emulador criando uma conta nova.
+
+# [18/11/2026]
+
+### Adicionado
+- Ponto de partida na Rota de fuga, no estilo do Uber (lib/screens/rota/tela_escolher_destino.dart): campo Partida em cima do Destino. Com a localização ativa, a partida já vem como "Sua localização" e pode ser trocada por outro endereço (o botão de mira volta para o GPS). Sem permissão de localização, a partida fica vazia e é pedida antes de calcular, então a rota funciona sem aceitar o GPS. Com a partida trocada, a tela da rota mostra a partida no mapa.
+- Botão "Cancelar" na tela da rota (lib/screens/rota/tela_rota_fuga.dart), embaixo de "Iniciar navegação" e também enquanto a rota é calculada ou quando dá erro: volta para a escolha de partida e destino, com os campos ainda preenchidos.
+- Navegação passo a passo (lib/screens/rota/tela_navegacao.dart): sem GPS ou saindo de uma partida escolhida, "Iniciar navegação" continua disponível e mostra uma manobra por vez, com o mapa nela e os botões "Anterior" e "Próxima" ("Sem GPS: passo 2 de 7"). Funciona sem conta e sem permissão de localização. Com GPS na própria posição, a navegação continua acompanhando o GPS.
+- Ajuda própria de cada tela (lib/widgets/ajuda.dart, `TextosAjuda`): Entrar, Cadastrar, Recuperar senha, Perfil, Abrigos próximos, Escolher destino, Rota de fuga, Avisos, Criar aviso, Reportar aviso, Histórico e Guia. O "i" mostra o texto da tela com o atalho "Ver ajuda completa" para a tela Ajuda; no Início ele abre direto a tela Ajuda.
+- Testes de widget: partida preenchida com o GPS e trocada por endereço, rota sem GPS pedindo a partida, navegação passo a passo até a chegada e ajuda própria da aba Guia levando à Ajuda completa (test/widget_test.dart).
+
+### Alterado
+- Basta 1 aviso para a rota desviar: `Config.confirmacoesParaBloquear` passou de 2 para 1 (lib/config.dart). Textos de reportar e dos detalhes do aviso ajustados; testes de rotas atualizados (test/rotas_test.dart). As regras do Firestore não mudam. docs/rotas-e-mapa.md e docs/modelagem-firestore.md atualizados.
+- Botão de ajuda com o ícone "i" (info) no lugar do "?", em todas as telas (lib/widgets/app_bar_tela.dart e lib/widgets/widgets_conta.dart).
+- docs/fluxo-navegacao.md: botão "i" com a ajuda da tela e atalho para a Ajuda; ponto a ajustar 1 (ajuda diferente nas telas de conta) resolvido.
+- Botões do aviso no mapa falam da enchente, não do usuário: "Ainda está aí" / "Não está mais" viraram "Ainda alagado" / "Água baixou" (ou "Ainda bloqueada" / "Via liberada" em via obstruída) (lib/widgets/mapa/folha_perigo.dart).
+
+# [22/11/2026]
+
+### Adicionado
+- Perfil da Defesa Civil diferente do morador: a aba Perfil vira "Painel" (ícone de escudo) e abre o Painel da Defesa Civil (lib/screens/defesa_civil/tela_painel_defesa_civil.dart), com cabeçalho "DEFESA CIVIL", resumo de denúncias pendentes, alertas ativos e abrigos cadastrados, e os itens Meus dados e Sair.
+- Revisão de denúncias (lib/screens/defesa_civil/tela_denuncias.dart): denúncias agrupadas por aviso, com motivo e detalhes. "Resolver" marca o aviso como RESOLVIDA (sai do mapa e das rotas e fica para o histórico), "Manter" apaga as denúncias e "Excluir" apaga o aviso falso com o autor e as denúncias. Denúncia de aviso que já acabou só pode ser arquivada.
+- CRUD de alertas (lib/screens/defesa_civil/tela_alertas_defesa_civil.dart e tela_formulario_alerta.dart): emitir com título, descrição opcional, nível, origem e validade (1 a 72 h), editar, encerrar antes do prazo e excluir.
+- CRUD de abrigos (lib/screens/defesa_civil/tela_abrigos_defesa_civil.dart e tela_formulario_abrigo.dart): cadastrar com local por busca de endereço ou posição atual, editar, desativar, excluir, botões − e + para as vagas e "Cadastrar os abrigos de exemplo" quando a coleção está vazia.
+- Faixa de alertas da Defesa Civil para todos (lib/widgets/faixa_alertas.dart), no topo do Início e da aba Avisos, com o alerta mais grave; tocar mostra todos os ativos. No Início, some para quem desligou os alertas em Perfil > Notificações (RF08).
+- Serviços AbrigosService, AlertasService e DefesaCivilService (lib/services/), com tempo real do Firestore, e erro_servico.dart, que traduz os erros e avisa quando a gravação fica guardada no aparelho por falta de internet.
+- Botão "Resolver" nos cartões da aba Avisos para a Defesa Civil.
+- Textos de ajuda "i" das telas da Defesa Civil (lib/widgets/ajuda.dart).
+- Tela Meus dados (lib/screens/conta/tela_meus_dados.dart), no padrão dos apps comuns: nome editável ("Salvar alterações" só liga quando o nome muda), e-mail, tipo de conta e data de criação só para consulta, e "Alterar senha", que envia o link para o e-mail da conta. Usada pelo morador e pela Defesa Civil. 3 testes de widget (test/perfil_test.dart).
+- Histórico ligado ao Firestore (lib/services/historico_service.dart): a aba Histórico lê a coleção `ocorrencias` em tempo real, os 100 avisos mais recentes por `criadaEm`, com selo de situação ("Ativo agora", "Resolvido" ou "Expirado"; aviso ATIVA com prazo vencido conta como expirado), vias obstruídas identificadas, quantidade de registros, aviso de "Sem internet" quando os dados vêm do cache do aparelho e botão "Tentar de novo" em caso de erro. 2 testes de widget novos.
+- Mapa sem internet (RF07, RNF05): o fundo do mapa guarda no aparelho cada parte exibida e, sem conexão, usa o que está guardado (lib/services/mapa_offline_service.dart, com TileProviderComCache). Tela "Mapa sem internet" (lib/screens/offline/tela_mapa_offline.dart), aberta pelo Guia e pelo Perfil, salva de uma vez cerca de 3 km em volta da posição (zoom 12 a 16, cerca de 180 partes, baixadas devagar como pede a política do OpenStreetMap), mostra o espaço usado e permite apagar.
+- Faixa "Sem internet" no rodapé de todas as telas (lib/widgets/faixa_sem_internet.dart e lib/services/conexao_service.dart). Pacotes novos: path_provider e connectivity_plus. 3 testes novos (test/offline_test.dart).
+- Endereço padrão (CRUD de Preferências): tela Meus endereços (lib/screens/conta/tela_enderecos.dart) para cadastrar, editar, excluir e escolher o endereço padrão, com busca da rua ou posição atual (lib/widgets/busca_local.dart). Serviço lib/services/enderecos_service.dart, na subcoleção `usuarios/{uid}/enderecos`.
+- Alertas por região (RF08): a Defesa Civil escolhe no formulário do alerta as áreas de risco onde ele vale (sem área = cidade toda); o morador só vê os alertas cujas áreas ficam dentro do raio escolhido em Perfil (1 a 20 km), contado a partir do endereço padrão ou da posição atual (lib/services/alertas_regiao.dart).
+- Notificações (lib/screens/conta/tela_notificacoes.dart e lib/services/notificacoes_service.dart): cada alerta que chega para a região da pessoa fica em `usuarios/{uid}/notificacoes`, com contador de não lidas no Perfil, marcar como lida, marcar todas e excluir. Sem Cloud Functions, o próprio app de quem recebe grava a notificação.
+- 9 testes novos (test/preferencias_test.dart).
+- Cadastros da Defesa Civil no Painel: áreas de risco desenhadas tocando no mapa (lib/screens/defesa_civil/tela_areas_risco.dart), rotas de fuga oficiais até um abrigo, com distância e tempos calculados e interruptor Liberada/Interditada (tela_rotas_fuga_defesa_civil.dart), e orientações do Guia (tela_guia_defesa_civil.dart), com "Publicar o guia de exemplo". Editor de pontos no mapa em lib/widgets/mapa/editor_pontos_mapa.dart. Serviços areas_risco_service.dart, rotas_fuga_service.dart e guias_service.dart.
+- Rotas de fuga oficiais aparecem em verde no mapa de todos (cinza tracejado quando interditadas). A aba Guia lê a coleção `guias` (guia de exemplo enquanto nada for publicado).
+- 6 testes novos (test/cadastros_test.dart).
+- Testes: 8 testes de widget da Defesa Civil (test/defesa_civil_test.dart, serviços falsos em test/fakes_defesa_civil.dart) e 5 testes de regras (firestore-testes/regras.test.js, agora 38).
+
+### Alterado
+- Regras do Firestore: a Defesa Civil lista as denúncias de todos os avisos numa consulta só (collectionGroup, `match /{caminho=**}/denuncias/{id}`); alertas só aceitam os campos da modelagem, com descrição de até 1000 caracteres; abrigo só registra o próprio uid em `atualizadoPor`.
+- Perfil do morador reorganizado (lib/screens/conta/tela_perfil.dart): avatar com a inicial e só o nome em destaque (o e-mail foi para Meus dados), opções agrupadas em Conta e Preferências com ícone e descrição, "Alertas de alagamento" como interruptor na própria tela e "Sair" em vermelho no fim. O painel da Defesa Civil também deixou de mostrar o e-mail no cabeçalho.
+- Removidos os dados de exemplo do histórico (`historicoProvisorio` em lib/data/dados_provisorios.dart).
+- Abrigos próximos lê os abrigos do Firestore; enquanto a Defesa Civil não cadastrar nenhum, mostra os de exemplo (`abrigosDeExemplo` em lib/data/dados_provisorios.dart).
+- Botão de gravidade de Criar aviso virou widget compartilhado (lib/widgets/botao_gravidade.dart), usado também no formulário de alerta.
+- docs/modelagem-firestore.md, docs/fluxo-navegacao.md, docs/planejamento.md, README.md e docs/uso-de-ia.md atualizados.
