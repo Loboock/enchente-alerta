@@ -266,3 +266,4 @@
 - Endereços curtos como no protótipo ("Av. Ivo do Prado, Centro"): Avisos, Histórico, Denúncias, Reportar e mapa tiram ", Aracaju, SE, Brasil" do fim (`encurtarEndereco` em lib/utils/formatacao.dart).
 - Diagrama de casos de uso: "Integrar dados meteorológicos", o ator "Serviço meteorológico" e "Adicionar foto" marcados como fora do escopo; a nota dos alertas diz que nesta versão eles são emitidos pela Defesa Civil.
 - Dados no Firebase: os abrigos de exemplo foram para o centro do bairro de cada um (antes um deles ficava no mar) e os dados de teste foram apagados.
+- CLAUDE.md: estado atual atualizado para 23/11 e as regras de negócio do aditivo (controle de acesso, validações e falhas de conexão) ligadas ao que o app já faz.
