@@ -136,7 +136,7 @@ class _CartaoHistorico extends StatelessWidget {
     // texto, e o leitor de tela lê a frase completa (RNF02, RNF10).
     return Semantics(
       container: true,
-      label: '${ocorrencia.endereco}. ${via ? 'Via obstruída, ' : ''}'
+      label: '${encurtarEndereco(ocorrencia.endereco)}. ${via ? 'Via obstruída, ' : ''}'
           'gravidade ${gravidade.rotulo}'
           '${via ? '' : ', ${ocorrencia.nivelAguaCm} centímetros de água'}'
           ', em $data. $rotuloSituacao',
@@ -161,7 +161,7 @@ class _CartaoHistorico extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        ocorrencia.endereco,
+                        encurtarEndereco(ocorrencia.endereco),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

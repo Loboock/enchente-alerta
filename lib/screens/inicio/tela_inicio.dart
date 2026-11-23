@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 import '../../config.dart';
+import '../../models/destino.dart';
+import '../../models/models.dart';
+import '../../services/abrigos_service.dart';
 import '../../services/localizacao_service.dart';
 import '../../services/perigos_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/modo_tema.dart';
+import '../../utils/formatacao.dart';
 import '../../widgets/app_bar_tela.dart';
 import '../../widgets/faixa_alertas.dart';
 import '../../widgets/mapa/botao_mapa.dart';
@@ -12,6 +17,7 @@ import '../../widgets/mapa/folha_reportar.dart';
 import '../../widgets/mapa/mapa_enchente.dart';
 import '../abrigos/tela_abrigos_proximos.dart';
 import '../rota/tela_escolher_destino.dart';
+import '../rota/tela_rota_fuga.dart';
 
 /// Tela "01 Início" do protótipo: mapa ao vivo (posição do usuário e
 /// alagamentos), atalhos de locais e os botões Abrigo e Rota de fuga.
@@ -25,7 +31,10 @@ class TelaInicio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppBarTela(titulo: 'Início'),
+      appBar: const AppBarTela(
+        titulo: 'Início',
+        acoesExtras: [BotaoModoTema()],
+      ),
       body: Column(
         children: [
           const Expanded(child: _MapaInicio()),
@@ -190,43 +199,47 @@ class _AvisoSemGps extends StatelessWidget {
   }
 }
 
-/// Barra azul sobre o mapa com os locais salvos (hospital, escola, bairro).
+/// Barra azul sobre o mapa com os 3 abrigos mais próximos, como os locais
+/// do protótipo. Tocar num deles abre a rota de fuga até ele.
 class _AtalhosLocais extends StatelessWidget {
   const _AtalhosLocais();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.azul,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.azulMarinho),
-      ),
-      child: const SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _Atalho(
-              icone: Icons.location_on,
-              cor: AppColors.perigo,
-              texto: 'Hosp. Universitário',
+    final abrigos = AbrigosService.instance..iniciar();
+    final localizacao = LocalizacaoService.instance;
+    return ListenableBuilder(
+      listenable: Listenable.merge([abrigos.cadastrados, localizacao.posicao]),
+      builder: (context, _) {
+        final aqui = localizacao.posicao.value?.ponto;
+        final perto = aqui == null
+            ? const <Abrigo>[]
+            : abrigos.porDistancia(aqui).take(3).toList();
+        if (perto.isEmpty) return const SizedBox.shrink();
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.azul,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.azulMarinho),
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final a in perto)
+                  _Atalho(
+                    icone: Icons.home,
+                    cor: AppColors.alerta,
+                    texto: a.nome,
+                    dica: 'Rota até ${a.nome}, ${formatarDistancia(a.distanciaAte(aqui!))}',
+                    aoTocar: () => abrirRotaFuga(context, a.comoDestino),
+                  ),
+              ],
             ),
-            SizedBox(width: 14),
-            _Atalho(
-              icone: Icons.home,
-              cor: AppColors.alerta,
-              texto: 'Escola Exemplo',
-            ),
-            SizedBox(width: 14),
-            _Atalho(
-              icone: Icons.home,
-              cor: AppColors.alerta,
-              texto: 'Farolândia',
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -236,14 +249,34 @@ class _Atalho extends StatelessWidget {
     required this.icone,
     required this.cor,
     required this.texto,
+    required this.dica,
+    required this.aoTocar,
   });
 
   final IconData icone;
   final Color cor;
   final String texto;
+  final String dica;
+  final VoidCallback aoTocar;
 
   @override
   Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: dica,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: aoTocar,
+        borderRadius: BorderRadius.circular(6),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: _conteudo(),
+        ),
+      ),
+    );
+  }
+
+  Widget _conteudo() {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

@@ -16,8 +16,7 @@ class TelaAlertasDefesaCivil extends StatefulWidget {
   const TelaAlertasDefesaCivil({super.key});
 
   @override
-  State<TelaAlertasDefesaCivil> createState() =>
-      _TelaAlertasDefesaCivilState();
+  State<TelaAlertasDefesaCivil> createState() => _TelaAlertasDefesaCivilState();
 }
 
 class _TelaAlertasDefesaCivilState extends State<TelaAlertasDefesaCivil> {
@@ -31,7 +30,9 @@ class _TelaAlertasDefesaCivilState extends State<TelaAlertasDefesaCivil> {
     final salvo = await abrirFormularioAlerta(context, alerta: alerta);
     if (salvo == true && mounted) {
       mostrarMensagem(
-          context, alerta == null ? 'Alerta emitido.' : 'Alerta atualizado.');
+        context,
+        alerta == null ? 'Alerta emitido.' : 'Alerta atualizado.',
+      );
     }
   }
 
@@ -71,6 +72,7 @@ class _TelaAlertasDefesaCivilState extends State<TelaAlertasDefesaCivil> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: const AppBarTela(
+        voltar: true,
         titulo: 'Alertas',
         subtitulo: 'Emitidos pela Defesa Civil',
         ajuda: TextosAjuda.alertasDefesaCivil,
@@ -91,8 +93,7 @@ class _TelaAlertasDefesaCivilState extends State<TelaAlertasDefesaCivil> {
               ),
               const SizedBox(height: 20),
               _Titulo('Ativos (${ativos.length})'),
-              if (ativos.isEmpty)
-                const _Vazio('Nenhum alerta ativo agora.'),
+              if (ativos.isEmpty) const _Vazio('Nenhum alerta ativo agora.'),
               for (final a in ativos)
                 _CartaoAlerta(
                   alerta: a,
@@ -126,16 +127,16 @@ class _Titulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Text(
-          texto,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
+      texto,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.primary,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }
 
 class _Vazio extends StatelessWidget {
@@ -144,13 +145,12 @@ class _Vazio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(
-          texto,
-          style:
-              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    child: Text(
+      texto,
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+    ),
+  );
 }
 
 /// Texto de quanto falta (ou há quanto tempo acabou).
@@ -199,7 +199,10 @@ class _CartaoAlerta extends StatelessWidget {
             Text(
               '${a.nivel.rotulo} · ${a.origem.rotulo}'.toUpperCase(),
               style: TextStyle(
-                  color: cor, fontSize: 12, fontWeight: FontWeight.bold),
+                color: cor,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -229,7 +232,9 @@ class _CartaoAlerta extends StatelessWidget {
                 TextButton(onPressed: aoEditar, child: const Text('Editar')),
                 if (aoEncerrar != null)
                   TextButton(
-                      onPressed: aoEncerrar, child: const Text('Encerrar')),
+                    onPressed: aoEncerrar,
+                    child: const Text('Encerrar'),
+                  ),
                 TextButton(
                   style: TextButton.styleFrom(foregroundColor: cores.error),
                   onPressed: aoExcluir,

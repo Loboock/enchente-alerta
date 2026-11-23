@@ -41,8 +41,7 @@ class TelaFormularioAlerta extends StatefulWidget {
 class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
   final _form = GlobalKey<FormState>();
   late final _titulo = TextEditingController(text: widget.alerta?.titulo);
-  late final _descricao =
-      TextEditingController(text: widget.alerta?.descricao);
+  late final _descricao = TextEditingController(text: widget.alerta?.descricao);
   late Gravidade _nivel = widget.alerta?.nivel ?? Gravidade.moderado;
   late OrigemAlerta _origem =
       widget.alerta?.origem ?? OrigemAlerta.meteorologica;
@@ -109,6 +108,7 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: AppBarTela(
+        voltar: true,
         titulo: _editando ? 'Editar alerta' : 'Emitir alerta',
         ajuda: TextosAjuda.formularioAlerta,
       ),
@@ -181,8 +181,9 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
               const SizedBox(height: 6),
               _EscolhaAreas(
                 selecionadas: _areas,
-                aoMudar: (id, marcada) => setState(() =>
-                    marcada ? _areas.add(id) : _areas.remove(id)),
+                aoMudar: (id, marcada) => setState(
+                  () => marcada ? _areas.add(id) : _areas.remove(id),
+                ),
               ),
               const SizedBox(height: 20),
               Text(_editando ? 'Válido por mais' : 'Válido por', style: rotulo),
@@ -191,8 +192,7 @@ class _TelaFormularioAlertaState extends State<TelaFormularioAlerta> {
                 initialValue: _validade,
                 items: [
                   for (final d in validadesAlerta)
-                    DropdownMenuItem(
-                        value: d, child: Text(_rotuloValidade(d))),
+                    DropdownMenuItem(value: d, child: Text(_rotuloValidade(d))),
                 ],
                 onChanged: (d) {
                   if (d != null) setState(() => _validade = d);
@@ -232,9 +232,10 @@ class _EscolhaAreas extends StatelessWidget {
     final dica = TextStyle(fontSize: 13, color: cores.onSurfaceVariant);
     if (areas.isEmpty) {
       return Text(
-          'Toda a cidade. Cadastre áreas de risco no Painel para avisar só '
-          'quem mora perto delas.',
-          style: dica);
+        'Toda a cidade. Cadastre áreas de risco no Painel para avisar só '
+        'quem mora perto delas.',
+        style: dica,
+      );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

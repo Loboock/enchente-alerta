@@ -14,8 +14,7 @@ class TelaAbrigosDefesaCivil extends StatefulWidget {
   const TelaAbrigosDefesaCivil({super.key});
 
   @override
-  State<TelaAbrigosDefesaCivil> createState() =>
-      _TelaAbrigosDefesaCivilState();
+  State<TelaAbrigosDefesaCivil> createState() => _TelaAbrigosDefesaCivilState();
 }
 
 class _TelaAbrigosDefesaCivilState extends State<TelaAbrigosDefesaCivil> {
@@ -32,21 +31,24 @@ class _TelaAbrigosDefesaCivilState extends State<TelaAbrigosDefesaCivil> {
     final salvo = await abrirFormularioAbrigo(context, abrigo: abrigo);
     if (salvo == true && mounted) {
       mostrarMensagem(
-          context, abrigo == null ? 'Abrigo cadastrado.' : 'Abrigo atualizado.');
+        context,
+        abrigo == null ? 'Abrigo cadastrado.' : 'Abrigo atualizado.',
+      );
     }
   }
 
   Future<void> _vagas(Abrigo a, int novas) => executarComAviso(
-        context,
-        () => _servico.alterarVagas(a, novas),
-        sucesso: '${a.nome}: ${novas.clamp(0, a.capacidade)} vagas.',
-      );
+    context,
+    () => _servico.alterarVagas(a, novas),
+    sucesso: '${a.nome}: ${novas.clamp(0, a.capacidade)} vagas.',
+  );
 
   Future<void> _excluir(Abrigo a) async {
     final ok = await confirmarAcao(
       context,
       titulo: 'Excluir abrigo?',
-      texto: '"${a.nome}" sai da lista dos moradores. Para tirar só por um '
+      texto:
+          '"${a.nome}" sai da lista dos moradores. Para tirar só por um '
           'tempo, edite e desative o abrigo.',
       botao: 'Excluir',
     );
@@ -74,6 +76,7 @@ class _TelaAbrigosDefesaCivilState extends State<TelaAbrigosDefesaCivil> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: const AppBarTela(
+        voltar: true,
         titulo: 'Abrigos',
         subtitulo: 'Cadastro e vagas',
         ajuda: TextosAjuda.abrigosDefesaCivil,

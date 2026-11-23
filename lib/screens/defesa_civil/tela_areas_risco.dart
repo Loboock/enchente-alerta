@@ -33,21 +33,29 @@ class _TelaAreasRiscoState extends State<TelaAreasRisco> {
 
   Future<void> _abrir([AreaRisco? area]) async {
     final salvo = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(builder: (_) => TelaFormularioArea(area: area)));
+      MaterialPageRoute(builder: (_) => TelaFormularioArea(area: area)),
+    );
     if (salvo == true && mounted) {
       mostrarMensagem(
-          context, area == null ? 'Área cadastrada.' : 'Área atualizada.');
+        context,
+        area == null ? 'Área cadastrada.' : 'Área atualizada.',
+      );
     }
   }
 
   Future<void> _excluir(AreaRisco a) async {
-    final ok = await confirmarAcao(context,
-        titulo: 'Excluir área de risco?',
-        texto: '"${a.nome}" sai do mapa e as rotas deixam de desviar dela.',
-        botao: 'Excluir');
+    final ok = await confirmarAcao(
+      context,
+      titulo: 'Excluir área de risco?',
+      texto: '"${a.nome}" sai do mapa e as rotas deixam de desviar dela.',
+      botao: 'Excluir',
+    );
     if (!ok || !mounted) return;
-    await executarComAviso(context, () => AreasRiscoService.instance.excluir(a),
-        sucesso: 'Área excluída.');
+    await executarComAviso(
+      context,
+      () => AreasRiscoService.instance.excluir(a),
+      sucesso: 'Área excluída.',
+    );
   }
 
   @override
@@ -56,6 +64,7 @@ class _TelaAreasRiscoState extends State<TelaAreasRisco> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: const AppBarTela(
+        voltar: true,
         titulo: 'Áreas de risco',
         subtitulo: 'Desenhadas no mapa',
         ajuda: TextosAjuda.areasRisco,
@@ -74,27 +83,37 @@ class _TelaAreasRiscoState extends State<TelaAreasRisco> {
               ),
               const SizedBox(height: 16),
               if (areas.isEmpty)
-                Text('Nenhuma área de risco cadastrada.',
-                    style: TextStyle(color: cores.onSurfaceVariant)),
+                Text(
+                  'Nenhuma área de risco cadastrada.',
+                  style: TextStyle(color: cores.onSurfaceVariant),
+                ),
               for (final a in areas)
                 Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    leading: Icon(Icons.warning_rounded,
-                        color: a.nivelAtual.cor(cores), size: 32),
+                    leading: Icon(
+                      Icons.warning_rounded,
+                      color: a.nivelAtual.cor(cores),
+                      size: 32,
+                    ),
                     title: Text(a.nome),
                     subtitle: Text(
-                        'Nível ${a.nivelAtual.rotulo} · ${a.poligono.length} pontos'),
-                    trailing: Wrap(children: [
-                      IconButton(
+                      'Nível ${a.nivelAtual.rotulo} · ${a.poligono.length} pontos',
+                    ),
+                    trailing: Wrap(
+                      children: [
+                        IconButton(
                           tooltip: 'Editar área',
                           icon: const Icon(Icons.edit_outlined),
-                          onPressed: () => _abrir(a)),
-                      IconButton(
+                          onPressed: () => _abrir(a),
+                        ),
+                        IconButton(
                           tooltip: 'Excluir área',
                           icon: Icon(Icons.delete_outline, color: cores.error),
-                          onPressed: () => _excluir(a)),
-                    ]),
+                          onPressed: () => _excluir(a),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -130,17 +149,22 @@ class _TelaFormularioAreaState extends State<TelaFormularioArea> {
 
   Future<void> _salvar() async {
     final valido = _form.currentState?.validate() ?? false;
-    setState(() => _erro =
-        _pontos.length < 3 ? 'Marque pelo menos 3 pontos no mapa.' : null);
+    setState(
+      () => _erro = _pontos.length < 3
+          ? 'Marque pelo menos 3 pontos no mapa.'
+          : null,
+    );
     if (!valido || _pontos.length < 3) return;
     setState(() => _salvando = true);
     try {
-      await AreasRiscoService.instance.salvar(AreaRisco(
-        id: widget.area?.id ?? '',
-        nome: _nome.text.trim(),
-        nivelAtual: _nivel,
-        poligono: _pontos,
-      ));
+      await AreasRiscoService.instance.salvar(
+        AreaRisco(
+          id: widget.area?.id ?? '',
+          nome: _nome.text.trim(),
+          nivelAtual: _nivel,
+          poligono: _pontos,
+        ),
+      );
       if (mounted) Navigator.pop(context, true);
     } on ServicoException catch (e) {
       if (mounted) setState(() => _erro = e.mensagem);
@@ -156,6 +180,7 @@ class _TelaFormularioAreaState extends State<TelaFormularioArea> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: AppBarTela(
+        voltar: true,
         titulo: editando ? 'Editar área' : 'Nova área de risco',
         ajuda: TextosAjuda.areasRisco,
       ),
@@ -170,28 +195,37 @@ class _TelaFormularioAreaState extends State<TelaFormularioArea> {
               maxLength: 120,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                  labelText: 'Nome', hintText: 'Ex.: Margem do Rio Poxim'),
-              validator: (v) =>
-                  (v?.trim().isEmpty ?? true) ? 'Informe o nome da área.' : null,
+                labelText: 'Nome',
+                hintText: 'Ex.: Margem do Rio Poxim',
+              ),
+              validator: (v) => (v?.trim().isEmpty ?? true)
+                  ? 'Informe o nome da área.'
+                  : null,
             ),
-            const Text('Nível de risco',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            const Text(
+              'Nível de risco',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
-            Row(children: [
-              for (final g in Gravidade.values) ...[
-                if (g != Gravidade.values.first) const SizedBox(width: 10),
-                Expanded(
-                  child: BotaoGravidade(
-                    gravidade: g,
-                    selecionada: _nivel == g,
-                    aoTocar: () => setState(() => _nivel = g),
+            Row(
+              children: [
+                for (final g in Gravidade.values) ...[
+                  if (g != Gravidade.values.first) const SizedBox(width: 10),
+                  Expanded(
+                    child: BotaoGravidade(
+                      gravidade: g,
+                      selecionada: _nivel == g,
+                      aoTocar: () => setState(() => _nivel = g),
+                    ),
                   ),
-                ),
+                ],
               ],
-            ]),
+            ),
             const SizedBox(height: 16),
-            const Text('Contorno da área',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            const Text(
+              'Contorno da área',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             EditorPontosMapa(
               pontos: _pontos,

@@ -17,12 +17,21 @@ class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
     this.subtitulo,
     this.ajuda,
     this.ajudaAtiva = false,
+    this.acoesExtras = const [],
+    this.voltar = false,
   });
 
   final String titulo;
   final String? subtitulo;
   final String? ajuda;
   final bool ajudaAtiva;
+
+  /// Botões que ficam à esquerda do "i" (ex.: modo escuro no Início).
+  final List<Widget> acoesExtras;
+
+  /// Seta de voltar à esquerda do título (telas do Painel da Defesa Civil).
+  /// As telas do protótipo não têm a seta; nelas fica desligada.
+  final bool voltar;
 
   @override
   Size get preferredSize => const Size.fromHeight(72);
@@ -33,9 +42,10 @@ class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       automaticallyImplyLeading: false,
+      leading: voltar ? const BackButton(color: Colors.white) : null,
       centerTitle: false,
       toolbarHeight: 72,
-      titleSpacing: 20,
+      titleSpacing: voltar ? 0 : 20,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -59,6 +69,7 @@ class AppBarTela extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        ...acoesExtras,
         BotaoAjuda(texto: ajuda, ativa: ajudaAtiva),
         const SizedBox(width: 12),
       ],

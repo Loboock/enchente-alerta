@@ -29,27 +29,38 @@ class _TelaGuiaDefesaCivilState extends State<TelaGuiaDefesaCivil> {
 
   Future<void> _abrir([GuiaOrientacao? g]) async {
     final salvo = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(builder: (_) => TelaFormularioGuia(guia: g)));
+      MaterialPageRoute(builder: (_) => TelaFormularioGuia(guia: g)),
+    );
     if (salvo == true && mounted) {
-      mostrarMensagem(context,
-          g == null ? 'Orientação publicada.' : 'Orientação atualizada.');
+      mostrarMensagem(
+        context,
+        g == null ? 'Orientação publicada.' : 'Orientação atualizada.',
+      );
     }
   }
 
   Future<void> _excluir(GuiaOrientacao g) async {
-    final ok = await confirmarAcao(context,
-        titulo: 'Excluir orientação?',
-        texto: '"${g.conteudo}" sai do Guia dos moradores.',
-        botao: 'Excluir');
+    final ok = await confirmarAcao(
+      context,
+      titulo: 'Excluir orientação?',
+      texto: '"${g.conteudo}" sai do Guia dos moradores.',
+      botao: 'Excluir',
+    );
     if (!ok || !mounted) return;
-    await executarComAviso(context, () => _servico.excluir(g),
-        sucesso: 'Orientação excluída.');
+    await executarComAviso(
+      context,
+      () => _servico.excluir(g),
+      sucesso: 'Orientação excluída.',
+    );
   }
 
   Future<void> _publicarExemplos() async {
     setState(() => _publicando = true);
-    await executarComAviso(context, _servico.publicarExemplos,
-        sucesso: 'Guia de exemplo publicado. Agora é só ajustar.');
+    await executarComAviso(
+      context,
+      _servico.publicarExemplos,
+      sucesso: 'Guia de exemplo publicado. Agora é só ajustar.',
+    );
     if (mounted) setState(() => _publicando = false);
   }
 
@@ -59,6 +70,7 @@ class _TelaGuiaDefesaCivilState extends State<TelaGuiaDefesaCivil> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: const AppBarTela(
+        voltar: true,
         titulo: 'Guia de segurança',
         subtitulo: 'Orientações para os moradores',
         ajuda: TextosAjuda.guiaDefesaCivil,
@@ -76,9 +88,10 @@ class _TelaGuiaDefesaCivilState extends State<TelaGuiaDefesaCivil> {
             const SizedBox(height: 16),
             if (lista.isEmpty) ...[
               Text(
-                  'Nenhuma orientação publicada. Enquanto isso, os moradores '
-                  'veem o guia de exemplo.',
-                  style: TextStyle(color: cores.onSurfaceVariant)),
+                'Nenhuma orientação publicada. Enquanto isso, os moradores '
+                'veem o guia de exemplo.',
+                style: TextStyle(color: cores.onSurfaceVariant),
+              ),
               const SizedBox(height: 8),
               OutlinedButton(
                 onPressed: _publicando ? null : _publicarExemplos,
@@ -89,11 +102,14 @@ class _TelaGuiaDefesaCivilState extends State<TelaGuiaDefesaCivil> {
               if (lista.any((g) => g.fase == fase)) ...[
                 Padding(
                   padding: const EdgeInsets.only(top: 12, bottom: 4),
-                  child: Text(fase.rotulo.toUpperCase(),
-                      style: TextStyle(
-                          color: cores.primary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.8)),
+                  child: Text(
+                    fase.rotulo.toUpperCase(),
+                    style: TextStyle(
+                      color: cores.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
                 ),
                 for (final g in GuiaOrientacao.filtrarPorFase(lista, fase))
                   Card(
@@ -130,8 +146,7 @@ class _TelaFormularioGuiaState extends State<TelaFormularioGuia> {
   final _form = GlobalKey<FormState>();
   late final _titulo = TextEditingController(text: widget.guia?.titulo);
   late final _conteudo = TextEditingController(text: widget.guia?.conteudo);
-  late final _ordem =
-      TextEditingController(text: '${widget.guia?.ordem ?? 1}');
+  late final _ordem = TextEditingController(text: '${widget.guia?.ordem ?? 1}');
   late FaseGuia _fase = widget.guia?.fase ?? FaseGuia.antes;
   bool _salvando = false;
 
@@ -147,13 +162,15 @@ class _TelaFormularioGuiaState extends State<TelaFormularioGuia> {
     if (!(_form.currentState?.validate() ?? false)) return;
     setState(() => _salvando = true);
     try {
-      await GuiasService.instance.salvar(GuiaOrientacao(
-        id: widget.guia?.id ?? '',
-        titulo: _titulo.text.trim(),
-        conteudo: _conteudo.text.trim(),
-        fase: _fase,
-        ordem: int.tryParse(_ordem.text) ?? 1,
-      ));
+      await GuiasService.instance.salvar(
+        GuiaOrientacao(
+          id: widget.guia?.id ?? '',
+          titulo: _titulo.text.trim(),
+          conteudo: _conteudo.text.trim(),
+          fase: _fase,
+          ordem: int.tryParse(_ordem.text) ?? 1,
+        ),
+      );
       if (mounted) Navigator.pop(context, true);
     } on ServicoException catch (e) {
       if (mounted) mostrarMensagem(context, e.mensagem);
@@ -168,6 +185,7 @@ class _TelaFormularioGuiaState extends State<TelaFormularioGuia> {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: AppBarTela(
+        voltar: true,
         titulo: editando ? 'Editar orientação' : 'Nova orientação',
         ajuda: TextosAjuda.guiaDefesaCivil,
       ),
@@ -193,8 +211,9 @@ class _TelaFormularioGuiaState extends State<TelaFormularioGuia> {
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                  labelText: 'Orientação',
-                  hintText: 'Ex.: Desligue a energia antes de sair de casa'),
+                labelText: 'Orientação',
+                hintText: 'Ex.: Desligue a energia antes de sair de casa',
+              ),
               validator: (v) => (v?.trim().length ?? 0) < 5
                   ? 'Escreva a orientação (pelo menos 5 letras).'
                   : null,
@@ -204,7 +223,9 @@ class _TelaFormularioGuiaState extends State<TelaFormularioGuia> {
               controller: _titulo,
               maxLength: 120,
               decoration: const InputDecoration(
-                  labelText: 'Tema curto', hintText: 'Ex.: Energia'),
+                labelText: 'Tema curto',
+                hintText: 'Ex.: Energia',
+              ),
               validator: (v) =>
                   (v?.trim().isEmpty ?? true) ? 'Informe o tema.' : null,
             ),
@@ -212,7 +233,9 @@ class _TelaFormularioGuiaState extends State<TelaFormularioGuia> {
               controller: _ordem,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  labelText: 'Ordem na seção', hintText: '1 aparece primeiro'),
+                labelText: 'Ordem na seção',
+                hintText: '1 aparece primeiro',
+              ),
             ),
             const SizedBox(height: 16),
             PrimaryButton(

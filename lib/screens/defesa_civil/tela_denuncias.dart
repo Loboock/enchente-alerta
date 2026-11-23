@@ -32,15 +32,18 @@ class _TelaDenunciasState extends State<TelaDenuncias> {
     final ok = await confirmarAcao(
       context,
       titulo: 'Resolver aviso?',
-      texto: 'O aviso em ${o.endereco} sai do mapa e das rotas e fica no '
+      texto:
+          'O aviso em ${encurtarEndereco(o.endereco)} sai do mapa e das rotas e fica no '
           'histórico. As denúncias dele são arquivadas.',
       botao: 'Resolver',
     );
     if (!ok || !mounted) return;
     await executarComAviso(
       context,
-      () => DefesaCivilService.instance
-          .resolverAviso(g.ocorrenciaId, denuncias: g.denuncias),
+      () => DefesaCivilService.instance.resolverAviso(
+        g.ocorrenciaId,
+        denuncias: g.denuncias,
+      ),
       sucesso: 'Aviso resolvido.',
     );
   }
@@ -55,8 +58,8 @@ class _TelaDenunciasState extends State<TelaDenuncias> {
     if (!ok || !mounted) return;
     await executarComAviso(
       context,
-      () => DefesaCivilService.instance
-          .manterAviso(g.ocorrenciaId, g.denuncias),
+      () =>
+          DefesaCivilService.instance.manterAviso(g.ocorrenciaId, g.denuncias),
       sucesso: 'Denúncias arquivadas. O aviso continua ativo.',
     );
   }
@@ -65,31 +68,32 @@ class _TelaDenunciasState extends State<TelaDenuncias> {
     final ok = await confirmarAcao(
       context,
       titulo: 'Excluir aviso?',
-      texto: 'Use para aviso falso ou abusivo. O aviso e as denúncias são '
+      texto:
+          'Use para aviso falso ou abusivo. O aviso e as denúncias são '
           'apagados para todos.',
       botao: 'Excluir',
     );
     if (!ok || !mounted) return;
     await executarComAviso(
       context,
-      () => DefesaCivilService.instance
-          .excluirAviso(g.ocorrenciaId, g.denuncias),
+      () =>
+          DefesaCivilService.instance.excluirAviso(g.ocorrenciaId, g.denuncias),
       sucesso: 'Aviso excluído.',
     );
   }
 
   Future<void> _arquivar(GrupoDenuncias g) => executarComAviso(
-        context,
-        () => DefesaCivilService.instance
-            .manterAviso(g.ocorrenciaId, g.denuncias),
-        sucesso: 'Denúncias arquivadas.',
-      );
+    context,
+    () => DefesaCivilService.instance.manterAviso(g.ocorrenciaId, g.denuncias),
+    sucesso: 'Denúncias arquivadas.',
+  );
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldComAbas(
       abaAtiva: 3,
       appBar: const AppBarTela(
+        voltar: true,
         titulo: 'Denúncias',
         subtitulo: 'Avisos marcados como errados',
         ajuda: TextosAjuda.denuncias,
@@ -183,7 +187,8 @@ class _CartaoDenuncia extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      o?.endereco ?? 'Aviso já encerrado ou excluído',
+                      (o == null ? null : encurtarEndereco(o.endereco)) ??
+                          'Aviso já encerrado ou excluído',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -204,8 +209,11 @@ class _CartaoDenuncia extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.flag_outlined,
-                                size: 18, color: cores.onSurfaceVariant),
+                            Icon(
+                              Icons.flag_outlined,
+                              size: 18,
+                              color: cores.onSurfaceVariant,
+                            ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
@@ -238,7 +246,8 @@ class _CartaoDenuncia extends StatelessWidget {
                           ),
                           TextButton(
                             style: TextButton.styleFrom(
-                                foregroundColor: cores.error),
+                              foregroundColor: cores.error,
+                            ),
                             onPressed: aoExcluir,
                             child: const Text('Excluir'),
                           ),

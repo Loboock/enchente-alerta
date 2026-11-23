@@ -258,6 +258,25 @@ Resultado (preferências): endereços, raio dos alertas, alertas ligados a área
 
 Resultado (cadastros da Defesa Civil): áreas de risco e rotas de fuga desenhadas tocando no mapa e guia lendo do Firestore. Validado com testes de widget (desenho, validação e salvar). O teste no emulador depende da conta com perfil DEFESA_CIVIL e da publicação das regras.
 
+### Prompt 19 — Botão de modo escuro no Início — Pedro Fraife
+
+```text
+teria como vc adicionar um switch de modo escuro pro claro na tela de
+inicio do lado do botão de ajuda?
+```
+
+Resultado: botão lua/sol ao lado do "i" no Início; o app começa seguindo o aparelho e guarda a escolha num arquivo do aparelho (`path_provider`, que o projeto já usava). Validado com `flutter analyze`, `flutter test` e no emulador (o mapa escurece junto).
+
+### Prompt 20 — Revisão geral e refinamentos — Vinicius Reis
+
+Funcionou bem porque a IA primeiro comparou as 13 telas do protótipo com prints do app e listou os pontos, e o grupo escolheu o que fazer antes de qualquer mudança.
+
+```text
+vamos analisar o app como todo, ver se não faltou algo, ver o que pode fazer de refinamento sem sair do padrão dos protótipos
+```
+
+Resultado: ícone e nome do app, endereços curtos, atalhos do Início com os abrigos mais próximos, rota oficial na Rota de fuga, Ajuda completa, seta de voltar no Painel e diagrama de casos de uso com o que ficou fora do escopo. Validado com `flutter analyze`, `flutter test` e no emulador. Os nomes dos abrigos de exemplo do protótipo não existem de verdade, então a IA não inventou endereços: usou o centro real de cada bairro (OpenStreetMap).
+
 ## 3. Erros gerados pela IA e como o grupo resolveu
 
 | # | Artefato | Erro da IA | Como foi identificado | Solução |
@@ -283,6 +302,7 @@ Resultado (cadastros da Defesa Civil): áreas de risco e rotas de fuga desenhada
 | 19 | Excluir aviso | Para mostrar "Excluir" só ao autor, a primeira ideia seria gravar o autor no documento da ocorrência, o que quebraria o anonimato (RNF07). | Revisão contra a decisão de anonimato do grupo. | O app consulta `autoresOcorrencias` filtrando pelo próprio uid, consulta que só o próprio autor consegue fazer pelas regras. |
 | 20 | Ponto de partida da rota | O botão "Usar minha localização" mantinha a partida escolhida antes, em vez de voltar ao GPS. | Revisão do código antes dos testes. | O botão passa a limpar a partida sempre que há GPS (`lib/screens/rota/tela_escolher_destino.dart`). |
 | 21 | Testes da Defesa Civil | Os testes tocavam no botão salvar logo depois de digitar; o campo em foco rola a tela até o cursor e, durante a rolagem, o Flutter ignora os toques, então o alerta não era salvo. | Falha do teste e o aviso "tap() ... off-screen". | Teste do formulário numa tela mais alta, onde tudo cabe sem rolar. |
+| 22 | Teste do botão de tema | O teste conferia o tema pelo texto "Abrigo" e falhava mesmo com o tema trocado na tela. | Mensagem de depuração no teste mostrou que o modo já era o escuro. | O teste passou a conferir o tema pelo próprio botão e pelo `themeMode` do `MaterialApp`. |
 
 > Registrar aqui também os erros que aparecerem no código Flutter (ex.: pacote incompatível, erro de compilação, regra do Firestore bloqueando leitura), com o trecho corrigido ou o commit da correção.
 
